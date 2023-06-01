@@ -1,20 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:pharmacy_dashboard/core/layout/adaptive.dart';
-import 'dart:math' show pi;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:pharmacy_dashboard/layers/presentation/pages/admins_page.dart';
+import 'package:pharmacy_dashboard/layers/presentation/pages/dashboard_page.dart';
 
-import 'package:pharmacy_dashboard/layers/presentation/blocs/home_bloc/home_bloc.dart';
+import '../../../core/layout/adaptive.dart';
+import '../blocs/home_bloc/home_bloc.dart';
+import 'adaptive_app_bar.dart';
+import 'list_drawer.dart';
 
-const appBarDesktopHeight = 128.0;
+import 'dart:math' show pi;
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class HomeNavigator extends StatefulWidget {
+  const HomeNavigator({
+    super.key,
+    required this.body,
+  });
+
+  final Widget body;
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<HomeNavigator> createState() => _HomeNavigatorState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomeNavigatorState extends State<HomeNavigator> {
   late final HomeBloc _homeBloc;
 
   @override
@@ -73,12 +82,13 @@ class _HomePageState extends State<HomePage> {
                       useIndicator: true,
                       onDestinationSelected: (newIndex) {
                         _homeBloc.add(PageIndexChanged(newIndex));
+                        _navigatorDelegate(newIndex);
                       },
                     ),
                     Expanded(
                       child: Scaffold(
                         backgroundColor: colorScheme.surfaceVariant,
-                        body: Container(),
+                        body: widget.body,
                       ),
                     ),
                   ],
@@ -108,98 +118,14 @@ class _HomePageState extends State<HomePage> {
       );
     }
   }
-}
 
-class AdaptiveAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const AdaptiveAppBar({
-    super.key,
-    this.isDesktop = false,
-  });
-
-  final bool isDesktop;
-
-  @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
-
-  @override
-  Widget build(BuildContext context) {
-    final themeData = Theme.of(context);
-    return AppBar(
-      automaticallyImplyLeading: !isDesktop,
-      title: isDesktop ? null : const SelectableText("Appbar"),
-      backgroundColor: themeData.colorScheme.primary,
-      bottom: isDesktop
-          ? PreferredSize(
-              preferredSize: const Size.fromHeight(26),
-              child: Container(
-                alignment: AlignmentDirectional.centerStart,
-                margin: const EdgeInsetsDirectional.fromSTEB(72, 0, 0, 22),
-                child: SelectableText(
-                  "Appbar",
-                  style: themeData.textTheme.titleLarge!.copyWith(
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-            )
-          : null,
-      actions: const [],
-    );
-  }
-}
-
-class ListDrawer extends StatefulWidget {
-  const ListDrawer({super.key});
-
-  @override
-  State<ListDrawer> createState() => _ListDrawerState();
-}
-
-class _ListDrawerState extends State<ListDrawer> {
-  static const numItems = 9;
-
-  int selectedItem = 0;
-
-  @override
-  Widget build(BuildContext context) {
-    return Drawer(
-      child: SafeArea(
-        child: ListView(
-          children: [
-            const ListTile(
-              title: SelectableText(
-                "Dashboard",
-                style: TextStyle(
-                  fontSize: 14,
-                ),
-              ),
-              subtitle: SelectableText(
-                '',
-                style: TextStyle(
-                  fontSize: 12,
-                ),
-              ),
-            ),
-            const Divider(),
-            ...Iterable<int>.generate(numItems).toList().map((i) {
-              return ListTile(
-                enabled: true,
-                selected: i == selectedItem,
-                leading: const Icon(Icons.favorite),
-                title: Text(
-                  'Item $i',
-                ),
-                onTap: () {
-                  setState(() {
-                    selectedItem = i;
-                  });
-                },
-              );
-            }),
-          ],
-        ),
-      ),
-    );
+  void _navigatorDelegate(int index) {
+    switch (index) {
+      case 0:
+        context.goNamed(AdminsPage.routeName);
+      case 1:
+        context.goNamed(DashboardPage.routeName);
+    }
   }
 }
 
