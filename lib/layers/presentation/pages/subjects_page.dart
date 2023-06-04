@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-class AdminsPage extends StatelessWidget {
-  const AdminsPage({super.key});
-  static const routeName = 'admins';
+class SubjectsPage extends StatelessWidget {
+  const SubjectsPage({super.key});
+  static const routeName = 'subjects';
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +15,7 @@ class AdminsPage extends StatelessWidget {
       color: colorScheme.tertiary,
       child: Center(
         child: Text(
-          'Admins Page',
+          'Subjects Page',
           style:
               textTheme.headlineLarge!.copyWith(color: colorScheme.onTertiary),
         ),

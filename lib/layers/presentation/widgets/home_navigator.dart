@@ -1,8 +1,19 @@
+// ignore_for_file: unused_import
+
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pharmacy_dashboard/layers/presentation/pages/admins_page.dart';
+import 'package:pharmacy_dashboard/layers/presentation/pages/ads_page.dart';
 import 'package:pharmacy_dashboard/layers/presentation/pages/dashboard_page.dart';
+import 'package:pharmacy_dashboard/layers/presentation/pages/notificatoins_page.dart';
+import 'package:pharmacy_dashboard/layers/presentation/pages/semesters_page.dart';
+import 'package:pharmacy_dashboard/layers/presentation/pages/subjects_page.dart';
+import 'package:pharmacy_dashboard/layers/presentation/pages/subscriptions_page.dart';
+import 'package:pharmacy_dashboard/layers/presentation/widgets/desktop_layout.dart';
+import 'package:pharmacy_dashboard/layers/presentation/widgets/mobile_layout.dart';
 
 import '../../../core/layout/adaptive.dart';
 import '../blocs/home_bloc/home_bloc.dart';
@@ -11,25 +22,62 @@ import 'list_drawer.dart';
 
 import 'dart:math' show pi;
 
+enum TabsNumber {
+  dashboardPage(0),
+  subscriptionPage(1),
+  adminsPage(2),
+  semestersPage(3),
+  subjectsPage(4),
+  notificationPage(5),
+  adsPage(6);
+
+  const TabsNumber(this.order);
+
+  final int order;
+}
+
+Map<int, String> pageForIndex = {
+  TabsNumber.adminsPage.order: AdminsPage.routeName,
+  TabsNumber.dashboardPage.order: DashboardPage.routeName,
+  TabsNumber.subscriptionPage.order: SubscriptionsPage.routeName,
+  TabsNumber.semestersPage.order: SemestersPage.routeName,
+  TabsNumber.subjectsPage.order: SubjectsPage.routeName,
+  TabsNumber.notificationPage.order: NotificationsPage.routeName,
+  TabsNumber.adsPage.order: AdsPage.routeName,
+};
+
+Map<String, int> indexForPage = {
+  AdminsPage.routeName: TabsNumber.adminsPage.order,
+  DashboardPage.routeName: TabsNumber.dashboardPage.order,
+  SubscriptionsPage.routeName: TabsNumber.subscriptionPage.order,
+  SemestersPage.routeName: TabsNumber.semestersPage.order,
+  SubjectsPage.routeName: TabsNumber.subjectsPage.order,
+  NotificationsPage.routeName: TabsNumber.notificationPage.order,
+  AdsPage.routeName: TabsNumber.adsPage.order,
+};
+
 class HomeNavigator extends StatefulWidget {
   const HomeNavigator({
     super.key,
     required this.body,
+    this.currentRoute,
   });
 
   final Widget body;
-
+  final String? currentRoute;
   @override
   State<HomeNavigator> createState() => _HomeNavigatorState();
 }
 
 class _HomeNavigatorState extends State<HomeNavigator> {
   late final HomeBloc _homeBloc;
+  bool isInitialized = false;
 
   @override
   void initState() {
     super.initState();
     _homeBloc = HomeBloc();
+    isInitialized = true;
   }
 
   @override
@@ -37,181 +85,34 @@ class _HomeNavigatorState extends State<HomeNavigator> {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
     final isDesktop = isDisplayDesktop(context);
-
-    if (isDesktop) {
-      return BlocProvider(
-        create: (context) => _homeBloc,
-        child: BlocBuilder<HomeBloc, HomeState>(
-          builder: (context, state) {
-            return Material(
-              child: Directionality(
-                textDirection: TextDirection.rtl,
-                child: Row(
-                  children: [
-                    NavigationRail(
-                      backgroundColor: colorScheme.background,
-                      extended: state.isExtended,
-                      destinations: const [
-                        NavigationRailDestination(
-                          icon: Icon(Icons.lock_clock),
-                          label: Text('المسؤولين'),
-                        ),
-                        NavigationRailDestination(
-                          icon: Icon(
-                            Icons.alarm,
-                          ),
-                          label: Text('الفصول'),
-                        ),
-                      ],
-                      selectedIndex: state.selectedIndex,
-                      elevation: 4,
-                      labelType: state.isExtended
-                          ? NavigationRailLabelType.none
-                          : NavigationRailLabelType.selected,
-                      indicatorColor: colorScheme.primaryContainer,
-                      unselectedLabelTextStyle: textTheme.bodyLarge!.copyWith(
-                        color: colorScheme.onBackground,
-                      ),
-                      selectedLabelTextStyle: textTheme.bodyLarge!.copyWith(
-                        color: colorScheme.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      selectedIconTheme:
-                          IconThemeData(color: colorScheme.onPrimaryContainer),
-                      leading: const _NavigationRailHeader(),
-                      useIndicator: true,
-                      onDestinationSelected: (newIndex) {
-                        _homeBloc.add(PageIndexChanged(newIndex));
-                        _navigatorDelegate(newIndex);
-                      },
-                    ),
-                    Expanded(
-                      child: Scaffold(
-                        backgroundColor: colorScheme.surfaceVariant,
-                        body: widget.body,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        ),
-      );
-    } else {
-      return Directionality(
-        textDirection: TextDirection.rtl,
-        child: Scaffold(
-          appBar: const AdaptiveAppBar(),
-          body: Container(),
-          drawer: const ListDrawer(),
-          floatingActionButton: FloatingActionButton(
-            heroTag: 'Add',
-            onPressed: () {},
-            tooltip: "tooltip",
-            child: Icon(
-              Icons.add,
-              color: Theme.of(context).colorScheme.onSecondary,
-            ),
-          ),
-        ),
-      );
+    if (widget.currentRoute != null &&
+        isInitialized &&
+        indexForPage.containsKey(widget.currentRoute)) {
+      _homeBloc.add(PageIndexChanged(indexForPage[widget.currentRoute]!));
     }
+
+    return BlocProvider(
+      create: (context) => _homeBloc,
+      child: Material(
+        child: Directionality(
+          textDirection: TextDirection.rtl,
+          child: isDesktop
+              ? DesktopLayout(
+                  colorScheme: colorScheme,
+                  textTheme: textTheme,
+                  body: widget.body,
+                  navigatorDelegate: _navigatorDelegate,
+                )
+              : MobileLayout(
+                  body: widget.body,
+                ),
+        ),
+      ),
+    );
   }
 
   void _navigatorDelegate(int index) {
-    switch (index) {
-      case 0:
-        context.goNamed(AdminsPage.routeName);
-      case 1:
-        context.goNamed(DashboardPage.routeName);
-    }
-  }
-}
-
-class _NavigationRailHeader extends StatelessWidget {
-  const _NavigationRailHeader();
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    final animation = NavigationRail.extendedAnimation(context);
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return AnimatedBuilder(
-      animation: animation,
-      builder: (context, child) {
-        return Align(
-          alignment: AlignmentDirectional.centerStart,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                height: 56,
-                decoration: BoxDecoration(
-                  color: colorScheme.background,
-                  boxShadow: [
-                    BoxShadow(
-                      blurRadius: 4,
-                      offset: const Offset(0, 4),
-                      color: colorScheme.surfaceVariant,
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    const SizedBox(width: 6),
-                    Material(
-                      child: InkWell(
-                        key: const ValueKey('ReplyLogo'),
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(50)),
-                        onTap: () {
-                          context.read<HomeBloc>().add(RailExtendingToggled());
-                        },
-                        child: Row(
-                          children: [
-                            Transform.rotate(
-                              angle: animation.value * pi,
-                              child: Icon(
-                                Icons.arrow_right,
-                                color: colorScheme.onBackground,
-                                size: 16,
-                              ),
-                            ),
-                            const Icon(Icons.flutter_dash),
-                            const SizedBox(width: 30),
-                            Align(
-                              alignment: AlignmentDirectional.centerStart,
-                              widthFactor: animation.value,
-                              child: Opacity(
-                                opacity: animation.value,
-                                child: Text(
-                                  'DO IT RIGHT',
-                                  style: textTheme.headlineMedium!.copyWith(
-                                    color: colorScheme.secondary,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(width: 18 * animation.value),
-                          ],
-                        ),
-                      ),
-                    ),
-                    if (animation.value > 0)
-                      Opacity(
-                        opacity: animation.value,
-                        child: const SizedBox(width: 100),
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
+    int actualIndex = index;
+    context.goNamed(pageForIndex[actualIndex]!);
   }
 }
