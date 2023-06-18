@@ -16,7 +16,7 @@ import 'package:pharmacy_dashboard/layers/presentation/widgets/desktop_layout.da
 import 'package:pharmacy_dashboard/layers/presentation/widgets/mobile_layout.dart';
 
 import '../../../core/layout/adaptive.dart';
-import '../blocs/home_bloc/home_bloc.dart';
+import '../blocs/home/home_bloc.dart';
 import 'adaptive_app_bar.dart';
 import 'list_drawer.dart';
 

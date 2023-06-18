@@ -10,7 +10,7 @@ import 'package:pharmacy_dashboard/layers/presentation/pages/subjects_page.dart'
 import 'package:pharmacy_dashboard/layers/presentation/pages/subscriptions_page.dart';
 import 'package:pharmacy_dashboard/layers/presentation/widgets/home_navigator.dart';
 
-import '../blocs/home_bloc/home_bloc.dart';
+import '../blocs/home/home_bloc.dart';
 
 class ListDrawer extends StatefulWidget {
   const ListDrawer({super.key});

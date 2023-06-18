@@ -8,7 +8,6 @@ class DashboardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-
     return Container(
       height: double.infinity,
       width: double.infinity,

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pharmacy_dashboard/core/theme/app_text_theme.dart';
 import 'package:pharmacy_dashboard/core/theme/color_schemes.dart';
 import 'package:pharmacy_dashboard/router.dart';
+
+import 'layers/presentation/blocs/auth/auth_bloc.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,21 +15,48 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      routerConfig: router,
-      title: 'Flutter Demo',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: false,
-        colorScheme: lightColorScheme,
-        textTheme: appTextTheme,
+    return BlocProvider(
+      create: (context) => AuthBloc(),
+      child: BlocBuilder<AuthBloc, AuthState>(
+        builder: (context, state) {
+          return MaterialApp.router(
+            routerConfig: MyRouter.getRouter(state),
+            title: 'Flutter Demo',
+            debugShowCheckedModeBanner: false,
+            theme: ThemeData(
+              useMaterial3: false,
+              colorScheme: lightColorScheme,
+              textTheme: appTextTheme,
+              inputDecorationTheme: InputDecorationTheme(
+                border: OutlineInputBorder(
+                  borderSide: const BorderSide(),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: lightColorScheme.primary,
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+            darkTheme: ThemeData(
+              useMaterial3: false,
+              colorScheme: darkColorScheme,
+              textTheme: appTextTheme,
+              inputDecorationTheme: InputDecorationTheme(
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: darkColorScheme.primary,
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+            themeMode: ThemeMode.light,
+          );
+        },
       ),
-      darkTheme: ThemeData(
-        useMaterial3: false,
-        colorScheme: darkColorScheme,
-        textTheme: appTextTheme,
-      ),
-      themeMode: ThemeMode.light,
     );
   }
 }

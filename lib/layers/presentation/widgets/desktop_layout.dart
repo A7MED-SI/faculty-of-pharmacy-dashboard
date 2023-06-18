@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../blocs/home_bloc/home_bloc.dart';
 
 import 'dart:math' show pi;
+
+import '../blocs/home/home_bloc.dart';
 
 class DesktopLayout extends StatelessWidget {
   const DesktopLayout({
