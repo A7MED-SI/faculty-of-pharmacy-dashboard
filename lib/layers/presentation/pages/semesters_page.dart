@@ -25,50 +25,6 @@ class _SemestersPageState extends State<SemestersPage> {
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           child: Column(
             children: [
-              // ExpansionPanelList(
-              //   children: [
-              //     ExpansionPanel(
-              //       backgroundColor: colorScheme.background,
-              //       headerBuilder: (context, isExpanded) {
-              //         return Row(
-              //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //           children: [
-              //             Padding(
-              //               padding: const EdgeInsets.all(8.0),
-              //               child: Text(
-              //                 'السنة الأولى',
-              //                 style: textTheme.headlineSmall?.copyWith(
-              //                   color: colorScheme.onBackground,
-              //                   fontWeight: FontWeight.bold,
-              //                 ),
-              //               ),
-              //             ),
-              //             Switch(
-              //               value: true,
-              //               onChanged: (value) {},
-              //               activeColor: colorScheme.primary,
-              //             )
-              //           ],
-              //         );
-              //       },
-              //       body: Row(
-              //         children: [
-              //           Expanded(
-              //             child: Column(
-              //               mainAxisSize: MainAxisSize.min,
-              //               children: [
-              //                 Text(
-              //                   '',
-              //                   style: textTheme.headlineSmall,
-              //                 ),
-              //               ],
-              //             ),
-              //           ),
-              //         ],
-              //       ),
-              //     )
-              //   ],
-              // ),
               ExpansionTile(
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,

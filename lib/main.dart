@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
         builder: (context, state) {
           return MaterialApp.router(
             routerConfig: MyRouter.getRouter(state),
-            title: 'Flutter Demo',
+            title: 'DO IT RIGHT',
             debugShowCheckedModeBanner: false,
             theme: ThemeData(
               useMaterial3: false,
@@ -39,6 +39,16 @@ class MyApp extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
+              scrollbarTheme: const ScrollbarThemeData().copyWith(
+                  thumbColor: MaterialStateProperty.resolveWith(
+                (states) {
+                  if (states.contains(MaterialState.hovered) ||
+                      states.contains(MaterialState.pressed)) {
+                    return Colors.grey.shade700;
+                  }
+                  return Colors.grey;
+                },
+              )),
             ),
             darkTheme: ThemeData(
               useMaterial3: false,

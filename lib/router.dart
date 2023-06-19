@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pharmacy_dashboard/layers/presentation/blocs/auth/auth_bloc.dart';
@@ -7,6 +6,7 @@ import 'package:pharmacy_dashboard/layers/presentation/pages/ads_page.dart';
 import 'package:pharmacy_dashboard/layers/presentation/pages/dashboard_page.dart';
 import 'package:pharmacy_dashboard/layers/presentation/pages/login_page.dart';
 import 'package:pharmacy_dashboard/layers/presentation/pages/notificatoins_page.dart';
+import 'package:pharmacy_dashboard/layers/presentation/pages/question_banks_page.dart';
 import 'package:pharmacy_dashboard/layers/presentation/pages/semesters_page.dart';
 import 'package:pharmacy_dashboard/layers/presentation/pages/subscriptions_page.dart';
 import 'package:pharmacy_dashboard/layers/presentation/widgets/home_navigator.dart';
@@ -78,12 +78,20 @@ class MyRouter {
               },
             ),
             GoRoute(
-              name: SubjectsPage.routeName,
-              path: '/${SubjectsPage.routeName}',
-              builder: (context, state) {
-                return const SubjectsPage();
-              },
-            ),
+                name: SubjectsPage.routeName,
+                path: '/${SubjectsPage.routeName}',
+                builder: (context, state) {
+                  return const SubjectsPage();
+                },
+                routes: [
+                  GoRoute(
+                    name: QuestionBanksPage.routeName,
+                    path: QuestionBanksPage.routeName,
+                    builder: (context, state) {
+                      return const QuestionBanksPage();
+                    },
+                  ),
+                ]),
             GoRoute(
               name: NotificationsPage.routeName,
               path: '/${NotificationsPage.routeName}',
