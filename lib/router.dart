@@ -11,6 +11,7 @@ import 'package:pharmacy_dashboard/layers/presentation/pages/semesters_page.dart
 import 'package:pharmacy_dashboard/layers/presentation/pages/subscriptions_page.dart';
 import 'package:pharmacy_dashboard/layers/presentation/widgets/home_navigator.dart';
 
+import 'layers/presentation/pages/questions_page.dart';
 import 'layers/presentation/pages/subjects_page.dart';
 
 GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -22,7 +23,7 @@ class MyRouter {
       navigatorKey: _rootNavigatorKey,
       initialLocation: '/${LoginPage.routeName}',
       redirect: (context, state) {
-        bool isNotLoggedIn = authState.status == AuthStatus.unAuthorized;
+        bool isNotLoggedIn = authState.status != AuthStatus.authorized;
         bool isInLoginPage = state.location == '/${LoginPage.routeName}';
         if (isNotLoggedIn) {
           return isInLoginPage ? null : '/${LoginPage.routeName}';
@@ -90,6 +91,15 @@ class MyRouter {
                     builder: (context, state) {
                       return const QuestionBanksPage();
                     },
+                    routes: [
+                      GoRoute(
+                        name: QuestionsPage.routeName,
+                        path: QuestionsPage.routeName,
+                        builder: (context, state) {
+                          return const QuestionsPage();
+                        },
+                      ),
+                    ],
                   ),
                 ]),
             GoRoute(

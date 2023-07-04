@@ -1,6 +1,6 @@
 part of 'auth_bloc.dart';
 
-enum AuthStatus { authorized, unAuthorized }
+enum AuthStatus { authorized, unAuthorized, loading, error }
 
 class AuthState {
   final AuthStatus status;
