@@ -1,4 +1,3 @@
-
 import 'package:json_annotation/json_annotation.dart';
 part 'subscription.g.dart';
 
@@ -6,16 +5,16 @@ part 'subscription.g.dart';
 class Subscription {
   final int id;
   @JsonKey(name: 'sub_code')
-  final String subCode;
-  final int period;
+  final String? subCode;
+  final int? period;
   @JsonKey(name: 'start_date')
-  final String startDate;
+  final DateTime? startDate;
   @JsonKey(name: 'end_date')
-  final String endDate;
+  final DateTime? endDate;
   @JsonKey(name: 'user_id')
-  final int userId;
+  final int? userId;
   @JsonKey(name: 'subscriptionable_id')
-  final int subscriptionableId;
+  final int? subscriptionableId;
   @JsonKey(name: 'subscriptionable_type')
   final int subscriptionableType;
 

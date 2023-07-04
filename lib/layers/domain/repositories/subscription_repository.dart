@@ -7,7 +7,7 @@ abstract class SubscriptionRepository {
       {Map<String, dynamic>? params});
 
   Future<Either<Failure, bool>> addSubscriptionGroup(
-      {Map<String, dynamic>? params});
+      {required Map<String, dynamic> params});
 
   Future<Either<Failure, bool>> deleteSubscription(
       {required int subscriptionId});

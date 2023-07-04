@@ -26,9 +26,8 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    log('refreshed');
-    _usernameController = TextEditingController();
-    _passwordController = TextEditingController();
+    _usernameController = TextEditingController(text: 'super_admin');
+    _passwordController = TextEditingController(text: '12345678');
   }
 
   @override
