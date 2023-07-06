@@ -9,6 +9,7 @@ class ApiUris {
   //application initials
   static const String _authApi = 'auth/admin/';
   static const String _subscriptionApi = 'admin/subscription/';
+  static const String _adminApi = 'admin/admin/';
   //Api endpoints
   static Uri _mainUri(
       {required String path, Map<String, dynamic>? queryParams}) {
@@ -45,5 +46,31 @@ class ApiUris {
 
   static Uri deleteSubsription({required int subscriptionId}) {
     return _mainUri(path: '$_subscriptionApi$subscriptionId/destroy');
+  }
+
+  //Admins
+  static Uri getAdminsUri({Map<String, dynamic>? queryParams}) {
+    return _mainUri(
+      path: '${_adminApi}index',
+      queryParams: queryParams,
+    );
+  }
+
+  static Uri addAdminUri() {
+    return _mainUri(
+      path: '${_adminApi}store',
+    );
+  }
+
+  static Uri updateAdminUri({required int adminId}) {
+    return _mainUri(
+      path: '$_adminApi$adminId/update',
+    );
+  }
+
+  static Uri toggleAdminActiveUri({required int adminId}) {
+    return _mainUri(
+      path: '$_adminApi$adminId/toggleActive',
+    );
   }
 }

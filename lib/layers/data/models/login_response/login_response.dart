@@ -11,8 +11,6 @@ class LoginResponse {
     required this.admin,
   });
 
-  
-
   factory LoginResponse.fromJson(Map<String, dynamic> json) {
     return _$LoginResponseFromJson(json);
   }
@@ -28,13 +26,13 @@ class Admin {
   final String name;
   final String username;
   @JsonKey(name: 'is_active')
-  final int isActive;
+  final int? isActive;
 
   Admin({
     required this.id,
     required this.name,
     required this.username,
-    required this.isActive,
+    this.isActive = 1,
   });
 
   factory Admin.fromJson(Map<String, dynamic> json) {

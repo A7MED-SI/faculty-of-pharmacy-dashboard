@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-
 import 'dart:math' show pi;
 
 import '../blocs/home/home_bloc.dart';
@@ -26,60 +25,70 @@ class DesktopLayout extends StatelessWidget {
       builder: (context, state) {
         return Row(
           children: [
-            NavigationRail(
-              backgroundColor: colorScheme.background,
-              extended: state.isExtended,
-              destinations: const [
-                NavigationRailDestination(
-                  icon: Icon(Icons.lock_clock),
-                  label: Text('لوحة التحكم'),
+            SingleChildScrollView(
+              padding:
+                  !state.isExtended ? const EdgeInsets.only(left: 5) : null,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                    minHeight: MediaQuery.of(context).size.height),
+                child: IntrinsicHeight(
+                  child: NavigationRail(
+                    backgroundColor: colorScheme.background,
+                    extended: state.isExtended,
+                    destinations: const [
+                      NavigationRailDestination(
+                        icon: Icon(Icons.lock_clock),
+                        label: Text('لوحة التحكم'),
+                      ),
+                      NavigationRailDestination(
+                        icon: Icon(Icons.lock_clock),
+                        label: Text('الاشتراكات'),
+                      ),
+                      NavigationRailDestination(
+                        icon: Icon(Icons.lock_clock),
+                        label: Text('المسؤولين'),
+                      ),
+                      NavigationRailDestination(
+                        icon: Icon(Icons.alarm),
+                        label: Text('الفصول'),
+                      ),
+                      NavigationRailDestination(
+                        icon: Icon(Icons.alarm),
+                        label: Text('المواد'),
+                      ),
+                      NavigationRailDestination(
+                        icon: Icon(Icons.alarm),
+                        label: Text('الإشعارات'),
+                      ),
+                      NavigationRailDestination(
+                        icon: Icon(Icons.alarm),
+                        label: Text('الإعلانات'),
+                      ),
+                    ],
+                    selectedIndex: state.selectedIndex,
+                    elevation: 4,
+                    labelType: state.isExtended
+                        ? NavigationRailLabelType.none
+                        : NavigationRailLabelType.selected,
+                    indicatorColor: colorScheme.primaryContainer,
+                    unselectedLabelTextStyle: textTheme.bodyLarge!.copyWith(
+                      color: colorScheme.onBackground,
+                    ),
+                    selectedLabelTextStyle: textTheme.bodyLarge!.copyWith(
+                      color: colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    selectedIconTheme:
+                        IconThemeData(color: colorScheme.onPrimaryContainer),
+                    leading: const _NavigationRailHeader(),
+                    useIndicator: true,
+                    onDestinationSelected: (newIndex) {
+                      context.read<HomeBloc>().add(PageIndexChanged(newIndex));
+                      navigatorDelegate(newIndex);
+                    },
+                  ),
                 ),
-                NavigationRailDestination(
-                  icon: Icon(Icons.lock_clock),
-                  label: Text('الاشتراكات'),
-                ),
-                NavigationRailDestination(
-                  icon: Icon(Icons.lock_clock),
-                  label: Text('المسؤولين'),
-                ),
-                NavigationRailDestination(
-                  icon: Icon(Icons.alarm),
-                  label: Text('الفصول'),
-                ),
-                NavigationRailDestination(
-                  icon: Icon(Icons.alarm),
-                  label: Text('المواد'),
-                ),
-                NavigationRailDestination(
-                  icon: Icon(Icons.alarm),
-                  label: Text('الإشعارات'),
-                ),
-                NavigationRailDestination(
-                  icon: Icon(Icons.alarm),
-                  label: Text('الإعلانات'),
-                ),
-              ],
-              selectedIndex: state.selectedIndex,
-              elevation: 4,
-              labelType: state.isExtended
-                  ? NavigationRailLabelType.none
-                  : NavigationRailLabelType.selected,
-              indicatorColor: colorScheme.primaryContainer,
-              unselectedLabelTextStyle: textTheme.bodyLarge!.copyWith(
-                color: colorScheme.onBackground,
               ),
-              selectedLabelTextStyle: textTheme.bodyLarge!.copyWith(
-                color: colorScheme.primary,
-                fontWeight: FontWeight.bold,
-              ),
-              selectedIconTheme:
-                  IconThemeData(color: colorScheme.onPrimaryContainer),
-              leading: const _NavigationRailHeader(),
-              useIndicator: true,
-              onDestinationSelected: (newIndex) {
-                context.read<HomeBloc>().add(PageIndexChanged(newIndex));
-                navigatorDelegate(newIndex);
-              },
             ),
             Expanded(
               child: Scaffold(

@@ -3,10 +3,14 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pharmacy_dashboard/core/widgets/loading_widget.dart';
+import 'package:pharmacy_dashboard/core/layout/adaptive.dart';
+import 'package:pharmacy_dashboard/layers/presentation/widgets/app_elevated_button.dart';
+import 'package:pharmacy_dashboard/layers/presentation/widgets/loading_widget.dart';
 import 'package:pharmacy_dashboard/layers/domain/use_cases/subscriptions/get_subscriptions.dart';
 import 'package:pharmacy_dashboard/layers/presentation/blocs/subscription/subscription_bloc.dart';
 import 'package:intl/intl.dart' as intl;
+
+import '../widgets/app_text_button.dart';
 
 class SubscriptionsPage extends StatefulWidget {
   const SubscriptionsPage({super.key});
@@ -48,7 +52,8 @@ class _SubscriptionsPageState extends State<SubscriptionsPage> {
                       children: [
                         Row(
                           children: [
-                            _AddSubsButton(
+                            AppTextButton(
+                              text: 'إضافة اشتراكات',
                               onPressed: () {
                                 showDialog(
                                     context: context,
@@ -135,11 +140,14 @@ class _AddSubsDialogState extends State<_AddSubsDialog> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final isDesktop = isDisplayDesktop(context);
     return Dialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
       ),
-      insetPadding: const EdgeInsets.symmetric(horizontal: 300, vertical: 80),
+      insetPadding: isDesktop
+          ? const EdgeInsets.symmetric(horizontal: 300)
+          : const EdgeInsets.symmetric(horizontal: 60),
       backgroundColor: colorScheme.background,
       child: Directionality(
         textDirection: TextDirection.rtl,
@@ -266,58 +274,15 @@ class _AddSubsDialogState extends State<_AddSubsDialog> {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    ElevatedButton(
+                    AppElevatedButton(
                       onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        elevation: 8,
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 8, horizontal: 30),
-                        backgroundColor: colorScheme.primary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                      ),
-                      child: Text(
-                        'إضافة',
-                        style: textTheme.bodyLarge?.copyWith(
-                          color: colorScheme.onPrimary,
-                        ),
-                      ),
+                      text: 'إضافة',
                     ),
                   ],
                 ),
               )
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _AddSubsButton extends StatelessWidget {
-  const _AddSubsButton({
-    required this.onPressed,
-  });
-
-  final VoidCallback onPressed;
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-    return TextButton(
-      onPressed: onPressed,
-      style: TextButton.styleFrom(
-        backgroundColor: colorScheme.secondaryContainer,
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(6),
-        ),
-      ),
-      child: Text(
-        'إضافة اشتراكات',
-        style: textTheme.bodyLarge?.copyWith(
-          color: colorScheme.onSecondaryContainer,
         ),
       ),
     );

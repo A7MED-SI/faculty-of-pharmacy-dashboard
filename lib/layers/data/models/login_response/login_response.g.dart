@@ -22,7 +22,7 @@ Admin _$AdminFromJson(Map<String, dynamic> json) => Admin(
       id: json['id'] as int,
       name: json['name'] as String,
       username: json['username'] as String,
-      isActive: json['is_active'] as int,
+      isActive: json['is_active'] as int? ?? 1,
     );
 
 Map<String, dynamic> _$AdminToJson(Admin instance) => <String, dynamic>{

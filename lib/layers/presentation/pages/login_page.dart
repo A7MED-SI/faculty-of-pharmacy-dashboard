@@ -6,7 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pharmacy_dashboard/core/layout/adaptive.dart';
-import 'package:pharmacy_dashboard/core/widgets/loading_widget.dart';
+import 'package:pharmacy_dashboard/layers/presentation/AppWidgetsDisplayer.dart';
+import 'package:pharmacy_dashboard/layers/presentation/widgets/loading_widget.dart';
 import 'package:pharmacy_dashboard/layers/presentation/blocs/auth/auth_bloc.dart';
 import 'package:pharmacy_dashboard/layers/presentation/pages/dashboard_page.dart';
 
@@ -47,16 +48,10 @@ class _LoginPageState extends State<LoginPage> {
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state.status == AuthStatus.error) {
-          final snackBar = SnackBar(
-            content: Text(
-              'يرجي التأكد من المعلومات والمحاولة مرة أخري',
-              style: textTheme.titleSmall?.copyWith(
-                color: colorScheme.onErrorContainer,
-              ),
-            ),
-            backgroundColor: colorScheme.errorContainer,
+          AppWidgetsDisplayer.dispalyErrorSnackBar(
+            context: context,
+            message: 'يرجي التأكد من المعلومات والمحاولة مرة أخرى',
           );
-          ScaffoldMessenger.of(context).showSnackBar(snackBar);
         }
       },
       builder: (context, state) {
