@@ -3,7 +3,6 @@ import '../../../../core/error/failures.dart';
 import '../../../../core/use_case/use_case.dart';
 import '../../repositories/subscription_repository.dart';
 
-
 class AddSubscriptionGroupUseCase
     implements UseCase<bool, AddSubscriptoinGroupParams> {
   final SubscriptionRepository subscriptionsRepository;
@@ -18,7 +17,7 @@ class AddSubscriptionGroupUseCase
 
 class AddSubscriptoinGroupParams {
   final int subCount;
-  final String subscriptionableType;
+  final int subscriptionableType;
   final int? peroid;
 
   AddSubscriptoinGroupParams({
@@ -29,8 +28,8 @@ class AddSubscriptoinGroupParams {
 
   Map<String, dynamic> toMap() {
     return {
-      'sub_count': subCount,
-      'subscriptionable_type': subscriptionableType,
+      'sub_count': subCount.toString(),
+      'subscriptionable_type': subscriptionableType.toString(),
       if (peroid != null) 'period': peroid,
     };
   }

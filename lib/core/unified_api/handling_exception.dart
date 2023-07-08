@@ -13,33 +13,9 @@ class HandlingExceptionManager<T> {
     } on ServerException catch (e) {
       log("<< ServerException >> ");
       return Left(ServerFailure(message: e.message));
-    } on DataDuplicatesException catch (e) {
-      log("<< DataDuplicatesException >> ");
-      return Left(DataDuplicatesFailure(message: e.message));
-    } on MissingParamException catch (e) {
-      log("<< MissingParamException >> ${e.message}");
-      return Left(MissingParamFailure(message: e.message));
-    } on UserNotAllowedToAccessException catch (e) {
-      log("<< UserNotAllowedToAccessException >> ");
-      return Left(UserNotAllowedToAccessFailure(message: e.message));
-    } on OperationFailedException catch (e) {
-      log("<< OperationFailedException >> ");
-      return Left(OperationFailedFailure(message: e.message));
-    } on TokenMisMatchException catch (e) {
-      log("<< TokenMisMatchException >> ");
-      return Left(TokenMisMatchFailure(message: e.message));
-    } on DataNotFoundException catch (e) {
-      log("<< DataNotFoundException >> ");
-      return Left(DataNotFoundFailure(message: e.message));
-    } on InvalidEmailException catch (e) {
-      log("<< InvalidEmailException >> ");
-      return Left(InvalidEmailFailure(message: e.message));
-    } on InvalidPhoneException catch (e) {
-      log("<< InvalidPhoneException >> ");
-      return Left(InvalidPhoneFailure(message: e.message));
-    } on NotAuthenticatedException catch (e) {
-      log("<< NotAuthenticatedException >> ");
-      return Left(NotAuthenticatedFailure(message: e.message));
+    } on ApiException catch (e) {
+      log("<< ApiException >> ");
+      return Left(ApiFailure(message: e.message));
     } on TimeoutException catch (_) {
       log("<< TimeoutException >> ");
       return Left(TimeOutFailure(

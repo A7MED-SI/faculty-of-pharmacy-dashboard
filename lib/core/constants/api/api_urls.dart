@@ -10,6 +10,7 @@ class ApiUris {
   static const String _authApi = 'auth/admin/';
   static const String _subscriptionApi = 'admin/subscription/';
   static const String _adminApi = 'admin/admin/';
+  static const String _yearSemesterApi = 'admin/yearSemester/';
   //Api endpoints
   static Uri _mainUri(
       {required String path, Map<String, dynamic>? queryParams}) {
@@ -72,5 +73,17 @@ class ApiUris {
     return _mainUri(
       path: '$_adminApi$adminId/toggleActive',
     );
+  }
+
+  //YearSemesters
+  static Uri getYearSemestersUri({Map<String, dynamic>? queryParams}) {
+    return _mainUri(
+      path: '${_yearSemesterApi}index',
+      queryParams: queryParams,
+    );
+  }
+
+  static Uri toggleYearSemesterUri({required int yearSemesterId}) {
+    return _mainUri(path: '$_yearSemesterApi$yearSemesterId/toggleActive');
   }
 }

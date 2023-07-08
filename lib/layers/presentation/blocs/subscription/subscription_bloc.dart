@@ -14,15 +14,18 @@ part 'subscription_state.dart';
 class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
   SubscriptionBloc() : super(const SubscriptionState()) {
     on<SubscriptionsFetched>(_mapSubscriptionsFetched);
+    on<SubscriptionGroupAdded>(_mapSubscriptionGroupAdded);
   }
 
   final _getSubscriptionsUseCase = GetSubscriptionsUseCase(
+      subscriptionsRepository: SubscriptionsRepositoryImplementation());
+  final _addSubscriptionGroupUseCase = AddSubscriptionGroupUseCase(
       subscriptionsRepository: SubscriptionsRepositoryImplementation());
 
   FutureOr<void> _mapSubscriptionsFetched(
       SubscriptionsFetched event, Emitter<SubscriptionState> emit) async {
     final result = await _getSubscriptionsUseCase(event.params);
-    
+
     await result.fold(
       (l) async {
         emit(state.copyWith(subsFetchingStatus: SubsFetchingStatus.failed));
@@ -32,6 +35,26 @@ class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
           subsFetchingStatus: SubsFetchingStatus.success,
           subscriptions: subs,
         ));
+      },
+    );
+  }
+
+  FutureOr<void> _mapSubscriptionGroupAdded(
+      SubscriptionGroupAdded event, Emitter<SubscriptionState> emit) async {
+    emit(state.copyWith(subsFetchingStatus: SubsFetchingStatus.loading));
+    final result = await _addSubscriptionGroupUseCase(event.params);
+
+    await result.fold(
+      (l) async {
+        emit(state.copyWith(
+            subsFetchingStatus: SubsFetchingStatus.success,
+            subsAddingStatus: SubsAddingStatus.failed));
+        emit(state.copyWith(subsAddingStatus: SubsAddingStatus.initial));
+      },
+      (result) async {
+        emit(state.copyWith(subsAddingStatus: SubsAddingStatus.success));
+        emit(state.copyWith(subsAddingStatus: SubsAddingStatus.initial));
+        add(SubscriptionsFetched(params: GetSubscriptoinsParams()));
       },
     );
   }

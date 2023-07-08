@@ -4,12 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pharmacy_dashboard/core/layout/adaptive.dart';
+import 'package:pharmacy_dashboard/layers/domain/use_cases/subscriptions/add_subscription_group.dart';
 import 'package:pharmacy_dashboard/layers/presentation/widgets/app_elevated_button.dart';
 import 'package:pharmacy_dashboard/layers/presentation/widgets/loading_widget.dart';
 import 'package:pharmacy_dashboard/layers/domain/use_cases/subscriptions/get_subscriptions.dart';
 import 'package:pharmacy_dashboard/layers/presentation/blocs/subscription/subscription_bloc.dart';
 import 'package:intl/intl.dart' as intl;
 
+import '../../../core/constants/api_enums/api_enums.dart';
+import '../AppWidgetsDisplayer.dart';
 import '../widgets/app_text_button.dart';
 
 class SubscriptionsPage extends StatefulWidget {
@@ -40,7 +43,22 @@ class _SubscriptionsPageState extends State<SubscriptionsPage> {
       textDirection: TextDirection.rtl,
       child: Scaffold(
         backgroundColor: colorScheme.surfaceVariant,
-        body: BlocBuilder<SubscriptionBloc, SubscriptionState>(
+        body: BlocConsumer<SubscriptionBloc, SubscriptionState>(
+          listener: (context, state) {
+            if (state.subsAddingStatus == SubsAddingStatus.failed) {
+              AppWidgetsDisplayer.dispalyErrorSnackBar(
+                context: context,
+                message:
+                    'فشل الإضافة يرجى التحقق من الإتصال من الإنترنت والمحاولة مرة أخرى',
+              );
+            }
+            if (state.subsAddingStatus == SubsAddingStatus.success) {
+              AppWidgetsDisplayer.dispalyErrorSnackBar(
+                context: context,
+                message: 'تمت إضافة الإشتراكات بنجاح',
+              );
+            }
+          },
           bloc: _subscriptionBloc,
           builder: (context, state) {
             return state.subsFetchingStatus == SubsFetchingStatus.initial ||
@@ -58,7 +76,9 @@ class _SubscriptionsPageState extends State<SubscriptionsPage> {
                                 showDialog(
                                     context: context,
                                     builder: (context) {
-                                      return const _AddSubsDialog();
+                                      return _AddSubsDialog(
+                                        subscriptionBloc: _subscriptionBloc,
+                                      );
                                     });
                               },
                             ),
@@ -120,20 +140,27 @@ class _SubscriptionsPageState extends State<SubscriptionsPage> {
 }
 
 class _AddSubsDialog extends StatefulWidget {
-  const _AddSubsDialog();
-
+  const _AddSubsDialog({
+    required this.subscriptionBloc,
+  });
+  final SubscriptionBloc subscriptionBloc;
   @override
   State<_AddSubsDialog> createState() => _AddSubsDialogState();
 }
 
 class _AddSubsDialogState extends State<_AddSubsDialog> {
-  final subsTypes = ['فصل', 'مادة'];
-  late final ValueNotifier<String> subTypeNotifier;
+  final subsTypes = [
+    (text: 'فصل', type: SubscriptionableType.yearSemester),
+    (text: 'مادة', type: SubscriptionableType.subject)
+  ];
+  late final ValueNotifier<int> subTypeNotifier;
+  late final TextEditingController subsNumberController;
 
   @override
   void initState() {
     super.initState();
-    subTypeNotifier = ValueNotifier(subsTypes.first);
+    subTypeNotifier = ValueNotifier(subsTypes.first.type.value);
+    subsNumberController = TextEditingController();
   }
 
   @override
@@ -180,6 +207,7 @@ class _AddSubsDialogState extends State<_AddSubsDialog> {
                     SizedBox(
                       width: 140,
                       child: TextField(
+                        controller: subsNumberController,
                         maxLength: 2,
                         style: textTheme.bodyLarge,
                         decoration: const InputDecoration(
@@ -206,10 +234,10 @@ class _AddSubsDialogState extends State<_AddSubsDialog> {
                     ),
                     SizedBox(
                       width: 140,
-                      child: ValueListenableBuilder<String>(
+                      child: ValueListenableBuilder<int>(
                           valueListenable: subTypeNotifier,
                           builder: (context, value, _) {
-                            return DropdownButtonFormField2<String>(
+                            return DropdownButtonFormField2<int>(
                               decoration: InputDecoration(
                                 isDense: true,
                                 contentPadding: EdgeInsets.zero,
@@ -222,8 +250,8 @@ class _AddSubsDialogState extends State<_AddSubsDialog> {
                               items: [
                                 for (var subType in subsTypes)
                                   DropdownMenuItem(
-                                    value: subType,
-                                    child: Text(subType),
+                                    value: subType.type.value,
+                                    child: Text(subType.text),
                                   ),
                               ],
                               onChanged: (value) {
@@ -275,7 +303,14 @@ class _AddSubsDialogState extends State<_AddSubsDialog> {
                     ),
                     const SizedBox(width: 12),
                     AppElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        widget.subscriptionBloc.add(SubscriptionGroupAdded(
+                            params: AddSubscriptoinGroupParams(
+                          subCount: int.parse(subsNumberController.text),
+                          subscriptionableType: subTypeNotifier.value,
+                        )));
+                        context.pop();
+                      },
                       text: 'إضافة',
                     ),
                   ],

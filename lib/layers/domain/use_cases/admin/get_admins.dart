@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:pharmacy_dashboard/core/constants/api_enums/api_enums.dart';
 import 'package:pharmacy_dashboard/layers/data/models/login_response/login_response.dart';
 import 'package:pharmacy_dashboard/layers/domain/repositories/admin_repository.dart';
 import '../../../../core/error/failures.dart';
@@ -27,9 +28,10 @@ class GetAdminsParams {
 
   Map<String, dynamic> toMap() {
     return {
-      if (isActive != null) 'filter[is_active]': isActive,
+      if (isActive != null) 'filter[is_active]': isActive.toString(),
       if (username != null) 'filter[username]': username,
-      if (adminRole != null) 'filter[admin_role]': adminRole,
+      'filter[admin_role]':
+          adminRole?.toString() ?? AdminRole.admin.value.toString(),
     };
   }
 }

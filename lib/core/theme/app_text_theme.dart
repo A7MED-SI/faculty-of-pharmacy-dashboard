@@ -19,5 +19,4 @@ TextTheme appTextTheme = const TextTheme(
   headlineSmall: TextStyle(
     fontSize: 18,
   ),
-  
 );
