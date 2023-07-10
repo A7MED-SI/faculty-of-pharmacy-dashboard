@@ -23,8 +23,8 @@ Semester _$SemesterFromJson(Map<String, dynamic> json) => Semester(
       id: json['id'] as int,
       subjectYear: json['subject_year'] as int?,
       semester: json['semester'] as int,
-      subjects: (json['subjects'] as List<dynamic>)
-          .map((e) => Subject.fromJson(e as Map<String, dynamic>))
+      subjects: (json['subjects'] as List<dynamic>?)
+          ?.map((e) => Subject.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
 

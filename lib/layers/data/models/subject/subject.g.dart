@@ -9,8 +9,14 @@ part of 'subject.dart';
 Subject _$SubjectFromJson(Map<String, dynamic> json) => Subject(
       id: json['id'] as int,
       title: json['title'] as String,
-      isActive: json['is_active'] as int,
+      isActive: json['is_active'] as int? ?? 1,
       yearSemesterId: json['year_semester_id'] as int,
+      chapterBanks: (json['subject_chapters'] as List<dynamic>?)
+          ?.map((e) => QuestionBank.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      previousExams: (json['question_exams'] as List<dynamic>?)
+          ?.map((e) => QuestionBank.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
 Map<String, dynamic> _$SubjectToJson(Subject instance) => <String, dynamic>{
@@ -18,4 +24,6 @@ Map<String, dynamic> _$SubjectToJson(Subject instance) => <String, dynamic>{
       'title': instance.title,
       'is_active': instance.isActive,
       'year_semester_id': instance.yearSemesterId,
+      'question_exams': instance.previousExams,
+      'subject_chapters': instance.chapterBanks,
     };

@@ -27,12 +27,15 @@ class Admin {
   final String username;
   @JsonKey(name: 'is_active')
   final int? isActive;
+  @JsonKey(fromJson: _roleFromJson)
+  final List<int> role;
 
   Admin({
     required this.id,
     required this.name,
     required this.username,
     this.isActive = 1,
+    required this.role,
   });
 
   factory Admin.fromJson(Map<String, dynamic> json) {
@@ -41,5 +44,13 @@ class Admin {
 
   Map<String, dynamic> toJson() {
     return _$AdminToJson(this);
+  }
+
+  static List<int> _roleFromJson(List<dynamic> role) {
+    return role.map<int>(
+      (e) {
+        return int.parse(e as String);
+      },
+    ).toList();
   }
 }

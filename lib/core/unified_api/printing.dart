@@ -10,7 +10,7 @@ class Printing {
 
   void printResponse(Response response) {
     log("The << status code >> into $requestName -> ${response.statusCode}");
-    print("The << Response Body >> into $requestName -> \n ${response.body}");
+    log("The << Response Body >> into $requestName -> \n ${response.body}");
   }
 
   void printRequest(

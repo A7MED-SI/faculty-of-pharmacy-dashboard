@@ -12,4 +12,7 @@ enum SubscriptionableType {
 
   final int value;
   const SubscriptionableType(this.value);
+  static String typeInArabic(int value) {
+    return value == 3 ? 'فصل' : 'مادة';
+  }
 }

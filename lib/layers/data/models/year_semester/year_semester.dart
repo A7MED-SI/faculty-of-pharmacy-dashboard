@@ -44,7 +44,7 @@ class Semester {
   @JsonKey(name: 'subject_year')
   final int? subjectYear;
   final int semester;
-  final List<Subject> subjects;
+  final List<Subject>? subjects;
 
   Semester({
     required this.id,

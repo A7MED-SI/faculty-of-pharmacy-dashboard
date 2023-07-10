@@ -55,6 +55,7 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
       name: oldAdmin.name,
       username: oldAdmin.username,
       isActive: oldAdmin.isActive! + 1 % 2,
+      role: oldAdmin.role,
     );
     final admins = List.of(state.admins);
     admins[adminIndex] = newAdmin;

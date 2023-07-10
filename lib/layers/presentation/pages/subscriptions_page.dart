@@ -9,7 +9,6 @@ import 'package:pharmacy_dashboard/layers/presentation/widgets/app_elevated_butt
 import 'package:pharmacy_dashboard/layers/presentation/widgets/loading_widget.dart';
 import 'package:pharmacy_dashboard/layers/domain/use_cases/subscriptions/get_subscriptions.dart';
 import 'package:pharmacy_dashboard/layers/presentation/blocs/subscription/subscription_bloc.dart';
-import 'package:intl/intl.dart' as intl;
 
 import '../../../core/constants/api_enums/api_enums.dart';
 import '../AppWidgetsDisplayer.dart';
@@ -104,13 +103,7 @@ class _SubscriptionsPageState extends State<SubscriptionsPage> {
                                 label: Text('نوع الاشتراك'),
                               ),
                               DataColumn(
-                                label: Text('المسؤول'),
-                              ),
-                              DataColumn(
-                                label: Text('تاريخ البدء'),
-                              ),
-                              DataColumn(
-                                label: Text('تاريخ الإنتهاء'),
+                                label: Text('الكود'),
                               ),
                             ],
                             rows: [
@@ -118,12 +111,10 @@ class _SubscriptionsPageState extends State<SubscriptionsPage> {
                                 DataRow2(
                                   onTap: () {},
                                   cells: [
-                                    const DataCell(Text('اشتراك فصل')),
-                                    const DataCell(Text('عدنان الأحمد')),
-                                    DataCell(Text(intl.DateFormat.yMd().format(
-                                        sub.startDate ?? DateTime.now()))),
-                                    DataCell(Text(intl.DateFormat.yMd().format(
-                                        sub.endDate ?? DateTime.now()))),
+                                    DataCell(Text(
+                                        SubscriptionableType.typeInArabic(
+                                            sub.subscriptionableType))),
+                                    DataCell(Text(sub.subCode)),
                                   ],
                                 ),
                             ],

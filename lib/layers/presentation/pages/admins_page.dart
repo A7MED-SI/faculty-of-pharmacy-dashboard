@@ -57,17 +57,17 @@ class _AdminsPageState extends State<AdminsPage> {
                     'فشل الإضافة يرجى التحقق من الإتصال من الإنترنت والمحاولة مرة أخرى',
               );
             }
+            if (state.addingStatus == AddingStatus.success) {
+              AppWidgetsDisplayer.dispalySuccessSnackBar(
+                context: context,
+                message: 'تمت إضافة المسؤول بنجاح',
+              );
+            }
             if (state.updatingStatus == UpdatingStatus.failed) {
               AppWidgetsDisplayer.dispalyErrorSnackBar(
                 context: context,
                 message:
                     'فشل التعديل يرجى التحقق من الإتصال من الإنترنت والمحاولة مرة أخرى',
-              );
-            }
-            if (state.addingStatus == AddingStatus.success) {
-              AppWidgetsDisplayer.dispalySuccessSnackBar(
-                context: context,
-                message: 'تمت إضافة المسؤول بنجاح',
               );
             }
             if (state.updatingStatus == UpdatingStatus.success) {

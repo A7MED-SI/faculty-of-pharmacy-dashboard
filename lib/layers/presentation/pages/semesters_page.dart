@@ -80,69 +80,79 @@ class _SemestersPageState extends State<SemestersPage> {
                                             child: Padding(
                                               padding: const EdgeInsets.only(
                                                   right: 12),
-                                              child: Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Center(
-                                                    child: Row(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      children: [
-                                                        Text(
-                                                          yearSemester
-                                                              .semesters[0]
-                                                              .arabicName,
-                                                          style: textTheme
-                                                              .headlineSmall
-                                                              ?.copyWith(
-                                                            color: colorScheme
-                                                                .onBackground,
-                                                          ),
+                                              child: Align(
+                                                alignment: Alignment.topCenter,
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Center(
+                                                      child: SizedBox(
+                                                        width: 160,
+                                                        child: Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: [
+                                                            Text(
+                                                              yearSemester
+                                                                  .semesters[0]
+                                                                  .arabicName,
+                                                              style: textTheme
+                                                                  .headlineSmall
+                                                                  ?.copyWith(
+                                                                color: colorScheme
+                                                                    .onBackground,
+                                                              ),
+                                                            ),
+                                                            Switch(
+                                                              onChanged:
+                                                                  (value) {},
+                                                              value: true,
+                                                              activeColor:
+                                                                  colorScheme
+                                                                      .primary,
+                                                            ),
+                                                          ],
                                                         ),
-                                                        const SizedBox(
-                                                            width: 10),
-                                                        Switch(
-                                                          onChanged: (value) {},
-                                                          value: true,
-                                                          activeColor:
-                                                              colorScheme
-                                                                  .primary,
-                                                        ),
-                                                      ],
+                                                      ),
                                                     ),
-                                                  ),
-                                                  const Divider(
-                                                      indent: 40,
-                                                      endIndent: 40),
-                                                  const SizedBox(height: 8),
-                                                  for (var subject
-                                                      in yearSemester
-                                                          .semesters[0]
-                                                          .subjects)
-                                                    Row(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      children: [
-                                                        Text(
-                                                          subject.title,
-                                                          style: textTheme
-                                                              .bodyLarge
-                                                              ?.copyWith(
-                                                            color: colorScheme
-                                                                .onBackground,
-                                                          ),
+                                                    const Divider(
+                                                        indent: 40,
+                                                        endIndent: 40),
+                                                    const SizedBox(height: 8),
+                                                    for (var subject
+                                                        in yearSemester
+                                                            .semesters[0]
+                                                            .subjects!)
+                                                      SizedBox(
+                                                        width: 160,
+                                                        child: Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: [
+                                                            Text(
+                                                              subject.title,
+                                                              style: textTheme
+                                                                  .bodyLarge
+                                                                  ?.copyWith(
+                                                                color: colorScheme
+                                                                    .onBackground,
+                                                              ),
+                                                            ),
+                                                            Switch(
+                                                              onChanged:
+                                                                  (value) {},
+                                                              value: subject
+                                                                      .isActive ==
+                                                                  1,
+                                                            ),
+                                                          ],
                                                         ),
-                                                        const SizedBox(
-                                                            width: 20),
-                                                        Switch(
-                                                          onChanged: (value) {},
-                                                          value: subject
-                                                                  .isActive ==
-                                                              1,
-                                                        ),
-                                                      ],
-                                                    ),
-                                                ],
+                                                      ),
+                                                  ],
+                                                ),
                                               ),
                                             ),
                                           ),
@@ -151,63 +161,78 @@ class _SemestersPageState extends State<SemestersPage> {
                                             width: 0.5,
                                           ),
                                           Expanded(
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Center(
-                                                  child: Row(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    children: [
-                                                      Text(
-                                                        yearSemester
-                                                            .semesters[1]
-                                                            .arabicName,
-                                                        style: textTheme
-                                                            .headlineSmall
-                                                            ?.copyWith(
-                                                          color: colorScheme
-                                                              .onBackground,
-                                                        ),
+                                            child: Align(
+                                              alignment: Alignment.topCenter,
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Center(
+                                                    child: SizedBox(
+                                                      width: 160,
+                                                      child: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceBetween,
+                                                        children: [
+                                                          Text(
+                                                            yearSemester
+                                                                .semesters[1]
+                                                                .arabicName,
+                                                            style: textTheme
+                                                                .headlineSmall
+                                                                ?.copyWith(
+                                                              color: colorScheme
+                                                                  .onBackground,
+                                                            ),
+                                                          ),
+                                                          Switch(
+                                                            onChanged:
+                                                                (value) {},
+                                                            value: true,
+                                                            activeColor:
+                                                                colorScheme
+                                                                    .primary,
+                                                          ),
+                                                        ],
                                                       ),
-                                                      const SizedBox(width: 10),
-                                                      Switch(
-                                                        onChanged: (value) {},
-                                                        value: true,
-                                                        activeColor:
-                                                            colorScheme.primary,
-                                                      ),
-                                                    ],
+                                                    ),
                                                   ),
-                                                ),
-                                                const Divider(
-                                                    indent: 40, endIndent: 40),
-                                                const SizedBox(height: 8),
-                                                for (var subject in yearSemester
-                                                    .semesters[1].subjects)
-                                                  Row(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    children: [
-                                                      Text(
-                                                        subject.title,
-                                                        style: textTheme
-                                                            .bodyLarge
-                                                            ?.copyWith(
-                                                          color: colorScheme
-                                                              .onBackground,
-                                                        ),
-                                                      ),
-                                                      const SizedBox(width: 20),
-                                                      Switch(
-                                                        onChanged: (value) {},
-                                                        value:
-                                                            subject.isActive ==
+                                                  const Divider(
+                                                      indent: 40,
+                                                      endIndent: 40),
+                                                  const SizedBox(height: 8),
+                                                  for (var subject
+                                                      in yearSemester
+                                                          .semesters[1]
+                                                          .subjects!)
+                                                    SizedBox(
+                                                      width: 160,
+                                                      child: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceBetween,
+                                                        children: [
+                                                          Text(
+                                                            subject.title,
+                                                            style: textTheme
+                                                                .bodyLarge
+                                                                ?.copyWith(
+                                                              color: colorScheme
+                                                                  .onBackground,
+                                                            ),
+                                                          ),
+                                                          Switch(
+                                                            onChanged:
+                                                                (value) {},
+                                                            value: subject
+                                                                    .isActive ==
                                                                 1,
+                                                          ),
+                                                        ],
                                                       ),
-                                                    ],
-                                                  ),
-                                              ],
+                                                    ),
+                                                ],
+                                              ),
                                             ),
                                           ),
                                         ],

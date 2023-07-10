@@ -26,7 +26,7 @@ class SubscriptionsDataSource {
 
   Future<bool> deleteSubscription({required int subscriptionId}) async {
     final deleteApi = DeleteApi(
-      uri: ApiUris.deleteSubsription(subscriptionId: subscriptionId),
+      uri: ApiUris.deleteSubscription(subscriptionId: subscriptionId),
       fromJson: (json) {
         return jsonDecode(json)['success'];
       },

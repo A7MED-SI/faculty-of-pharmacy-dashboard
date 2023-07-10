@@ -22,19 +22,25 @@ class GetSubscriptoinsParams {
   final int? isActive;
   final String? subscriptionableType;
   final int? userId;
+  final int? page;
+  final int? perPage;
 
   GetSubscriptoinsParams({
-    this.isActive,
+    this.isActive = 0,
     this.subscriptionableType,
     this.userId,
+    this.page,
+    this.perPage,
   });
 
   Map<String, dynamic> toMap() {
     return {
-      if (isActive != null) 'filter[active]': isActive.toString(),
+      'filter[active]': isActive.toString(),
       if (subscriptionableType != null)
         'filter[subscriptionable_type]': subscriptionableType,
       if (userId != null) 'filter[user_id]': userId.toString(),
+      if (page != null) 'page': page,
+      if (perPage != null) 'perPage': perPage,
     };
   }
 }
