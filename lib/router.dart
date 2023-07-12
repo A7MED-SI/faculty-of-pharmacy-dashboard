@@ -89,7 +89,10 @@ class MyRouter {
                     name: QuestionBanksPage.routeName,
                     path: QuestionBanksPage.routeName,
                     builder: (context, state) {
-                      return const QuestionBanksPage();
+                      return QuestionBanksPage(
+                        subjectId:
+                            int.parse(state.queryParameters['subjectId']!),
+                      );
                     },
                     routes: [
                       GoRoute(

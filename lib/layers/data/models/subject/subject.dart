@@ -31,4 +31,22 @@ class Subject {
   Map<String, dynamic> toJson() {
     return _$SubjectToJson(this);
   }
+
+  Subject copyWith({
+    int? id,
+    String? title,
+    int? isActive,
+    int? yearSemesterId,
+    List<QuestionBank>? previousExams,
+    List<QuestionBank>? chapterBanks,
+  }) {
+    return Subject(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      yearSemesterId: yearSemesterId ?? this.yearSemesterId,
+      chapterBanks: chapterBanks ?? this.chapterBanks,
+      isActive: isActive ?? this.isActive,
+      previousExams: previousExams ?? this.previousExams,
+    );
+  }
 }

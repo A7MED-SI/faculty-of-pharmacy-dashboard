@@ -16,3 +16,14 @@ enum SubscriptionableType {
     return value == 3 ? 'فصل' : 'مادة';
   }
 }
+
+enum QuestionBankType {
+  previousExam(1),
+  chapterBank(2);
+
+  final int value;
+  const QuestionBankType(this.value);
+  static String typeInArabic(int value) {
+    return value == 1 ? 'دورة سابقة' : 'بنك مادة';
+  }
+}

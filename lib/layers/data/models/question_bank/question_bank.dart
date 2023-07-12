@@ -1,4 +1,3 @@
-
 import 'package:json_annotation/json_annotation.dart';
 part 'question_bank.g.dart';
 
@@ -33,5 +32,25 @@ class QuestionBank {
 
   Map<String, dynamic> toJson() {
     return _$QuestionBankToJson(this);
+  }
+
+  QuestionBank copyWith({
+    int? id,
+    String? title,
+    int? bankType,
+    int? isActive,
+    int? chapterOrder,
+    String? yearOfExam,
+    int? semesterOfExam,
+  }) {
+    return QuestionBank(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      bankType: bankType ?? this.bankType,
+      isActive: isActive ?? this.isActive,
+      chapterOrder: chapterOrder ?? this.chapterOrder,
+      semesterOfExam: semesterOfExam ?? this.semesterOfExam,
+      yearOfExam: yearOfExam ?? this.yearOfExam,
+    );
   }
 }

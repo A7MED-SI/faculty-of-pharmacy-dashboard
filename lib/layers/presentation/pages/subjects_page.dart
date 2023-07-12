@@ -152,8 +152,8 @@ class _SubjectsPageState extends State<SubjectsPage> {
                               for (var subject in state.subjects)
                                 DataRow2(
                                   onTap: () {
-                                    context
-                                        .goNamed(QuestionBanksPage.routeName);
+                                    context.go(
+                                        '/${SubjectsPage.routeName}/${QuestionBanksPage.routeName}?subjectId=${subject.id}');
                                   },
                                   cells: [
                                     DataCell(Text(subject.title)),
