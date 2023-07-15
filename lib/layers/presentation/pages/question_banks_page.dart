@@ -11,6 +11,8 @@ import 'package:pharmacy_dashboard/layers/domain/use_cases/subject/show_subject.
 import 'package:pharmacy_dashboard/layers/presentation/AppWidgetsDisplayer.dart';
 import 'package:pharmacy_dashboard/layers/presentation/blocs/question_bank/question_bank_bloc.dart';
 import 'package:pharmacy_dashboard/layers/presentation/blocs/question_bank_card/question_bank_card_bloc.dart';
+import 'package:pharmacy_dashboard/layers/presentation/pages/questions_page.dart';
+import 'package:pharmacy_dashboard/layers/presentation/pages/subjects_page.dart';
 import 'package:pharmacy_dashboard/layers/presentation/widgets/app_text_button.dart';
 import 'package:pharmacy_dashboard/layers/presentation/widgets/loading_widget.dart';
 
@@ -115,7 +117,7 @@ class _QuestionBanksPageState extends State<QuestionBanksPage> {
                             children: [
                               Text(
                                 state.subject!.title,
-                                style: textTheme.headlineSmall?.copyWith(
+                                style: textTheme.bodyLarge?.copyWith(
                                   color: colorScheme.onBackground,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -285,6 +287,10 @@ class _QuestionBankCardState extends State<_QuestionBankCard> {
         return Container(
           margin: const EdgeInsets.symmetric(vertical: 5),
           child: ListTile(
+            onTap: () {
+              context.go(
+                  '/${SubjectsPage.routeName}/${widget.subjectId}/${QuestionBanksPage.routeName}/${widget.questionBank.id}/${QuestionsPage.routeName}');
+            },
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             tileColor: colorScheme.background,

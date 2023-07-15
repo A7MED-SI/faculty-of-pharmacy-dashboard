@@ -1,13 +1,21 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:http/http.dart%20';
 import 'package:pharmacy_dashboard/core/constants/api/api_urls.dart';
 import 'package:pharmacy_dashboard/core/unified_api/delete_api.dart';
 import 'package:pharmacy_dashboard/core/unified_api/get_api.dart';
-import 'package:pharmacy_dashboard/core/unified_api/post_api.dart';
+import 'package:pharmacy_dashboard/core/unified_api/handling_response.dart';
 
+import '../../../core/global_functions/global_purpose_functions.dart';
+import '../../../core/unified_api/printing.dart';
 import '../models/question/question.dart';
 
-class QuestionDataSource {
+import 'package:http/http.dart' as http;
+
+class QuestionDataSource extends Printing with HandlingResponse {
+  QuestionDataSource()
+      : super(requestName: 'Add Or Update Or Add Excel Question');
   Future<List<Question>> getQuestions(
       {Map<String, dynamic>? queryParams}) async {
     final getApi = GetApi<List<Question>>(
@@ -37,28 +45,66 @@ class QuestionDataSource {
   }
 
   Future<Question> addQuestion({required Map<String, dynamic> body}) async {
-    final postApi = PostApi<Question>(
-      uri: ApiUris.addQuestionUri(),
-      fromJson: (json) {
-        return Question.fromJson(jsonDecode(json)['data']['question']);
-      },
-      requestName: 'Add Question',
-      body: body,
+    final uri = ApiUris.addQuestionUri();
+    printRequest(
+      requestType: RequestType.post,
+      uri: uri,
+      param: body,
     );
-    return await postApi.callRequest();
+    final http.Response response = await http
+        .post(
+          uri,
+          headers: {
+            HttpHeaders.authorizationHeader:
+                "Bearer ${GlobalPurposeFunctions.getAccessToken()}",
+            HttpHeaders.contentTypeHeader: "application/json",
+            HttpHeaders.acceptHeader: "application/json"
+          },
+          body: jsonEncode(body),
+        )
+        .timeout(
+          const Duration(seconds: 30),
+        );
+
+    printResponse(response);
+
+    if (response.statusCode == 200) {
+      return Question.fromJson(jsonDecode(response.body)['data']['question']);
+    }
+    Exception exception = getException(statusCode: response.statusCode);
+    throw (exception);
   }
 
   Future<Question> updateQuestion(
       {required int questionId, required Map<String, dynamic> body}) async {
-    final postApi = PostApi<Question>(
-      uri: ApiUris.updateQuestionUri(questionId: questionId),
-      fromJson: (json) {
-        return Question.fromJson(jsonDecode(json)['data']['question']);
-      },
-      body: body,
-      requestName: 'Update Question',
+    final uri = ApiUris.updateQuestionUri(questionId: questionId);
+    printRequest(
+      requestType: RequestType.post,
+      uri: uri,
+      param: body,
     );
-    return await postApi.callRequest();
+    final http.Response response = await http
+        .post(
+          uri,
+          headers: {
+            HttpHeaders.authorizationHeader:
+                "Bearer ${GlobalPurposeFunctions.getAccessToken()}",
+            HttpHeaders.contentTypeHeader: "application/json",
+            HttpHeaders.acceptHeader: "application/json"
+          },
+          body: jsonEncode(body),
+        )
+        .timeout(
+          const Duration(seconds: 30),
+        );
+
+    printResponse(response);
+
+    if (response.statusCode == 200) {
+      return Question.fromJson(jsonDecode(response.body)['data']['question']);
+    }
+    Exception exception = getException(statusCode: response.statusCode);
+    throw (exception);
   }
 
   Future<Question> showQuestion(
@@ -71,5 +117,24 @@ class QuestionDataSource {
       requestName: 'Show Question',
     );
     return await getApi.callRequest();
+  }
+
+  Future<bool> addQuestionsFromExel(
+      {required File questionsExel, required int questionBankId}) async {
+    final request = http.MultipartRequest(
+      'POST',
+      ApiUris.addQuestionFromExelUri(questionBankId: questionBankId),
+    );
+    request.headers.addAll({
+      HttpHeaders.authorizationHeader:
+          "Bearer ${GlobalPurposeFunctions.getAccessToken()}",
+      HttpHeaders.contentTypeHeader: "application/x-www-form-urlencoded",
+      HttpHeaders.acceptHeader: "application/json"
+    });
+    request.files.add(MultipartFile('questions',
+        questionsExel.readAsBytes().asStream(), questionsExel.lengthSync()));
+    // ignore: unused_local_variable
+    final response = await request.send();
+    return true;
   }
 }

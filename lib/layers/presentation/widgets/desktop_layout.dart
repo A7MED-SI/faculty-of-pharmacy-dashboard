@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pharmacy_dashboard/core/constants/images/svg_images.dart';
+import 'package:pharmacy_dashboard/layers/presentation/widgets/svg_image.dart';
 
 import 'dart:math' show pi;
 
+import '../../../core/constants/images/app_images.dart';
 import '../blocs/home/home_bloc.dart';
 
 class DesktopLayout extends StatelessWidget {
@@ -25,67 +28,94 @@ class DesktopLayout extends StatelessWidget {
       builder: (context, state) {
         return Row(
           children: [
-            SingleChildScrollView(
-              padding:
-                  !state.isExtended ? const EdgeInsets.only(left: 5) : null,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                    minHeight: MediaQuery.of(context).size.height),
-                child: IntrinsicHeight(
-                  child: NavigationRail(
-                    backgroundColor: colorScheme.background,
-                    extended: state.isExtended,
-                    destinations: const [
-                      NavigationRailDestination(
-                        icon: Icon(Icons.lock_clock),
-                        label: Text('لوحة التحكم'),
+            ScrollConfiguration(
+              behavior:
+                  ScrollConfiguration.of(context).copyWith(scrollbars: false),
+              child: SingleChildScrollView(
+                padding:
+                    !state.isExtended ? const EdgeInsets.only(left: 5) : null,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                      minHeight: MediaQuery.of(context).size.height),
+                  child: IntrinsicHeight(
+                    child: NavigationRail(
+                      backgroundColor: colorScheme.background,
+                      extended: state.isExtended,
+                      destinations: const [
+                        NavigationRailDestination(
+                          icon: SvgImage(
+                            SvgImages.statistics,
+                            height: 30,
+                          ),
+                          label: Text('الإحصائيات'),
+                        ),
+                        NavigationRailDestination(
+                          icon: SvgImage(
+                            SvgImages.qr,
+                            height: 30,
+                          ),
+                          label: Text('الاشتراكات'),
+                        ),
+                        NavigationRailDestination(
+                          icon: SvgImage(
+                            SvgImages.admin,
+                            height: 30,
+                          ),
+                          label: Text('المسؤولين'),
+                        ),
+                        NavigationRailDestination(
+                          icon: SvgImage(
+                            SvgImages.graduationHat,
+                            height: 30,
+                          ),
+                          label: Text('الفصول'),
+                        ),
+                        NavigationRailDestination(
+                          icon: SvgImage(
+                            SvgImages.books,
+                            height: 30,
+                          ),
+                          label: Text('المواد'),
+                        ),
+                        NavigationRailDestination(
+                          icon: SvgImage(
+                            SvgImages.notificationBell,
+                            height: 30,
+                          ),
+                          label: Text('الإشعارات'),
+                        ),
+                        NavigationRailDestination(
+                          icon: SvgImage(
+                            SvgImages.ads,
+                            height: 30,
+                          ),
+                          label: Text('الإعلانات'),
+                        ),
+                      ],
+                      selectedIndex: state.selectedIndex,
+                      elevation: 4,
+                      labelType: state.isExtended
+                          ? NavigationRailLabelType.none
+                          : NavigationRailLabelType.selected,
+                      indicatorColor: colorScheme.primaryContainer,
+                      unselectedLabelTextStyle: textTheme.bodyLarge!.copyWith(
+                        color: colorScheme.onBackground,
                       ),
-                      NavigationRailDestination(
-                        icon: Icon(Icons.lock_clock),
-                        label: Text('الاشتراكات'),
+                      selectedLabelTextStyle: textTheme.bodyLarge!.copyWith(
+                        color: colorScheme.primary,
+                        fontWeight: FontWeight.bold,
                       ),
-                      NavigationRailDestination(
-                        icon: Icon(Icons.lock_clock),
-                        label: Text('المسؤولين'),
-                      ),
-                      NavigationRailDestination(
-                        icon: Icon(Icons.alarm),
-                        label: Text('الفصول'),
-                      ),
-                      NavigationRailDestination(
-                        icon: Icon(Icons.alarm),
-                        label: Text('المواد'),
-                      ),
-                      NavigationRailDestination(
-                        icon: Icon(Icons.alarm),
-                        label: Text('الإشعارات'),
-                      ),
-                      NavigationRailDestination(
-                        icon: Icon(Icons.alarm),
-                        label: Text('الإعلانات'),
-                      ),
-                    ],
-                    selectedIndex: state.selectedIndex,
-                    elevation: 4,
-                    labelType: state.isExtended
-                        ? NavigationRailLabelType.none
-                        : NavigationRailLabelType.selected,
-                    indicatorColor: colorScheme.primaryContainer,
-                    unselectedLabelTextStyle: textTheme.bodyLarge!.copyWith(
-                      color: colorScheme.onBackground,
+                      selectedIconTheme:
+                          IconThemeData(color: colorScheme.onPrimaryContainer),
+                      leading: const _NavigationRailHeader(),
+                      useIndicator: true,
+                      onDestinationSelected: (newIndex) {
+                        context
+                            .read<HomeBloc>()
+                            .add(PageIndexChanged(newIndex));
+                        navigatorDelegate(newIndex);
+                      },
                     ),
-                    selectedLabelTextStyle: textTheme.bodyLarge!.copyWith(
-                      color: colorScheme.primary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    selectedIconTheme:
-                        IconThemeData(color: colorScheme.onPrimaryContainer),
-                    leading: const _NavigationRailHeader(),
-                    useIndicator: true,
-                    onDestinationSelected: (newIndex) {
-                      context.read<HomeBloc>().add(PageIndexChanged(newIndex));
-                      navigatorDelegate(newIndex);
-                    },
                   ),
                 ),
               ),
@@ -136,10 +166,11 @@ class _NavigationRailHeader extends StatelessWidget {
                   children: [
                     const SizedBox(width: 6),
                     Material(
+                      color: Colors.transparent,
                       child: InkWell(
-                        key: const ValueKey('ReplyLogo'),
                         borderRadius:
                             const BorderRadius.all(Radius.circular(50)),
+                        hoverColor: Colors.black12,
                         onTap: () {
                           context.read<HomeBloc>().add(RailExtendingToggled());
                         },
@@ -150,10 +181,16 @@ class _NavigationRailHeader extends StatelessWidget {
                               child: Icon(
                                 Icons.arrow_right,
                                 color: colorScheme.onBackground,
-                                size: 16,
+                                size: 30,
                               ),
                             ),
-                            const Icon(Icons.flutter_dash),
+                            SizedBox(
+                              height: 40,
+                              child: Image(
+                                image: const AssetImage(AppImages.logoImage),
+                                color: colorScheme.onBackground,
+                              ),
+                            ),
                             const SizedBox(width: 30),
                             Align(
                               alignment: AlignmentDirectional.centerStart,

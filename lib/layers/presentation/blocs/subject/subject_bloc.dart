@@ -181,7 +181,7 @@ class SubjectBloc extends Bloc<SubjectEvent, SubjectState> {
     var newSubject = Subject(
       id: oldSubject.id,
       title: oldSubject.title,
-      yearSemesterId: oldSubject.yearSemesterId,
+      semester: oldSubject.semester,
       isActive: oldSubject.isActive! + 1 % 2,
     );
     final subjects = List.of(state.subjects);

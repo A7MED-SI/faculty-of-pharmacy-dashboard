@@ -15,7 +15,7 @@ LoginResponse _$LoginResponseFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$LoginResponseToJson(LoginResponse instance) =>
     <String, dynamic>{
       'token': instance.token,
-      'admin': instance.admin,
+      'admin': instance.admin.toJson(),
     };
 
 Admin _$AdminFromJson(Map<String, dynamic> json) => Admin(

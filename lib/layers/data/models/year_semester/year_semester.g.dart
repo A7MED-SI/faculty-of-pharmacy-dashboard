@@ -16,7 +16,7 @@ YearSemester _$YearSemesterFromJson(Map<String, dynamic> json) => YearSemester(
 Map<String, dynamic> _$YearSemesterToJson(YearSemester instance) =>
     <String, dynamic>{
       'year': instance.year,
-      'semesters': instance.semesters,
+      'semesters': instance.semesters.map((e) => e.toJson()).toList(),
     };
 
 Semester _$SemesterFromJson(Map<String, dynamic> json) => Semester(
@@ -26,11 +26,13 @@ Semester _$SemesterFromJson(Map<String, dynamic> json) => Semester(
       subjects: (json['subjects'] as List<dynamic>?)
           ?.map((e) => Subject.fromJson(e as Map<String, dynamic>))
           .toList(),
+      isActive: json['is_active'] as int? ?? 1,
     );
 
 Map<String, dynamic> _$SemesterToJson(Semester instance) => <String, dynamic>{
       'id': instance.id,
       'subject_year': instance.subjectYear,
       'semester': instance.semester,
-      'subjects': instance.subjects,
+      'is_active': instance.isActive,
+      'subjects': instance.subjects?.map((e) => e.toJson()).toList(),
     };

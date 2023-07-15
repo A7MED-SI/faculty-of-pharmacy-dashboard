@@ -1,7 +1,10 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:pharmacy_dashboard/layers/data/models/subject/subject.dart';
+
+import '../question/question.dart';
 part 'question_bank.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class QuestionBank {
   final int id;
   final String title;
@@ -15,12 +18,16 @@ class QuestionBank {
   final String? yearOfExam;
   @JsonKey(name: 'semester_of_exam')
   final int? semesterOfExam;
+  final Subject? subject;
+  final List<Question>? questions;
 
   QuestionBank({
     required this.id,
     required this.title,
     required this.bankType,
     required this.isActive,
+    required this.subject,
+    this.questions,
     this.chapterOrder,
     this.yearOfExam,
     this.semesterOfExam,
@@ -42,6 +49,8 @@ class QuestionBank {
     int? chapterOrder,
     String? yearOfExam,
     int? semesterOfExam,
+    List<Question>? questions,
+    Subject? subject,
   }) {
     return QuestionBank(
       id: id ?? this.id,
@@ -51,6 +60,8 @@ class QuestionBank {
       chapterOrder: chapterOrder ?? this.chapterOrder,
       semesterOfExam: semesterOfExam ?? this.semesterOfExam,
       yearOfExam: yearOfExam ?? this.yearOfExam,
+      questions: questions ?? this.questions,
+      subject: subject ?? this.subject,
     );
   }
 }

@@ -5,6 +5,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pharmacy_dashboard/core/constants/images/app_images.dart';
 import 'package:pharmacy_dashboard/core/layout/adaptive.dart';
 import 'package:pharmacy_dashboard/layers/presentation/AppWidgetsDisplayer.dart';
 import 'package:pharmacy_dashboard/layers/presentation/widgets/loading_widget.dart';
@@ -63,20 +64,22 @@ class _LoginPageState extends State<LoginPage> {
               child: state.status == AuthStatus.loading
                   ? const LoadingWidget()
                   : SizedBox(
-                      width: 400,
+                      width: isDesktop ? 450 : 300,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
-                            Icons.flutter_dash,
-                            color: colorScheme.onSurfaceVariant,
-                            size: 50,
+                          SizedBox(
+                            height: 140,
+                            child: Image(
+                              image: const AssetImage(AppImages.logoImage),
+                              color: colorScheme.onBackground,
+                            ),
                           ),
                           const SizedBox(height: 10),
                           Text(
                             'DO IT RIGHT',
                             style: textTheme.headlineLarge?.copyWith(
-                              color: colorScheme.onSurfaceVariant,
+                              color: colorScheme.onBackground,
                               fontWeight: FontWeight.bold,
                             ),
                             textDirection: TextDirection.ltr,
@@ -85,23 +88,23 @@ class _LoginPageState extends State<LoginPage> {
                           TextField(
                             controller: _usernameController,
                             textInputAction: TextInputAction.next,
-                            cursorColor: colorScheme.onSurfaceVariant,
+                            cursorColor: colorScheme.onBackground,
                             decoration: InputDecoration(
                               labelText: 'اسم المستخدم',
                               labelStyle: textTheme.bodyLarge?.copyWith(
-                                color: colorScheme.onSurfaceVariant,
+                                color: colorScheme.onBackground,
                               ),
                             ),
                           ),
                           const SizedBox(height: 15),
                           TextField(
                             controller: _passwordController,
-                            cursorColor: colorScheme.onSurfaceVariant,
+                            cursorColor: colorScheme.onBackground,
                             obscureText: true,
                             decoration: InputDecoration(
                               labelText: 'كلمة المرور',
                               labelStyle: textTheme.bodyLarge?.copyWith(
-                                color: colorScheme.onSurfaceVariant,
+                                color: colorScheme.onBackground,
                               ),
                             ),
                           ),

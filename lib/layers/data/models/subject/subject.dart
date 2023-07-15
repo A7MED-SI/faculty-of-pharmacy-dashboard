@@ -1,15 +1,16 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:pharmacy_dashboard/layers/data/models/question_bank/question_bank.dart';
+import 'package:pharmacy_dashboard/layers/data/models/year_semester/year_semester.dart';
 part 'subject.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class Subject {
   final int id;
   final String title;
   @JsonKey(name: 'is_active')
   final int? isActive;
-  @JsonKey(name: 'year_semester_id')
-  final int yearSemesterId;
+  @JsonKey(name: 'year_semester')
+  final Semester semester;
   @JsonKey(name: 'question_exams')
   final List<QuestionBank>? previousExams;
   @JsonKey(name: 'subject_chapters')
@@ -19,7 +20,7 @@ class Subject {
     required this.id,
     required this.title,
     this.isActive = 1,
-    required this.yearSemesterId,
+    required this.semester,
     this.chapterBanks,
     this.previousExams,
   });
@@ -36,14 +37,14 @@ class Subject {
     int? id,
     String? title,
     int? isActive,
-    int? yearSemesterId,
+    Semester? semester,
     List<QuestionBank>? previousExams,
     List<QuestionBank>? chapterBanks,
   }) {
     return Subject(
       id: id ?? this.id,
       title: title ?? this.title,
-      yearSemesterId: yearSemesterId ?? this.yearSemesterId,
+      semester: semester ?? this.semester,
       chapterBanks: chapterBanks ?? this.chapterBanks,
       isActive: isActive ?? this.isActive,
       previousExams: previousExams ?? this.previousExams,

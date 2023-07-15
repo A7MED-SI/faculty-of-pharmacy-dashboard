@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:pharmacy_dashboard/layers/data/models/subject/subject.dart';
 part 'year_semester.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class YearSemester {
   final int year;
   final List<Semester> semesters;
@@ -38,12 +38,14 @@ class YearSemester {
   }
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class Semester {
   final int id;
   @JsonKey(name: 'subject_year')
   final int? subjectYear;
   final int semester;
+  @JsonKey(name: 'is_active')
+  final int? isActive;
   final List<Subject>? subjects;
 
   Semester({
@@ -51,6 +53,7 @@ class Semester {
     this.subjectYear,
     required this.semester,
     required this.subjects,
+    this.isActive = 1,
   });
 
   factory Semester.fromJson(Map<String, dynamic> json) {

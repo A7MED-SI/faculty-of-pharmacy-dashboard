@@ -87,19 +87,21 @@ class MyRouter {
                 routes: [
                   GoRoute(
                     name: QuestionBanksPage.routeName,
-                    path: QuestionBanksPage.routeName,
+                    path: ':subId/${QuestionBanksPage.routeName}',
                     builder: (context, state) {
                       return QuestionBanksPage(
                         subjectId:
-                            int.parse(state.queryParameters['subjectId']!),
+                            int.parse(state.pathParameters['subId']!),
                       );
                     },
                     routes: [
                       GoRoute(
                         name: QuestionsPage.routeName,
-                        path: QuestionsPage.routeName,
+                        path: ':qBankId/${QuestionsPage.routeName}',
                         builder: (context, state) {
-                          return const QuestionsPage();
+                          return  QuestionsPage(
+                            questionBankId: int.parse(state.pathParameters['qBankId']!),
+                          );
                         },
                       ),
                     ],

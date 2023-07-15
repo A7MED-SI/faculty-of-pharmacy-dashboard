@@ -256,7 +256,7 @@ class _AddUpdateAdminDialogState extends State<_AddUpdateAdminDialog> {
                         decoration: const InputDecoration(
                           isCollapsed: true,
                           contentPadding: EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 16),
+                              horizontal: 10, vertical: 11),
                         ),
                       ),
                     ),
@@ -282,7 +282,7 @@ class _AddUpdateAdminDialogState extends State<_AddUpdateAdminDialog> {
                         decoration: const InputDecoration(
                           isCollapsed: true,
                           contentPadding: EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 16),
+                              horizontal: 10, vertical: 11),
                         ),
                       ),
                     ),
@@ -309,7 +309,7 @@ class _AddUpdateAdminDialogState extends State<_AddUpdateAdminDialog> {
                         decoration: const InputDecoration(
                           isCollapsed: true,
                           contentPadding: EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 16),
+                              horizontal: 10, vertical: 11),
                         ),
                       ),
                     ),
@@ -336,7 +336,7 @@ class _AddUpdateAdminDialogState extends State<_AddUpdateAdminDialog> {
                         decoration: const InputDecoration(
                           isCollapsed: true,
                           contentPadding: EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 16),
+                              horizontal: 10, vertical: 11),
                         ),
                       ),
                     ),

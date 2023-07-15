@@ -153,7 +153,7 @@ class _SubjectsPageState extends State<SubjectsPage> {
                                 DataRow2(
                                   onTap: () {
                                     context.go(
-                                        '/${SubjectsPage.routeName}/${QuestionBanksPage.routeName}?subjectId=${subject.id}');
+                                        '/${SubjectsPage.routeName}/${subject.id}/${QuestionBanksPage.routeName}');
                                   },
                                   cells: [
                                     DataCell(Text(subject.title)),
@@ -184,8 +184,7 @@ class _SubjectsPageState extends State<SubjectsPage> {
                                                 return _AddUpdateSubjectDialog(
                                                   subjectBloc: _subjectBloc,
                                                   isUpdate: true,
-                                                  semesterId:
-                                                      subject.yearSemesterId,
+                                                  semesterId: subject.semester.id,
                                                   title: subject.title,
                                                   subjectId: subject.id,
                                                 );

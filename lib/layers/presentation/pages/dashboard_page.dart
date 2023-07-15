@@ -8,15 +8,13 @@ class DashboardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    return Container(
-      height: double.infinity,
-      width: double.infinity,
-      color: colorScheme.secondary,
-      child: Center(
+    return Scaffold(
+      backgroundColor: colorScheme.surfaceVariant,
+      body: Center(
         child: Text(
           'Dashboard Page',
-          style:
-              textTheme.headlineLarge!.copyWith(color: colorScheme.onSecondary),
+          style: textTheme.headlineLarge!
+              .copyWith(color: colorScheme.onBackground),
         ),
       ),
     );

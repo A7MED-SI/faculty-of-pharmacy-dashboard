@@ -188,6 +188,12 @@ class ApiUris {
     );
   }
 
+  static Uri addQuestionFromExelUri({required int questionBankId}) {
+    return _mainUri(
+      path: '$_questionApi$questionBankId/storeFromExel',
+    );
+  }
+
   static Uri updateQuestionUri({required int questionId}) {
     return _mainUri(
       path: '$_questionApi$questionId/update',

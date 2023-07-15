@@ -1,7 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 part 'login_response.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class LoginResponse {
   final String token;
   final Admin admin;

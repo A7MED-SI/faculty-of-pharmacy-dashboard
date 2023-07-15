@@ -9,7 +9,9 @@ import 'package:pharmacy_dashboard/layers/presentation/pages/semesters_page.dart
 import 'package:pharmacy_dashboard/layers/presentation/pages/subjects_page.dart';
 import 'package:pharmacy_dashboard/layers/presentation/pages/subscriptions_page.dart';
 import 'package:pharmacy_dashboard/layers/presentation/widgets/home_navigator.dart';
+import 'package:pharmacy_dashboard/layers/presentation/widgets/svg_image.dart';
 
+import '../../../core/constants/images/svg_images.dart';
 import '../blocs/home/home_bloc.dart';
 
 class ListDrawer extends StatefulWidget {
@@ -29,7 +31,11 @@ class _ListDrawerState extends State<ListDrawer> {
             child: ListView(
               children: [
                 DrawerTile(
-                  title: 'لوحة التحكم',
+                  icon: const SvgImage(
+                    SvgImages.statistics,
+                    height: 20,
+                  ),
+                  title: 'الإحصائيات',
                   selected:
                       state.selectedIndex == TabsNumber.dashboardPage.order,
                   onTap: () {
@@ -40,6 +46,10 @@ class _ListDrawerState extends State<ListDrawer> {
                   },
                 ),
                 DrawerTile(
+                  icon: const SvgImage(
+                    SvgImages.qr,
+                    height: 20,
+                  ),
                   title: 'الإشتراكات',
                   selected:
                       state.selectedIndex == TabsNumber.subscriptionPage.order,
@@ -50,6 +60,10 @@ class _ListDrawerState extends State<ListDrawer> {
                   },
                 ),
                 DrawerTile(
+                  icon: const SvgImage(
+                    SvgImages.admin,
+                    height: 20,
+                  ),
                   title: 'المسؤولين',
                   selected: state.selectedIndex == TabsNumber.adminsPage.order,
                   onTap: () {
@@ -60,6 +74,10 @@ class _ListDrawerState extends State<ListDrawer> {
                   },
                 ),
                 DrawerTile(
+                  icon: const SvgImage(
+                    SvgImages.graduationHat,
+                    height: 20,
+                  ),
                   title: 'الفصول',
                   selected:
                       state.selectedIndex == TabsNumber.semestersPage.order,
@@ -71,6 +89,10 @@ class _ListDrawerState extends State<ListDrawer> {
                   },
                 ),
                 DrawerTile(
+                  icon: const SvgImage(
+                    SvgImages.books,
+                    height: 20,
+                  ),
                   title: 'المواد',
                   selected:
                       state.selectedIndex == TabsNumber.subjectsPage.order,
@@ -82,6 +104,10 @@ class _ListDrawerState extends State<ListDrawer> {
                   },
                 ),
                 DrawerTile(
+                  icon: const SvgImage(
+                    SvgImages.notificationBell,
+                    height: 20,
+                  ),
                   title: 'الإشعارات',
                   selected:
                       state.selectedIndex == TabsNumber.notificationPage.order,
@@ -92,6 +118,10 @@ class _ListDrawerState extends State<ListDrawer> {
                   },
                 ),
                 DrawerTile(
+                  icon: const SvgImage(
+                    SvgImages.ads,
+                    height: 20,
+                  ),
                   title: 'الإعلانات',
                   selected: state.selectedIndex == TabsNumber.adsPage.order,
                   onTap: () {
@@ -116,10 +146,12 @@ class DrawerTile extends StatelessWidget {
     required this.onTap,
     required this.selected,
     required this.title,
+    required this.icon,
   });
   final bool selected;
   final String title;
   final VoidCallback onTap;
+  final Widget icon;
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -127,7 +159,7 @@ class DrawerTile extends StatelessWidget {
     return ListTile(
       enabled: true,
       selected: selected,
-      leading: const Icon(Icons.favorite),
+      leading: icon,
       title: Text(
         title,
         style: textTheme.bodyMedium?.copyWith(
