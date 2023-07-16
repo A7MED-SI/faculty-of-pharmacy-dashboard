@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:http/http.dart%20';
 import 'package:pharmacy_dashboard/core/constants/api/api_urls.dart';
@@ -120,7 +121,7 @@ class QuestionDataSource extends Printing with HandlingResponse {
   }
 
   Future<bool> addQuestionsFromExel(
-      {required File questionsExel, required int questionBankId}) async {
+      {required Uint8List questionsExel, required int questionBankId}) async {
     final request = http.MultipartRequest(
       'POST',
       ApiUris.addQuestionFromExelUri(questionBankId: questionBankId),
@@ -131,10 +132,17 @@ class QuestionDataSource extends Printing with HandlingResponse {
       HttpHeaders.contentTypeHeader: "application/x-www-form-urlencoded",
       HttpHeaders.acceptHeader: "application/json"
     });
-    request.files.add(MultipartFile('questions',
-        questionsExel.readAsBytes().asStream(), questionsExel.lengthSync()));
+    request.files.add(MultipartFile.fromBytes('questions', questionsExel,
+        filename: 'questions.xlsx'));
     // ignore: unused_local_variable
     final response = await request.send();
-    return true;
+    final bodyString = await response.stream.bytesToString();
+    print(
+        'the response from add from excel is ${response.statusCode} \n the response body is $bodyString');
+    if (response.statusCode == 200) {
+      return true;
+    }
+    Exception exception = getException(statusCode: response.statusCode);
+    throw (exception);
   }
 }

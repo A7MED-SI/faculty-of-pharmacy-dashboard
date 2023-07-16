@@ -190,7 +190,7 @@ class ApiUris {
 
   static Uri addQuestionFromExelUri({required int questionBankId}) {
     return _mainUri(
-      path: '$_questionApi$questionBankId/storeFromExel',
+      path: '${_questionApi}questionBank/$questionBankId/storeFromExel',
     );
   }
 

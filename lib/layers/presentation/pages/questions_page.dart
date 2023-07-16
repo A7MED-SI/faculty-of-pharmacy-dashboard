@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:file_picker/_internal/file_picker_web.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pharmacy_dashboard/core/constants/api_enums/api_enums.dart';
 import 'package:pharmacy_dashboard/layers/data/models/question/question.dart';
 import 'package:pharmacy_dashboard/layers/domain/use_cases/question/add_question.dart';
+import 'package:pharmacy_dashboard/layers/domain/use_cases/question/add_question_from_exel.dart';
 import 'package:pharmacy_dashboard/layers/domain/use_cases/question/update_question.dart';
 import 'package:pharmacy_dashboard/layers/domain/use_cases/question_bank/show_question_bank.dart';
 import 'package:pharmacy_dashboard/layers/presentation/AppWidgetsDisplayer.dart';
@@ -103,6 +106,21 @@ class _QuestionsPageState extends State<QuestionsPage> {
                   message: 'تم حذف السؤال بنجاح',
                 );
               }
+              if (state.addingQuestionsFromExcelStatus ==
+                  AddingQuestionsFromExcelStatus.failed) {
+                AppWidgetsDisplayer.dispalyErrorSnackBar(
+                  context: context,
+                  message:
+                      'فشل رفع الملف يرجى التحقق من اتصالك بالإنترنت والمحاولة لاحقا',
+                );
+              }
+              if (state.addingQuestionsFromExcelStatus ==
+                  AddingQuestionsFromExcelStatus.success) {
+                AppWidgetsDisplayer.dispalySuccessSnackBar(
+                  context: context,
+                  message: 'تم رفع ملف الأسئلة بنجاح',
+                );
+              }
             },
             builder: (context, state) {
               return state.questionBankFetchingStatus ==
@@ -153,7 +171,18 @@ class _QuestionsPageState extends State<QuestionsPage> {
                                         ),
                                         const SizedBox(width: 10),
                                         AppTextButton(
-                                          onPressed: () {},
+                                          onPressed: () {
+                                            showDialog(
+                                              context: context,
+                                              builder: (context) {
+                                                return _AddExcelFileDialog(
+                                                  questionBloc: _questionBloc,
+                                                  questionBankId:
+                                                      widget.questionBankId,
+                                                );
+                                              },
+                                            );
+                                          },
                                           text: 'إضافة ملف اكسل',
                                         ),
                                       ],
@@ -823,6 +852,142 @@ class _AddUpdateQuestionDialogState extends State<_AddUpdateQuestionDialog> {
                 ),
               );
             },
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AddExcelFileDialog extends StatefulWidget {
+  const _AddExcelFileDialog({
+    required this.questionBloc,
+    required this.questionBankId,
+  });
+  final QuestionBloc questionBloc;
+  final int questionBankId;
+  @override
+  State<_AddExcelFileDialog> createState() => _AddExcelFileDialogState();
+}
+
+class _AddExcelFileDialogState extends State<_AddExcelFileDialog> {
+  late final TextEditingController titleController;
+  Uint8List? excelFile;
+
+  @override
+  void initState() {
+    super.initState();
+    titleController = TextEditingController(text: 'اختر الملف');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final isDesktop = isDisplayDesktop(context);
+    return Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
+      ),
+      insetPadding: isDesktop
+          ? const EdgeInsets.symmetric(horizontal: 300)
+          : const EdgeInsets.symmetric(horizontal: 60),
+      backgroundColor: colorScheme.background,
+      child: Directionality(
+        textDirection: TextDirection.rtl,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Text(
+                  'إضافة ملف اكسل',
+                  style: textTheme.headlineSmall?.copyWith(
+                    color: colorScheme.onBackground,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 40),
+              SizedBox(
+                width: 340,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'اسم الملف:',
+                      style: textTheme.bodyLarge
+                          ?.copyWith(color: colorScheme.onBackground),
+                    ),
+                    SizedBox(
+                      width: 250,
+                      child: TextField(
+                        onTap: () async {
+                          final FilePickerResult? result =
+                              await FilePickerWeb.platform.pickFiles(
+                            type: FileType.custom,
+                            allowedExtensions: ['xlsx'],
+                          );
+                          if (result != null) {
+                            titleController.text = result.files.first.name;
+                            excelFile = result.files.first.bytes!;
+                          }
+                        },
+                        readOnly: true,
+                        controller: titleController,
+                        style: textTheme.bodyLarge,
+                        showCursor: false,
+                        mouseCursor: SystemMouseCursors.click,
+                        canRequestFocus: false,
+                        decoration: const InputDecoration(
+                          isCollapsed: true,
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 11),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 30),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        context.pop();
+                      },
+                      child: Text(
+                        'إلغاء',
+                        style: textTheme.bodyLarge?.copyWith(
+                          color: colorScheme.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    AppElevatedButton(
+                      onPressed: () {
+                        if (excelFile == null) {
+                          return;
+                        }
+                        widget.questionBloc.add(QuestionsFromExcelAdded(
+                            addQuestionFromExelParams:
+                                AddQuestionFromExelParams(
+                                    questionBankId: widget.questionBankId,
+                                    exelFile: excelFile!)));
+                        context.pop();
+                      },
+                      text: 'إضافة',
+                    ),
+                  ],
+                ),
+              )
+            ],
           ),
         ),
       ),

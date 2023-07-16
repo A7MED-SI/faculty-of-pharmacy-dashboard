@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:dartz/dartz.dart';
 import 'package:pharmacy_dashboard/layers/domain/repositories/question_repository.dart';
@@ -21,7 +21,7 @@ class AddQuestionFromExelUseCase
 
 class AddQuestionFromExelParams {
   final int questionBankId;
-  final File exelFile;
+  final Uint8List exelFile;
 
   AddQuestionFromExelParams({
     required this.questionBankId,

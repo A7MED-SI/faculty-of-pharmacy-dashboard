@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:dartz/dartz.dart';
 import 'package:pharmacy_dashboard/core/error/failures.dart';
@@ -21,7 +21,7 @@ class QuestionRepositoryImplementation implements QuestionRepository {
 
   @override
   Future<Either<Failure, bool>> addQuestionsFromExel(
-      {required int questionBankId, required File exelFile}) async {
+      {required int questionBankId, required Uint8List exelFile}) async {
     return await HandlingExceptionManager.wrapHandling<bool>(tryCall: () async {
       final response = await _questionDataSource.addQuestionsFromExel(
           questionBankId: questionBankId, questionsExel: exelFile);

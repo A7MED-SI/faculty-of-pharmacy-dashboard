@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:dartz/dartz.dart';
 
@@ -21,5 +21,5 @@ abstract class QuestionRepository {
   Future<Either<Failure, bool>> deleteQuestion({required int questionId});
 
   Future<Either<Failure, bool>> addQuestionsFromExel(
-      {required int questionBankId, required File exelFile});
+      {required int questionBankId, required Uint8List exelFile});
 }

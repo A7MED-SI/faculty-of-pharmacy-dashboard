@@ -6,6 +6,7 @@ import 'package:pharmacy_dashboard/layers/data/models/question_bank/question_ban
 import 'package:pharmacy_dashboard/layers/data/repositories/question_bank_repository.dart';
 import 'package:pharmacy_dashboard/layers/data/repositories/question_repository.dart';
 import 'package:pharmacy_dashboard/layers/domain/use_cases/question/add_question.dart';
+import 'package:pharmacy_dashboard/layers/domain/use_cases/question/add_question_from_exel.dart';
 import 'package:pharmacy_dashboard/layers/domain/use_cases/question/delete_question.dart';
 import 'package:pharmacy_dashboard/layers/domain/use_cases/question/update_question.dart';
 import 'package:pharmacy_dashboard/layers/domain/use_cases/question_bank/show_question_bank.dart';
@@ -19,6 +20,7 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
     on<QuestionAdded>(_mapQuestionAdded);
     on<QuestionUpdated>(_mapQuestionUpdated);
     on<QuestionDeleted>(_mapQuestionDeleted);
+    on<QuestionsFromExcelAdded>(_mapQuestionsFromExcelAdded);
   }
 
   final _showQuestionBankUseCase = ShowQuestionBankUseCase(
@@ -28,6 +30,8 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
   final _updateQuestionUseCase = UpdateQuestionUseCase(
       questionRepository: QuestionRepositoryImplementation());
   final _deleteQuestionUseCase = DeleteQuestionUseCase(
+      questionRepository: QuestionRepositoryImplementation());
+  final _addQuestionsFromExcelUseCase = AddQuestionFromExelUseCase(
       questionRepository: QuestionRepositoryImplementation());
 
   FutureOr<void> _mapQuestionBankFetched(
@@ -116,6 +120,33 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
     add(QuestionBankFetched(
         showQuestionBankParams: ShowQuestionBankParams(
       questionBankId: event.questionBankId,
+    )));
+  }
+
+  FutureOr<void> _mapQuestionsFromExcelAdded(
+      QuestionsFromExcelAdded event, Emitter<QuestionState> emit) async {
+    emit(state.copyWith(
+        questionBankFetchingStatus: QuestionBankFetchingStatus.loading));
+    final result =
+        await _addQuestionsFromExcelUseCase(event.addQuestionFromExelParams);
+
+    await result.fold(
+      (l) async {
+        emit(state.copyWith(
+            addingQuestionsFromExcelStatus:
+                AddingQuestionsFromExcelStatus.failed));
+      },
+      (r) async {
+        emit(state.copyWith(
+            addingQuestionsFromExcelStatus:
+                AddingQuestionsFromExcelStatus.success));
+      },
+    );
+    emit(const QuestionState());
+
+    add(QuestionBankFetched(
+        showQuestionBankParams: ShowQuestionBankParams(
+      questionBankId: event.addQuestionFromExelParams.questionBankId,
     )));
   }
 }

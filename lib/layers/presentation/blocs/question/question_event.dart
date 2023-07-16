@@ -30,3 +30,9 @@ class QuestionDeleted extends QuestionEvent {
     required this.questionBankId,
   });
 }
+
+class QuestionsFromExcelAdded extends QuestionEvent {
+  final AddQuestionFromExelParams addQuestionFromExelParams;
+
+  QuestionsFromExcelAdded({required this.addQuestionFromExelParams});
+}
