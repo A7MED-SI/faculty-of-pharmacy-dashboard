@@ -31,6 +31,9 @@ class MyApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             theme: ThemeData(
               useMaterial3: false,
+              checkboxTheme: CheckboxThemeData(
+                fillColor: MaterialStatePropertyAll(lightColorScheme.primary),
+              ),
               colorScheme: lightColorScheme,
               textTheme: appTextTheme,
               inputDecorationTheme: InputDecorationTheme(

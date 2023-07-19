@@ -20,3 +20,17 @@ class SubscriptionDeleted extends SubscriptionEvent {
 
   SubscriptionDeleted({required this.subscriptionId});
 }
+
+
+
+class AllSelectedChanged extends SubscriptionEvent {
+  final bool value;
+
+  AllSelectedChanged(this.value);
+}
+
+class RowSelectionToggled extends SubscriptionEvent {
+  final int index;
+
+  RowSelectionToggled(this.index);
+}

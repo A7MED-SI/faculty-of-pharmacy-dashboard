@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
@@ -54,9 +55,10 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
       id: oldAdmin.id,
       name: oldAdmin.name,
       username: oldAdmin.username,
-      isActive: oldAdmin.isActive! + 1 % 2,
+      isActive: (oldAdmin.isActive! + 1) % 2,
       role: oldAdmin.role,
     );
+    log("New Admin Activity ${newAdmin.isActive}");
     final admins = List.of(state.admins);
     admins[adminIndex] = newAdmin;
     emit(state.copyWith(admins: admins));

@@ -147,6 +147,8 @@ class _SemestersPageState extends State<SemestersPage> {
                                                               value: subject
                                                                       .isActive ==
                                                                   1,
+                                                              activeColor:
+                                                                  Colors.green,
                                                             ),
                                                           ],
                                                         ),
@@ -227,6 +229,8 @@ class _SemestersPageState extends State<SemestersPage> {
                                                             value: subject
                                                                     .isActive ==
                                                                 1,
+                                                            activeColor:
+                                                                Colors.green,
                                                           ),
                                                         ],
                                                       ),

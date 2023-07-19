@@ -1,14 +1,26 @@
+import 'package:json_annotation/json_annotation.dart';
+part 'ad.g.dart';
+
+@JsonSerializable()
 class Ad {
   final int id;
   final String title;
+  final String image;
+  @JsonKey(name: 'is_active')
+  final int? isActive;
 
-  Ad(this.id, this.title);
+  Ad({
+    required this.id,
+    required this.title,
+    required this.image,
+    this.isActive = 1,
+  });
 
   factory Ad.fromJson(Map<String, dynamic> json) {
-    return Ad(1, 'title');
+    return _$AdFromJson(json);
   }
 
   Map<String, dynamic> toJson() {
-    return {};
+    return _$AdToJson(this);
   }
 }

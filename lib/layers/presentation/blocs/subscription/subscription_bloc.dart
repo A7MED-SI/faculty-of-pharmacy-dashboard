@@ -15,6 +15,8 @@ class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
   SubscriptionBloc() : super(const SubscriptionState()) {
     on<SubscriptionsFetched>(_mapSubscriptionsFetched);
     on<SubscriptionGroupAdded>(_mapSubscriptionGroupAdded);
+    on<AllSelectedChanged>(_mapAllSelectedChanged);
+    on<RowSelectionToggled>(_mapRowSelectionToggled);
   }
 
   final _getSubscriptionsUseCase = GetSubscriptionsUseCase(
@@ -34,6 +36,7 @@ class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
         emit(state.copyWith(
           subsFetchingStatus: SubsFetchingStatus.success,
           subscriptions: subs,
+          selection: List.filled(subs.length, false),
         ));
       },
     );
@@ -57,5 +60,18 @@ class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
         add(SubscriptionsFetched(params: GetSubscriptoinsParams()));
       },
     );
+  }
+
+  FutureOr<void> _mapAllSelectedChanged(
+      AllSelectedChanged event, Emitter<SubscriptionState> emit) {
+    emit(state.copyWith(
+        selection: List.filled(state.selection.length, event.value)));
+  }
+
+  FutureOr<void> _mapRowSelectionToggled(
+      RowSelectionToggled event, Emitter<SubscriptionState> emit) {
+    final selection = List.of(state.selection);
+    selection[event.index] = !selection[event.index];
+    emit(state.copyWith(selection: selection));
   }
 }

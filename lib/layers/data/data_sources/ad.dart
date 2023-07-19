@@ -1,13 +1,20 @@
 import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
+import 'package:http/http.dart' as http;
 
 import 'package:pharmacy_dashboard/core/constants/api/api_urls.dart';
 import 'package:pharmacy_dashboard/core/unified_api/delete_api.dart';
 import 'package:pharmacy_dashboard/core/unified_api/get_api.dart';
+import 'package:pharmacy_dashboard/core/unified_api/handling_response.dart';
 import 'package:pharmacy_dashboard/core/unified_api/post_api.dart';
+import 'package:pharmacy_dashboard/core/unified_api/printing.dart';
 
+import '../../../core/global_functions/global_purpose_functions.dart';
 import '../models/ad/ad.dart';
 
-class AdDataSource {
+class AdDataSource extends Printing with HandlingResponse {
+  AdDataSource() : super(requestName: 'Adding Ad');
   Future<List<Ad>> getAds({Map<String, dynamic>? queryParams}) async {
     final getApi = GetApi<List<Ad>>(
       uri: ApiUris.getAdsUri(queryParams: queryParams),
@@ -33,16 +40,38 @@ class AdDataSource {
     return await deleteApi.callRequest();
   }
 
-  Future<Ad> addAd({required Map<String, dynamic> body}) async {
-    final postApi = PostApi<Ad>(
-      uri: ApiUris.addAdUri(),
-      fromJson: (json) {
-        return Ad.fromJson(jsonDecode(json)['data']['ad']);
-      },
-      requestName: 'Add Ad',
-      body: body,
+  Future<Ad> addAd({
+    required Map<String, String> fields,
+    required Uint8List image,
+    required String imageName,
+  }) async {
+   final request = http.MultipartRequest(
+      'POST',
+      ApiUris.addAdUri(),
     );
-    return await postApi.callRequest();
+    request.headers.addAll({
+      HttpHeaders.authorizationHeader:
+          "Bearer ${GlobalPurposeFunctions.getAccessToken()}",
+      HttpHeaders.contentTypeHeader: "application/x-www-form-urlencoded",
+      HttpHeaders.acceptHeader: "application/json"
+    });
+    request.files.add(http.MultipartFile.fromBytes(
+      'image',
+      image,
+      filename: imageName,
+    ));
+    request.fields.addAll(fields);
+    // ignore: unused_local_variable
+    final response = await request.send();
+    final bodyString = await response.stream.bytesToString();
+    print(
+        'the response from add Ad is ${response.statusCode} \n the response body is \n $bodyString');
+    if (response.statusCode == 200) {
+      return Ad.fromJson(
+          jsonDecode(bodyString)['data']['ad']);
+    }
+    Exception exception = getException(statusCode: response.statusCode);
+    throw (exception);
   }
 
   Future<Ad> updateAd(

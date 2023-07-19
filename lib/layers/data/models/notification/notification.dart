@@ -1,14 +1,26 @@
-class Notification {
+import 'package:json_annotation/json_annotation.dart';
+
+part 'notification.g.dart';
+
+@JsonSerializable()
+class NotificationModel {
   final int id;
   final String title;
+  final String body;
+  final String image;
 
-  Notification(this.id, this.title);
+  NotificationModel({
+    required this.id,
+    required this.title,
+    required this.body,
+    required this.image,
+  });
 
-  factory Notification.fromJson(Map<String, dynamic> json) {
-    return Notification(1, 'title');
+  factory NotificationModel.fromJson(Map<String, dynamic> json) {
+    return _$NotificationFromJson(json);
   }
 
   Map<String, dynamic> toJson() {
-    return {};
+    return _$NotificationToJson(this);
   }
 }
