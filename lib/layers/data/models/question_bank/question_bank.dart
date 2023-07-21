@@ -11,7 +11,7 @@ class QuestionBank {
   @JsonKey(name: 'bank_type')
   final int bankType;
   @JsonKey(name: 'is_active')
-  final int isActive;
+  final int? isActive;
   @JsonKey(name: 'chapter_order')
   final int? chapterOrder;
   @JsonKey(name: 'year_of_exam')
@@ -25,7 +25,7 @@ class QuestionBank {
     required this.id,
     required this.title,
     required this.bankType,
-    required this.isActive,
+    this.isActive = 1,
     required this.subject,
     this.questions,
     this.chapterOrder,

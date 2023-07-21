@@ -26,7 +26,7 @@ class QuestionBankCardBloc
     final originalQuestionBank = state.questionBank;
     emit(state.copyWith(
         questionBank: originalQuestionBank.copyWith(
-            isActive: (originalQuestionBank.isActive + 1) % 2)));
+            isActive: (originalQuestionBank.isActive! + 1) % 2)));
 
     final result =
         await _toggleQuestionBankActiveUseCase(originalQuestionBank.id);

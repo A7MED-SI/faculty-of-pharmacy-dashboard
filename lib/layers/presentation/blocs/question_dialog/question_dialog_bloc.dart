@@ -3,7 +3,6 @@ import 'dart:typed_data';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:meta/meta.dart';
 
 part 'question_dialog_event.dart';
 part 'question_dialog_state.dart';
@@ -55,8 +54,14 @@ class QuestionDialogBloc
   }
 
   FutureOr<void> _mapAnswerValidityChanged(
-      AnswerValidityToggled event, Emitter<QuestionDialogState> emit) {
-    final answersValidity = List.of(state.answersValidity);
+      AnswerValidityToggled event, Emitter<QuestionDialogState> emit) async {
+    var answersValidity = List.of(state.answersValidity);
+    answersValidity.removeAt(event.index);
+    if (state.answersValidity[event.index] &&
+        !answersValidity.reduce((value, element) => value | element)) {
+      return;
+    }
+    answersValidity = List.of(state.answersValidity);
     answersValidity[event.index] ^= true;
     emit(state.copyWith(answersValidity: answersValidity));
   }

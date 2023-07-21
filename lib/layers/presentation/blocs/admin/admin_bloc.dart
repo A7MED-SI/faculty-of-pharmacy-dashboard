@@ -31,6 +31,7 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
       UpdateAdminUseCase(adminRepository: AdminRepositoryImplementaion());
   FutureOr<void> _mapAdminsFetched(
       AdminsFetched event, Emitter<AdminState> emit) async {
+    emit(state.copyWith(adminsFetchingStatus: AdminsFetchingStatus.loading));
     final result = await _getAdminsUseCase(event.getAdminsParams);
 
     await result.fold(

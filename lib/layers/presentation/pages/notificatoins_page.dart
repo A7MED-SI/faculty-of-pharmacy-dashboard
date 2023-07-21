@@ -103,47 +103,42 @@ class _NotificationsPageState extends State<NotificationsPage> {
                         ),
                         const SizedBox(height: 20),
                         Expanded(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(15),
-                            child: PaginatedDataTable2(
-                              fit: FlexFit.loose,
-                              columns: [
-                                DataColumn(
-                                  label: Text(
-                                    'العنوان',
-                                    style: textTheme.bodyLarge?.copyWith(
-                                      color: colorScheme.onBackground,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                          child: PaginatedDataTable2(
+                            columns: [
+                              DataColumn(
+                                label: Text(
+                                  'العنوان',
+                                  style: textTheme.bodyLarge?.copyWith(
+                                    color: colorScheme.onBackground,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                DataColumn(
-                                  label: Text(
-                                    'النص',
-                                    style: textTheme.bodyLarge?.copyWith(
-                                      color: colorScheme.onBackground,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                const DataColumn(label: Text('')),
-                                const DataColumn(label: Text('')),
-                              ],
-                              controller: _paginatorController,
-                              source: NotificationAsyncDataSource(
-                                notifications: state.notifications,
-                                notificationBloc: _notificationBloc,
-                                colorScheme: colorScheme,
-                                textTheme: textTheme,
-                                context: context,
                               ),
-                              rowsPerPage: 10,
-                              empty: Center(
-                                child: Container(
-                                  padding: const EdgeInsets.all(20),
-                                  color: Colors.grey[200],
-                                  child: const Text('No data'),
+                              DataColumn(
+                                label: Text(
+                                  'النص',
+                                  style: textTheme.bodyLarge?.copyWith(
+                                    color: colorScheme.onBackground,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
+                              ),
+                              const DataColumn(label: Text('')),
+                              const DataColumn(label: Text('')),
+                            ],
+                            source: NotificationTableDataSource(
+                              notifications: state.notifications,
+                              notificationBloc: _notificationBloc,
+                              colorScheme: colorScheme,
+                              textTheme: textTheme,
+                              context: context,
+                            ),
+                            rowsPerPage: 10,
+                            empty: Center(
+                              child: Container(
+                                padding: const EdgeInsets.all(20),
+                                color: Colors.grey[200],
+                                child: const Text('لا يوجد إشعارات'),
                               ),
                             ),
                           ),
@@ -158,8 +153,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
   }
 }
 
-class NotificationAsyncDataSource extends DataTableSource {
-  NotificationAsyncDataSource({
+class NotificationTableDataSource extends DataTableSource {
+  NotificationTableDataSource({
     required this.notifications,
     required this.notificationBloc,
     required this.colorScheme,
@@ -200,8 +195,9 @@ class NotificationAsyncDataSource extends DataTableSource {
               js.context.callMethod('open', [notifications[index].image]);
             },
             style: ButtonStyle(
-              backgroundColor: MaterialStatePropertyAll(colorScheme.primary),
-            ),
+                backgroundColor: MaterialStatePropertyAll(colorScheme.primary),
+                shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)))),
             child: Text(
               'فتح الصورة',
               style: textTheme.bodyMedium?.copyWith(
@@ -260,6 +256,7 @@ class _SendNotificationDialogState extends State<_SendNotificationDialog> {
   late final TextEditingController bodyController;
   late final ValueNotifier<Uint8List?> imageNotifier;
   String? imageExtension;
+  final GlobalKey<FormState> _formKey = GlobalKey();
   @override
   void initState() {
     super.initState();
@@ -295,178 +292,200 @@ class _SendNotificationDialogState extends State<_SendNotificationDialog> {
             child: ValueListenableBuilder(
                 valueListenable: imageNotifier,
                 builder: (context, image, _) {
-                  return Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Center(
-                        child: Text(
-                          'إرسال إشعار',
-                          style: textTheme.headlineSmall?.copyWith(
-                            color: colorScheme.onBackground,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 40),
-                      SizedBox(
-                        width: 340,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'العنوان:',
-                              style: textTheme.bodyLarge
-                                  ?.copyWith(color: colorScheme.onBackground),
-                            ),
-                            SizedBox(
-                              width: 250,
-                              child: TextField(
-                                controller: titleController,
-                                style: textTheme.bodyLarge,
-                                decoration: const InputDecoration(
-                                  isCollapsed: true,
-                                  contentPadding: EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 11),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      SizedBox(
-                        width: 340,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'النص:',
-                              style: textTheme.bodyLarge
-                                  ?.copyWith(color: colorScheme.onBackground),
-                            ),
-                            SizedBox(
-                              width: 250,
-                              child: TextField(
-                                controller: bodyController,
-                                maxLines: null,
-                                style: textTheme.bodyLarge,
-                                decoration: const InputDecoration(
-                                  isCollapsed: true,
-                                  contentPadding: EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 11),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      if (image == null)
-                        TextButton(
-                          onPressed: () async {
-                            final FilePickerResult? result =
-                                await FilePickerWeb.platform.pickFiles(
-                              type: FileType.image,
-                            );
-                            if (result != null) {
-                              imageNotifier.value = result.files.first.bytes!;
-                              imageExtension = result.files.first.extension;
-                            }
-                          },
-                          style: TextButton.styleFrom(
-                            backgroundColor: colorScheme.primaryContainer,
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 10, horizontal: 14),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(6),
+                  return Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Center(
+                          child: Text(
+                            'إرسال إشعار',
+                            style: textTheme.headlineSmall?.copyWith(
+                              color: colorScheme.onBackground,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
+                        ),
+                        const SizedBox(height: 40),
+                        SizedBox(
+                          width: 340,
                           child: Row(
-                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'اختيار صورة',
-                                style: textTheme.bodyLarge?.copyWith(
-                                  color: colorScheme.onPrimaryContainer,
-                                ),
+                                'العنوان:',
+                                style: textTheme.bodyLarge
+                                    ?.copyWith(color: colorScheme.onBackground),
                               ),
-                              const SizedBox(width: 4),
-                              Icon(
-                                Icons.image,
-                                color: colorScheme.onPrimaryContainer,
-                              )
-                            ],
-                          ),
-                        ),
-                      if (image != null)
-                        Center(
-                          child: Stack(
-                            children: [
-                              Image.memory(
-                                image,
-                                width: 200,
-                                height: 150,
-                                fit: BoxFit.fill,
-                              ),
-                              Positioned(
-                                left: 4,
-                                top: 4,
-                                child: Tooltip(
-                                  message: 'حذف الصورة',
-                                  child: InkWell(
-                                    onTap: () {
-                                      imageNotifier.value = null;
-                                      imageExtension = null;
-                                    },
-                                    child: Icon(
-                                      Icons.cancel,
-                                      color: colorScheme.secondary,
-                                      size: 20,
-                                    ),
+                              SizedBox(
+                                width: 250,
+                                child: TextFormField(
+                                  controller: titleController,
+                                  style: textTheme.bodyLarge,
+                                  autovalidateMode:
+                                      AutovalidateMode.onUserInteraction,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'يجب ادخال العنوان';
+                                    }
+                                    return null;
+                                  },
+                                  decoration: const InputDecoration(
+                                    isCollapsed: true,
+                                    contentPadding: EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 11),
                                   ),
                                 ),
                               ),
                             ],
                           ),
                         ),
-                      const SizedBox(height: 30),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            TextButton(
-                              onPressed: () {
-                                context.pop();
-                              },
-                              child: Text(
-                                'إلغاء',
-                                style: textTheme.bodyLarge?.copyWith(
-                                  color: colorScheme.primary,
-                                  fontWeight: FontWeight.bold,
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          width: 340,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'النص:',
+                                style: textTheme.bodyLarge
+                                    ?.copyWith(color: colorScheme.onBackground),
+                              ),
+                              SizedBox(
+                                width: 250,
+                                child: TextFormField(
+                                  controller: bodyController,
+                                  autovalidateMode:
+                                      AutovalidateMode.onUserInteraction,
+                                  maxLines: null,
+                                  style: textTheme.bodyLarge,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'يجب ادخال نص الإشعار';
+                                    }
+                                    return null;
+                                  },
+                                  decoration: const InputDecoration(
+                                    isCollapsed: true,
+                                    contentPadding: EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 11),
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            AppElevatedButton(
-                              onPressed: () {
-                                widget.notificationBloc.add(NotificationAdded(
-                                    addNotificationParams:
-                                        AddNotificationParams(
-                                  title: titleController.text,
-                                  body: bodyController.text,
-                                  image: imageNotifier.value!,
-                                  imageName: 'image.$imageExtension',
-                                )));
-                                context.pop();
-                              },
-                              text: 'إرسال',
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      )
-                    ],
+                        const SizedBox(height: 12),
+                        if (image == null)
+                          TextButton(
+                            onPressed: () async {
+                              final FilePickerResult? result =
+                                  await FilePickerWeb.platform.pickFiles(
+                                type: FileType.image,
+                              );
+                              if (result != null) {
+                                imageNotifier.value = result.files.first.bytes!;
+                                imageExtension = result.files.first.extension;
+                              }
+                            },
+                            style: TextButton.styleFrom(
+                              backgroundColor: colorScheme.primaryContainer,
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 10, horizontal: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'اختيار صورة',
+                                  style: textTheme.bodyLarge?.copyWith(
+                                    color: colorScheme.onPrimaryContainer,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                Icon(
+                                  Icons.image,
+                                  color: colorScheme.onPrimaryContainer,
+                                )
+                              ],
+                            ),
+                          ),
+                        if (image != null)
+                          Center(
+                            child: Stack(
+                              children: [
+                                Image.memory(
+                                  image,
+                                  width: 200,
+                                  height: 150,
+                                  fit: BoxFit.fill,
+                                ),
+                                Positioned(
+                                  left: 4,
+                                  top: 4,
+                                  child: Tooltip(
+                                    message: 'حذف الصورة',
+                                    child: InkWell(
+                                      onTap: () {
+                                        imageNotifier.value = null;
+                                        imageExtension = null;
+                                      },
+                                      child: Icon(
+                                        Icons.cancel,
+                                        color: colorScheme.secondary,
+                                        size: 20,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        const SizedBox(height: 30),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              TextButton(
+                                onPressed: () {
+                                  context.pop();
+                                },
+                                child: Text(
+                                  'إلغاء',
+                                  style: textTheme.bodyLarge?.copyWith(
+                                    color: colorScheme.primary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              AppElevatedButton(
+                                onPressed: () {
+                                  if (!_formKey.currentState!.validate()) {
+                                    return;
+                                  }
+                                  widget.notificationBloc.add(NotificationAdded(
+                                      addNotificationParams:
+                                          AddNotificationParams(
+                                    title: titleController.text,
+                                    body: bodyController.text,
+                                    image: imageNotifier.value!,
+                                    imageName: 'image.$imageExtension',
+                                  )));
+                                  context.pop();
+                                },
+                                text: 'إرسال',
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
                   );
                 }),
           )),

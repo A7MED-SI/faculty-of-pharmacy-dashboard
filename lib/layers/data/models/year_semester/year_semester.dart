@@ -20,6 +20,14 @@ class YearSemester {
     return _$YearSemesterToJson(this);
   }
 
+  YearSemester copyWith({
+    int? year,
+    List<Semester>? semesters,
+  }) {
+    return YearSemester(
+        year: year ?? this.year, semesters: semesters ?? this.semesters);
+  }
+
   String get arabicName {
     switch (year) {
       case 1:
@@ -64,12 +72,45 @@ class Semester {
     return _$SemesterToJson(this);
   }
 
-  String get arabicName {
+  Semester copyWith({
+    int? id,
+    int? subjectYear,
+    int? semester,
+    int? isActive,
+    List<Subject>? subjects,
+  }) {
+    return Semester(
+      id: id ?? this.id,
+      semester: semester ?? this.semester,
+      subjects: subjects ?? this.subjects,
+      isActive: isActive ?? this.isActive,
+      subjectYear: subjectYear ?? this.subjectYear,
+    );
+  }
+
+  String get semesterArabicName {
     switch (semester) {
       case 1:
         return "الفصل الأول";
       case 2:
         return "الفصل الثاني";
+      default:
+        return "";
+    }
+  }
+
+  String get yearArabicName {
+    switch (subjectYear) {
+      case 1:
+        return "السنة الأولى";
+      case 2:
+        return "السنة الثانية";
+      case 3:
+        return "السنة الثالثة";
+      case 4:
+        return "السنة الرابعة";
+      case 5:
+        return "السنة الخامسة";
       default:
         return "";
     }

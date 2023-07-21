@@ -1,5 +1,6 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pharmacy_dashboard/core/layout/adaptive.dart';
@@ -451,13 +452,15 @@ class _AddUpdateQuestionBankDialogState
   late final ValueNotifier<int?> bankTypeNotifier;
   late final ValueNotifier<int?> semesterNotifier;
 
+  final GlobalKey<FormState> _formKey = GlobalKey();
   @override
   void initState() {
     super.initState();
     titleController = TextEditingController(text: widget.title);
     chapterOrderController =
         TextEditingController(text: widget.chapterOrder?.toString());
-    yearOfExamController = TextEditingController(text: widget.yearOfExam);
+    yearOfExamController = TextEditingController(
+        text: widget.yearOfExam ?? DateTime.now().year.toString());
 
     bankTypeNotifier = ValueNotifier(widget.bankType);
     semesterNotifier = ValueNotifier(widget.semester);
@@ -483,296 +486,413 @@ class _AddUpdateQuestionBankDialogState
           child: ValueListenableBuilder<int?>(
               valueListenable: bankTypeNotifier,
               builder: (context, currentBankType, _) {
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: Text(
-                        widget.isUpdate ? 'تعديل امتحان' : 'إضافة امتحان',
-                        style: textTheme.headlineSmall?.copyWith(
-                          color: colorScheme.onBackground,
-                          fontWeight: FontWeight.bold,
+                return Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
+                        child: Text(
+                          widget.isUpdate ? 'تعديل امتحان' : 'إضافة امتحان',
+                          style: textTheme.headlineSmall?.copyWith(
+                            color: colorScheme.onBackground,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 40),
-                    SizedBox(
-                      width: 400,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'العنوان:',
-                            style: textTheme.bodyLarge
-                                ?.copyWith(color: colorScheme.onBackground),
-                          ),
-                          SizedBox(
-                            width: 250,
-                            child: TextField(
-                              controller: titleController,
-                              style: textTheme.bodyLarge,
-                              decoration: const InputDecoration(
-                                isCollapsed: true,
-                                contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 11),
-                              ),
+                      const SizedBox(height: 40),
+                      SizedBox(
+                        width: 400,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'العنوان:',
+                              style: textTheme.bodyLarge
+                                  ?.copyWith(color: colorScheme.onBackground),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      width: 400,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'نوع الامتحان:',
-                            style: textTheme.bodyLarge
-                                ?.copyWith(color: colorScheme.onBackground),
-                          ),
-                          SizedBox(
-                            width: 250,
-                            child: DropdownButtonFormField2<int>(
-                              decoration: InputDecoration(
-                                isDense: true,
-                                contentPadding: EdgeInsets.zero,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                            SizedBox(
+                              width: 250,
+                              child: TextFormField(
+                                controller: titleController,
+                                autovalidateMode:
+                                    AutovalidateMode.onUserInteraction,
+                                style: textTheme.bodyLarge,
+                                validator: (value) {
+                                  if (value == null || value.length < 3) {
+                                    return 'يجب أن يتكون العنوان من 3 أحرف على الأقل';
+                                  }
+                                  return null;
+                                },
+                                decoration: const InputDecoration(
+                                  isCollapsed: true,
+                                  contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 11),
                                 ),
                               ),
-                              hint: Text(
-                                'اختر نوع الامتحان',
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: 400,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'نوع الامتحان:',
+                              style: textTheme.bodyLarge
+                                  ?.copyWith(color: colorScheme.onBackground),
+                            ),
+                            SizedBox(
+                              width: 250,
+                              child: DropdownButtonFormField2<int>(
+                                autovalidateMode:
+                                    AutovalidateMode.onUserInteraction,
+                                decoration: InputDecoration(
+                                  isDense: true,
+                                  contentPadding: EdgeInsets.zero,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                validator: (value) {
+                                  if (value == null) {
+                                    return 'يجب اختيار نوع الامتحان';
+                                  }
+                                  return null;
+                                },
+                                hint: Text(
+                                  'اختر نوع الامتحان',
+                                  style: textTheme.bodyLarge?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                style: textTheme.bodyLarge,
+                                value: currentBankType,
+                                items: [
+                                  for (var bt in bankTypes)
+                                    DropdownMenuItem(
+                                      value: bt.value,
+                                      child: Text(bt.text),
+                                    ),
+                                ],
+                                onChanged: (value) {
+                                  if (value != null) {
+                                    bankTypeNotifier.value = value;
+                                  }
+                                },
+                                buttonStyleData: const ButtonStyleData(
+                                  height: 40,
+                                  padding: EdgeInsets.only(left: 10, right: 10),
+                                  overlayColor: MaterialStatePropertyAll(
+                                      Colors.transparent),
+                                ),
+                                iconStyleData: const IconStyleData(
+                                  icon: Icon(
+                                    Icons.arrow_drop_down,
+                                    color: Colors.black45,
+                                  ),
+                                  iconSize: 30,
+                                ),
+                                dropdownStyleData: DropdownStyleData(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      if (currentBankType == QuestionBankType.chapterBank.value)
+                        SizedBox(
+                          width: 400,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'ترتيب الفصل في المادة:',
+                                style: textTheme.bodyLarge
+                                    ?.copyWith(color: colorScheme.onBackground),
+                              ),
+                              SizedBox(
+                                width: 250,
+                                child: TextFormField(
+                                  controller: chapterOrderController,
+                                  autovalidateMode:
+                                      AutovalidateMode.onUserInteraction,
+                                  maxLength: 2,
+                                  style: textTheme.bodyLarge,
+                                  validator: (value) {
+                                    if (currentBankType ==
+                                            QuestionBankType
+                                                .chapterBank.value &&
+                                        (value == null || value.isEmpty)) {
+                                      return 'يجب إدخال رقم الفصل في المادة';
+                                    }
+                                    return null;
+                                  },
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.digitsOnly
+                                  ],
+                                  decoration: const InputDecoration(
+                                    isCollapsed: true,
+                                    counterText: '',
+                                    contentPadding: EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 11),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      if (currentBankType ==
+                          QuestionBankType.previousExam.value)
+                        SizedBox(
+                          width: 400,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'سنة الدورة:',
+                                style: textTheme.bodyLarge
+                                    ?.copyWith(color: colorScheme.onBackground),
+                              ),
+                              SizedBox(
+                                width: 250,
+                                child: TextField(
+                                  controller: yearOfExamController,
+                                  readOnly: true,
+                                  showCursor: false,
+                                  mouseCursor: SystemMouseCursors.click,
+                                  canRequestFocus: false,
+                                  onTap: () async {
+                                    final dateTime =
+                                        await showDialog<DateTime?>(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return YearPickingDialog(
+                                          selectedYear: DateTime(
+                                              int.parse(
+                                                  yearOfExamController.text),
+                                              1),
+                                        );
+                                      },
+                                    );
+                                    if (dateTime != null) {
+                                      yearOfExamController.text =
+                                          dateTime.year.toString();
+                                    }
+                                  },
+                                  style: textTheme.bodyLarge,
+                                  decoration: const InputDecoration(
+                                    isCollapsed: true,
+                                    contentPadding: EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 11),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      if (currentBankType ==
+                          QuestionBankType.previousExam.value)
+                        const SizedBox(height: 12),
+                      if (currentBankType ==
+                          QuestionBankType.previousExam.value)
+                        SizedBox(
+                          width: 400,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'الفصل الدراسي:',
+                                style: textTheme.bodyLarge
+                                    ?.copyWith(color: colorScheme.onBackground),
+                              ),
+                              SizedBox(
+                                width: 250,
+                                child: ValueListenableBuilder<int?>(
+                                    valueListenable: semesterNotifier,
+                                    builder: (context, currentSemester, _) {
+                                      return DropdownButtonFormField2<int>(
+                                        autovalidateMode:
+                                            AutovalidateMode.onUserInteraction,
+                                        decoration: InputDecoration(
+                                          isDense: true,
+                                          contentPadding: EdgeInsets.zero,
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                        ),
+                                        validator: (value) {
+                                          if (currentBankType ==
+                                                  QuestionBankType
+                                                      .previousExam.value &&
+                                              value == null) {
+                                            return 'يجب اختيار الفصل';
+                                          }
+                                          return null;
+                                        },
+                                        hint: Text(
+                                          'اختر الفصل',
+                                          style: textTheme.bodyLarge?.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        style: textTheme.bodyLarge,
+                                        value: currentSemester,
+                                        items: [
+                                          for (var sem in semesters)
+                                            DropdownMenuItem(
+                                              value: sem.value,
+                                              child: Text(sem.text),
+                                            ),
+                                        ],
+                                        onChanged: (value) {
+                                          if (value != null) {
+                                            semesterNotifier.value = value;
+                                          }
+                                        },
+                                        buttonStyleData: const ButtonStyleData(
+                                          height: 40,
+                                          padding: EdgeInsets.only(
+                                              left: 10, right: 10),
+                                          overlayColor:
+                                              MaterialStatePropertyAll(
+                                                  Colors.transparent),
+                                        ),
+                                        iconStyleData: const IconStyleData(
+                                          icon: Icon(
+                                            Icons.arrow_drop_down,
+                                            color: Colors.black45,
+                                          ),
+                                          iconSize: 30,
+                                        ),
+                                        dropdownStyleData: DropdownStyleData(
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                        ),
+                                      );
+                                    }),
+                              ),
+                            ],
+                          ),
+                        ),
+                      const SizedBox(height: 30),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TextButton(
+                              onPressed: () {
+                                context.pop();
+                              },
+                              child: Text(
+                                'إلغاء',
                                 style: textTheme.bodyLarge?.copyWith(
+                                  color: colorScheme.primary,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              style: textTheme.bodyLarge,
-                              value: currentBankType,
-                              items: [
-                                for (var bt in bankTypes)
-                                  DropdownMenuItem(
-                                    value: bt.value,
-                                    child: Text(bt.text),
-                                  ),
-                              ],
-                              onChanged: (value) {
-                                if (value != null) {
-                                  bankTypeNotifier.value = value;
+                            ),
+                            const SizedBox(width: 12),
+                            AppElevatedButton(
+                              onPressed: () {
+                                if (!_formKey.currentState!.validate()) {
+                                  return;
                                 }
+                                widget.isUpdate
+                                    ? widget.questionBankBloc.add(
+                                        QuestionBankUpdated(
+                                            updateQuestionBankParams:
+                                                UpdateQuestionBankParams(
+                                        questionBankId: widget.questionBankId!,
+                                        bankType: bankTypeNotifier.value!,
+                                        title: titleController.text,
+                                        subjectId: widget.subjectId,
+                                        chapterOrder: int.tryParse(
+                                            chapterOrderController.text),
+                                        semesterOfExam: semesterNotifier.value,
+                                        yearOfExam: yearOfExamController.text,
+                                      )))
+                                    : widget.questionBankBloc.add(
+                                        QuestionBankAdded(
+                                            addQuestionBankParams:
+                                                AddQuestionBankParams(
+                                        bankType: bankTypeNotifier.value!,
+                                        title: titleController.text,
+                                        subjectId: widget.subjectId,
+                                        chapterOrder: int.tryParse(
+                                            chapterOrderController.text),
+                                        semesterOfExam: semesterNotifier.value,
+                                        yearOfExam: yearOfExamController.text,
+                                      )));
+                                context.pop();
                               },
-                              buttonStyleData: const ButtonStyleData(
-                                height: 40,
-                                padding: EdgeInsets.only(left: 10, right: 10),
-                                overlayColor: MaterialStatePropertyAll(
-                                    Colors.transparent),
-                              ),
-                              iconStyleData: const IconStyleData(
-                                icon: Icon(
-                                  Icons.arrow_drop_down,
-                                  color: Colors.black45,
-                                ),
-                                iconSize: 30,
-                              ),
-                              dropdownStyleData: DropdownStyleData(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    if (currentBankType == QuestionBankType.chapterBank.value)
-                      SizedBox(
-                        width: 400,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'ترتيب الفصل في المادة:',
-                              style: textTheme.bodyLarge
-                                  ?.copyWith(color: colorScheme.onBackground),
-                            ),
-                            SizedBox(
-                              width: 250,
-                              child: TextField(
-                                controller: chapterOrderController,
-                                maxLength: 2,
-                                style: textTheme.bodyLarge,
-                                decoration: const InputDecoration(
-                                  isCollapsed: true,
-                                  counterText: '',
-                                  contentPadding: EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 11),
-                                ),
-                              ),
+                              text: widget.isUpdate ? 'حفظ' : 'إضافة',
                             ),
                           ],
                         ),
-                      ),
-                    if (currentBankType == QuestionBankType.previousExam.value)
-                      SizedBox(
-                        width: 400,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'سنة الدورة:',
-                              style: textTheme.bodyLarge
-                                  ?.copyWith(color: colorScheme.onBackground),
-                            ),
-                            SizedBox(
-                              width: 250,
-                              child: TextField(
-                                controller: yearOfExamController,
-                                style: textTheme.bodyLarge,
-                                decoration: const InputDecoration(
-                                  isCollapsed: true,
-                                  contentPadding: EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 11),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    if (currentBankType == QuestionBankType.previousExam.value)
-                      const SizedBox(height: 12),
-                    if (currentBankType == QuestionBankType.previousExam.value)
-                      SizedBox(
-                        width: 400,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'الفصل الدراسي:',
-                              style: textTheme.bodyLarge
-                                  ?.copyWith(color: colorScheme.onBackground),
-                            ),
-                            SizedBox(
-                              width: 250,
-                              child: ValueListenableBuilder<int?>(
-                                  valueListenable: semesterNotifier,
-                                  builder: (context, currentSemester, _) {
-                                    return DropdownButtonFormField2<int>(
-                                      decoration: InputDecoration(
-                                        isDense: true,
-                                        contentPadding: EdgeInsets.zero,
-                                        border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                        ),
-                                      ),
-                                      hint: Text(
-                                        'اختر الفصل',
-                                        style: textTheme.bodyLarge?.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      style: textTheme.bodyLarge,
-                                      value: currentSemester,
-                                      items: [
-                                        for (var sem in semesters)
-                                          DropdownMenuItem(
-                                            value: sem.value,
-                                            child: Text(sem.text),
-                                          ),
-                                      ],
-                                      onChanged: (value) {
-                                        if (value != null) {
-                                          semesterNotifier.value = value;
-                                        }
-                                      },
-                                      buttonStyleData: const ButtonStyleData(
-                                        height: 40,
-                                        padding: EdgeInsets.only(
-                                            left: 10, right: 10),
-                                        overlayColor: MaterialStatePropertyAll(
-                                            Colors.transparent),
-                                      ),
-                                      iconStyleData: const IconStyleData(
-                                        icon: Icon(
-                                          Icons.arrow_drop_down,
-                                          color: Colors.black45,
-                                        ),
-                                        iconSize: 30,
-                                      ),
-                                      dropdownStyleData: DropdownStyleData(
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                        ),
-                                      ),
-                                    );
-                                  }),
-                            ),
-                          ],
-                        ),
-                      ),
-                    const SizedBox(height: 30),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          TextButton(
-                            onPressed: () {
-                              context.pop();
-                            },
-                            child: Text(
-                              'إلغاء',
-                              style: textTheme.bodyLarge?.copyWith(
-                                color: colorScheme.primary,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          AppElevatedButton(
-                            onPressed: () {
-                              widget.isUpdate
-                                  ? widget.questionBankBloc.add(
-                                      QuestionBankUpdated(
-                                          updateQuestionBankParams:
-                                              UpdateQuestionBankParams(
-                                      questionBankId: widget.questionBankId!,
-                                      bankType: bankTypeNotifier.value!,
-                                      title: titleController.text,
-                                      subjectId: widget.subjectId,
-                                      chapterOrder: int.tryParse(
-                                          chapterOrderController.text),
-                                      semesterOfExam: semesterNotifier.value,
-                                      yearOfExam: yearOfExamController.text,
-                                    )))
-                                  : widget.questionBankBloc.add(
-                                      QuestionBankAdded(
-                                          addQuestionBankParams:
-                                              AddQuestionBankParams(
-                                      bankType: bankTypeNotifier.value!,
-                                      title: titleController.text,
-                                      subjectId: widget.subjectId,
-                                      chapterOrder: int.tryParse(
-                                          chapterOrderController.text),
-                                      semesterOfExam: semesterNotifier.value,
-                                      yearOfExam: yearOfExamController.text,
-                                    )));
-                              context.pop();
-                            },
-                            text: widget.isUpdate ? 'حفظ' : 'إضافة',
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
+                      )
+                    ],
+                  ),
                 );
               }),
         ),
       ),
+    );
+  }
+}
+
+class YearPickingDialog extends StatelessWidget {
+  const YearPickingDialog({
+    super.key,
+    this.selectedYear,
+  });
+  final DateTime? selectedYear;
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
+    return AlertDialog(
+      title: const Text("اختر السنة"),
+      content: SizedBox(
+        width: 300,
+        height: 300,
+        child: YearPicker(
+          firstDate: DateTime(DateTime.now().year - 30, 1),
+          lastDate: DateTime(DateTime.now().year, 1),
+          initialDate: DateTime.now(),
+          selectedDate: selectedYear ?? DateTime.now(),
+          onChanged: (DateTime dateTime) {
+            context.pop(dateTime);
+          },
+          currentDate: selectedYear ?? DateTime.now(),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            context.pop();
+          },
+          child: Text(
+            'إلغاء',
+            style: textTheme.bodyLarge?.copyWith(
+              color: colorScheme.primary,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

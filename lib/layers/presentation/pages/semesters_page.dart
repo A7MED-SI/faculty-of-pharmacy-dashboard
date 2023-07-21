@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pharmacy_dashboard/layers/domain/use_cases/year_semester/get_year_semesters.dart';
 import 'package:pharmacy_dashboard/layers/presentation/blocs/year_semester/year_semester_bloc.dart';
+import 'package:pharmacy_dashboard/layers/presentation/pages/subjects_page.dart';
 import 'package:pharmacy_dashboard/layers/presentation/widgets/loading_widget.dart';
 
 class SemestersPage extends StatefulWidget {
@@ -94,21 +96,44 @@ class _SemestersPageState extends State<SemestersPage> {
                                                               MainAxisAlignment
                                                                   .spaceBetween,
                                                           children: [
-                                                            Text(
-                                                              yearSemester
-                                                                  .semesters[0]
-                                                                  .arabicName,
-                                                              style: textTheme
-                                                                  .headlineSmall
-                                                                  ?.copyWith(
-                                                                color: colorScheme
-                                                                    .onBackground,
+                                                            MouseRegion(
+                                                              cursor:
+                                                                  SystemMouseCursors
+                                                                      .click,
+                                                              child:
+                                                                  GestureDetector(
+                                                                onTap: () {
+                                                                  context.go(
+                                                                      '/${SubjectsPage.routeName}?semesterId=${yearSemester.semesters[0].id}');
+                                                                },
+                                                                child: Text(
+                                                                  yearSemester
+                                                                      .semesters[
+                                                                          0]
+                                                                      .semesterArabicName,
+                                                                  style: textTheme
+                                                                      .headlineSmall
+                                                                      ?.copyWith(
+                                                                    color: colorScheme
+                                                                        .onBackground,
+                                                                  ),
+                                                                ),
                                                               ),
                                                             ),
                                                             Switch(
                                                               onChanged:
-                                                                  (value) {},
-                                                              value: true,
+                                                                  (value) {
+                                                                _yearSemesterBloc.add(YearSemesterActiveToggled(
+                                                                    yearSemesterId:
+                                                                        yearSemester
+                                                                            .semesters[0]
+                                                                            .id));
+                                                              },
+                                                              value: yearSemester
+                                                                      .semesters[
+                                                                          0]
+                                                                      .isActive ==
+                                                                  1,
                                                               activeColor:
                                                                   colorScheme
                                                                       .primary,
@@ -143,12 +168,18 @@ class _SemestersPageState extends State<SemestersPage> {
                                                             ),
                                                             Switch(
                                                               onChanged:
-                                                                  (value) {},
+                                                                  (value) {
+                                                                _yearSemesterBloc.add(
+                                                                    SubjectActiveToggled(
+                                                                        subjectId:
+                                                                            subject.id));
+                                                              },
                                                               value: subject
                                                                       .isActive ==
                                                                   1,
                                                               activeColor:
-                                                                  Colors.green,
+                                                                  colorScheme
+                                                                      .tertiaryContainer,
                                                             ),
                                                           ],
                                                         ),
@@ -176,21 +207,44 @@ class _SemestersPageState extends State<SemestersPage> {
                                                             MainAxisAlignment
                                                                 .spaceBetween,
                                                         children: [
-                                                          Text(
-                                                            yearSemester
-                                                                .semesters[1]
-                                                                .arabicName,
-                                                            style: textTheme
-                                                                .headlineSmall
-                                                                ?.copyWith(
-                                                              color: colorScheme
-                                                                  .onBackground,
+                                                          MouseRegion(
+                                                            cursor:
+                                                                SystemMouseCursors
+                                                                    .click,
+                                                            child:
+                                                                GestureDetector(
+                                                              onTap: () {
+                                                                context.go(
+                                                                    '/${SubjectsPage.routeName}?semesterId=${yearSemester.semesters[1].id}');
+                                                              },
+                                                              child: Text(
+                                                                yearSemester
+                                                                    .semesters[
+                                                                        1]
+                                                                    .semesterArabicName,
+                                                                style: textTheme
+                                                                    .headlineSmall
+                                                                    ?.copyWith(
+                                                                  color: colorScheme
+                                                                      .onBackground,
+                                                                ),
+                                                              ),
                                                             ),
                                                           ),
                                                           Switch(
-                                                            onChanged:
-                                                                (value) {},
-                                                            value: true,
+                                                            onChanged: (value) {
+                                                              _yearSemesterBloc.add(YearSemesterActiveToggled(
+                                                                  yearSemesterId:
+                                                                      yearSemester
+                                                                          .semesters[
+                                                                              1]
+                                                                          .id));
+                                                            },
+                                                            value: yearSemester
+                                                                    .semesters[
+                                                                        1]
+                                                                    .isActive ==
+                                                                1,
                                                             activeColor:
                                                                 colorScheme
                                                                     .primary,
@@ -224,13 +278,18 @@ class _SemestersPageState extends State<SemestersPage> {
                                                             ),
                                                           ),
                                                           Switch(
-                                                            onChanged:
-                                                                (value) {},
+                                                            onChanged: (value) {
+                                                              _yearSemesterBloc.add(
+                                                                  SubjectActiveToggled(
+                                                                      subjectId:
+                                                                          subject
+                                                                              .id));
+                                                            },
                                                             value: subject
                                                                     .isActive ==
                                                                 1,
-                                                            activeColor:
-                                                                Colors.green,
+                                                            activeColor: colorScheme
+                                                                .tertiaryContainer,
                                                           ),
                                                         ],
                                                       ),

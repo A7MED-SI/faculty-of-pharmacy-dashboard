@@ -16,8 +16,9 @@ import '../AppWidgetsDisplayer.dart';
 import '../widgets/app_elevated_button.dart';
 
 class SubjectsPage extends StatefulWidget {
-  const SubjectsPage({super.key});
+  const SubjectsPage({super.key, this.semesterId});
   static const routeName = 'subjects';
+  final int? semesterId;
 
   @override
   State<SubjectsPage> createState() => _SubjectsPageState();
@@ -30,7 +31,11 @@ class _SubjectsPageState extends State<SubjectsPage> {
   void initState() {
     super.initState();
     _subjectBloc = SubjectBloc();
-    _subjectBloc.add(SubjectsFetched(getSubjectsParams: GetSubjectsParams()));
+    _subjectBloc.add(SubjectsFetched(
+        getSubjectsParams:
+            GetSubjectsParams(yearSemesterId: widget.semesterId)));
+    _subjectBloc.add(MainSemesterValueChanged(widget.semesterId ?? -1));
+    _subjectBloc.add(SemestersFetched());
   }
 
   @override
@@ -97,7 +102,9 @@ class _SubjectsPageState extends State<SubjectsPage> {
             return state.subjectsFetchingStatus ==
                         SubjectsFetchingStatus.initial ||
                     state.subjectsFetchingStatus ==
-                        SubjectsFetchingStatus.loading
+                        SubjectsFetchingStatus.loading ||
+                    state.semestersFetchingStatus ==
+                        SemestersFetchingStatus.initial
                 ? const LoadingWidget()
                 : Container(
                     margin: const EdgeInsets.all(20),
@@ -111,16 +118,98 @@ class _SubjectsPageState extends State<SubjectsPage> {
                                     context: context,
                                     builder: (context) {
                                       return _AddUpdateSubjectDialog(
-                                          subjectBloc: _subjectBloc);
+                                        subjectBloc: _subjectBloc,
+                                        semesterId: state.mainSemesterId == -1
+                                            ? null
+                                            : state.mainSemesterId,
+                                      );
                                     });
                               },
                               text: 'إضافة مادة',
+                            ),
+                            const SizedBox(width: 40),
+                            SizedBox(
+                              width: 310,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'الفصل:',
+                                    style: textTheme.bodyLarge?.copyWith(
+                                        color: colorScheme.onBackground),
+                                  ),
+                                  SizedBox(
+                                    width: 250,
+                                    child: DropdownButtonFormField2<int>(
+                                      decoration: InputDecoration(
+                                        isDense: true,
+                                        contentPadding: EdgeInsets.zero,
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                      ),
+                                      style: textTheme.bodyLarge,
+                                      value: state.mainSemesterId,
+                                      items: [
+                                        for (var sem in List.of(state.semesters)
+                                          ..insert(
+                                              0, (text: 'الكل', value: -1)))
+                                          DropdownMenuItem(
+                                            value: sem.value,
+                                            child: Text(sem.text),
+                                          ),
+                                      ],
+                                      onChanged: (value) {
+                                        if (value != null) {
+                                          _subjectBloc.add(
+                                              MainSemesterValueChanged(value));
+                                          _subjectBloc.add(SubjectsFetched(
+                                              getSubjectsParams:
+                                                  GetSubjectsParams(
+                                            yearSemesterId:
+                                                value != -1 ? value : null,
+                                          )));
+                                        }
+                                      },
+                                      buttonStyleData: const ButtonStyleData(
+                                        height: 40,
+                                        padding: EdgeInsets.only(
+                                            left: 10, right: 10),
+                                        overlayColor: MaterialStatePropertyAll(
+                                            Colors.transparent),
+                                      ),
+                                      iconStyleData: const IconStyleData(
+                                        icon: Icon(
+                                          Icons.arrow_drop_down,
+                                          color: Colors.black45,
+                                        ),
+                                        iconSize: 30,
+                                      ),
+                                      dropdownStyleData: DropdownStyleData(
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 20),
                         Expanded(
                           child: DataTable2(
+                            empty: Center(
+                              child: Container(
+                                padding: const EdgeInsets.all(20),
+                                color: Colors.grey[200],
+                                child: const Text('لا يوجد مواد'),
+                              ),
+                            ),
                             decoration: BoxDecoration(
                               color: colorScheme.background,
                               borderRadius: BorderRadius.circular(20),
@@ -157,9 +246,10 @@ class _SubjectsPageState extends State<SubjectsPage> {
                                   },
                                   cells: [
                                     DataCell(Text(subject.title)),
-                                    const DataCell(Text('الثالثة')),
-                                    const DataCell(
-                                      Text('الأول'),
+                                    DataCell(
+                                        Text(subject.semester.yearArabicName)),
+                                    DataCell(
+                                      Text(subject.semester.semesterArabicName),
                                     ),
                                     DataCell(
                                       Switch(
@@ -184,7 +274,8 @@ class _SubjectsPageState extends State<SubjectsPage> {
                                                 return _AddUpdateSubjectDialog(
                                                   subjectBloc: _subjectBloc,
                                                   isUpdate: true,
-                                                  semesterId: subject.semester.id,
+                                                  semesterId:
+                                                      subject.semester.id,
                                                   title: subject.title,
                                                   subjectId: subject.id,
                                                 );
@@ -250,13 +341,12 @@ class _AddUpdateSubjectDialog extends StatefulWidget {
 
 class _AddUpdateSubjectDialogState extends State<_AddUpdateSubjectDialog> {
   late final TextEditingController titleController;
-
+  final GlobalKey<FormState> _formKey = GlobalKey();
   @override
   void initState() {
     super.initState();
     titleController = TextEditingController(text: widget.title);
-    widget.subjectBloc.add(SemesterValueChanged(widget.semesterId));
-    widget.subjectBloc.add(SemestersFetched());
+    widget.subjectBloc.add(DialogSemesterValueChanged(widget.semesterId));
   }
 
   @override
@@ -277,163 +367,173 @@ class _AddUpdateSubjectDialogState extends State<_AddUpdateSubjectDialog> {
         child: BlocBuilder<SubjectBloc, SubjectState>(
           bloc: widget.subjectBloc,
           builder: (context, state) {
-            return state.semestersFetchingStatus ==
-                    SemestersFetchingStatus.initial
-                ? const LoadingWidget()
-                : Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 12, horizontal: 10),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Center(
-                          child: Text(
-                            widget.isUpdate ? 'تعديل مادة' : 'إضافة مادة',
-                            style: textTheme.headlineSmall?.copyWith(
-                              color: colorScheme.onBackground,
-                              fontWeight: FontWeight.bold,
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Text(
+                        widget.isUpdate ? 'تعديل مادة' : 'إضافة مادة',
+                        style: textTheme.headlineSmall?.copyWith(
+                          color: colorScheme.onBackground,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 40),
+                    SizedBox(
+                      width: 340,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'اسم المادة:',
+                            style: textTheme.bodyLarge
+                                ?.copyWith(color: colorScheme.onBackground),
+                          ),
+                          SizedBox(
+                            width: 250,
+                            child: TextFormField(
+                              controller: titleController,
+                              style: textTheme.bodyLarge,
+                              validator: (value) {
+                                if (value == null || value.length < 3) {
+                                  return 'الاسم يجب أن يتكون من 3 حروف على الأقل';
+                                }
+                                return null;
+                              },
+                              decoration: const InputDecoration(
+                                isCollapsed: true,
+                                contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 11),
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 40),
-                        SizedBox(
-                          width: 340,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'اسم المادة:',
-                                style: textTheme.bodyLarge
-                                    ?.copyWith(color: colorScheme.onBackground),
-                              ),
-                              SizedBox(
-                                width: 250,
-                                child: TextField(
-                                  controller: titleController,
-                                  style: textTheme.bodyLarge,
-                                  decoration: const InputDecoration(
-                                    isCollapsed: true,
-                                    contentPadding: EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 11),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        SizedBox(
-                          width: 340,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'الفصل:',
-                                style: textTheme.bodyLarge
-                                    ?.copyWith(color: colorScheme.onBackground),
-                              ),
-                              SizedBox(
-                                width: 250,
-                                child: DropdownButtonFormField2<int>(
-                                  decoration: InputDecoration(
-                                    isDense: true,
-                                    contentPadding: EdgeInsets.zero,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                  hint: Text(
-                                    'اختر الفصل و السنة',
-                                    style: textTheme.bodyLarge?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  style: textTheme.bodyLarge,
-                                  value: state.currenSemesterId,
-                                  items: [
-                                    for (var sem in state.semesters)
-                                      DropdownMenuItem(
-                                        value: sem.value,
-                                        child: Text(sem.text),
-                                      ),
-                                  ],
-                                  onChanged: (value) {
-                                    if (value != null) {
-                                      widget.subjectBloc
-                                          .add(SemesterValueChanged(value));
-                                    }
-                                  },
-                                  buttonStyleData: const ButtonStyleData(
-                                    height: 40,
-                                    padding:
-                                        EdgeInsets.only(left: 10, right: 10),
-                                    overlayColor: MaterialStatePropertyAll(
-                                        Colors.transparent),
-                                  ),
-                                  iconStyleData: const IconStyleData(
-                                    icon: Icon(
-                                      Icons.arrow_drop_down,
-                                      color: Colors.black45,
-                                    ),
-                                    iconSize: 30,
-                                  ),
-                                  dropdownStyleData: DropdownStyleData(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 30),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              TextButton(
-                                onPressed: () {
-                                  context.pop();
-                                },
-                                child: Text(
-                                  'إلغاء',
-                                  style: textTheme.bodyLarge?.copyWith(
-                                    color: colorScheme.primary,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              AppElevatedButton(
-                                onPressed: () {
-                                  widget.isUpdate
-                                      ? widget.subjectBloc.add(SubjectUpdated(
-                                          updateSubjectParams:
-                                              UpdateSubjectParams(
-                                          yearSemesterId:
-                                              state.currenSemesterId!,
-                                          title: widget.title!,
-                                          subjectId: widget.subjectId!,
-                                        )))
-                                      : widget.subjectBloc.add(SubjectAdded(
-                                          addSubjectParams: AddSubjectParams(
-                                          yearSemesterId:
-                                              state.currenSemesterId!,
-                                          title: titleController.text,
-                                        )));
-                                  context.pop();
-                                },
-                                text: widget.isUpdate ? 'حفظ' : 'إضافة',
-                              ),
-                            ],
-                          ),
-                        )
-                      ],
+                        ],
+                      ),
                     ),
-                  );
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: 340,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'الفصل:',
+                            style: textTheme.bodyLarge
+                                ?.copyWith(color: colorScheme.onBackground),
+                          ),
+                          SizedBox(
+                            width: 250,
+                            child: DropdownButtonFormField2<int>(
+                              decoration: InputDecoration(
+                                isDense: true,
+                                contentPadding: EdgeInsets.zero,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              validator: (value) {
+                                if (value == null) {
+                                  return 'يجب اختيار الفصل';
+                                }
+                                return null;
+                              },
+                              hint: Text(
+                                'اختر الفصل و السنة',
+                                style: textTheme.bodyLarge?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              style: textTheme.bodyLarge,
+                              value: state.dialogSemesterId,
+                              items: [
+                                for (var sem in state.semesters)
+                                  DropdownMenuItem(
+                                    value: sem.value,
+                                    child: Text(sem.text),
+                                  ),
+                              ],
+                              onChanged: (value) {
+                                if (value != null) {
+                                  widget.subjectBloc
+                                      .add(DialogSemesterValueChanged(value));
+                                }
+                              },
+                              buttonStyleData: const ButtonStyleData(
+                                height: 40,
+                                padding: EdgeInsets.only(left: 10, right: 10),
+                                overlayColor: MaterialStatePropertyAll(
+                                    Colors.transparent),
+                              ),
+                              iconStyleData: const IconStyleData(
+                                icon: Icon(
+                                  Icons.arrow_drop_down,
+                                  color: Colors.black45,
+                                ),
+                                iconSize: 30,
+                              ),
+                              dropdownStyleData: DropdownStyleData(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          TextButton(
+                            onPressed: () {
+                              context.pop();
+                            },
+                            child: Text(
+                              'إلغاء',
+                              style: textTheme.bodyLarge?.copyWith(
+                                color: colorScheme.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          AppElevatedButton(
+                            onPressed: () {
+                              if (!_formKey.currentState!.validate()) {
+                                return;
+                              }
+                              widget.isUpdate
+                                  ? widget.subjectBloc.add(SubjectUpdated(
+                                      updateSubjectParams: UpdateSubjectParams(
+                                      yearSemesterId: state.dialogSemesterId!,
+                                      title: titleController.text,
+                                      subjectId: widget.subjectId!,
+                                    )))
+                                  : widget.subjectBloc.add(SubjectAdded(
+                                      addSubjectParams: AddSubjectParams(
+                                      yearSemesterId: state.dialogSemesterId!,
+                                      title: titleController.text,
+                                    )));
+                              context.pop();
+                            },
+                            text: widget.isUpdate ? 'حفظ' : 'إضافة',
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            );
           },
         ),
       ),

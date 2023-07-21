@@ -4,6 +4,7 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pharmacy_dashboard/core/validations/validations.dart';
 import '../../domain/use_cases/admin/add_admin.dart';
 import '../../domain/use_cases/admin/update_admin.dart';
 import '../AppWidgetsDisplayer.dart';
@@ -24,12 +25,14 @@ class AdminsPage extends StatefulWidget {
 }
 
 class _AdminsPageState extends State<AdminsPage> {
+  late final TextEditingController userNameController;
   late final AdminBloc _adminBloc;
   @override
   void initState() {
     super.initState();
     _adminBloc = AdminBloc();
     _adminBloc.add(AdminsFetched(getAdminsParams: GetAdminsParams()));
+    userNameController = TextEditingController();
   }
 
   @override
@@ -79,31 +82,55 @@ class _AdminsPageState extends State<AdminsPage> {
           },
           bloc: _adminBloc,
           builder: (context, state) {
-            return state.adminsFetchingStatus == AdminsFetchingStatus.initial ||
-                    state.adminsFetchingStatus == AdminsFetchingStatus.loading
-                ? const LoadingWidget()
-                : Container(
-                    margin: const EdgeInsets.all(20),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            AppTextButton(
-                              onPressed: () {
-                                showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return _AddUpdateAdminDialog(
-                                        adminBloc: _adminBloc,
-                                      );
-                                    });
-                              },
-                              text: 'إضافة مسؤول',
-                            ),
-                          ],
+            return Container(
+              margin: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      AppTextButton(
+                        onPressed: () {
+                          showDialog(
+                              context: context,
+                              builder: (context) {
+                                return _AddUpdateAdminDialog(
+                                  adminBloc: _adminBloc,
+                                );
+                              });
+                        },
+                        text: 'إضافة مسؤول',
+                      ),
+                      const SizedBox(width: 40),
+                      SizedBox(
+                        width: 200,
+                        child: TextField(
+                          autofocus: true,
+                          controller: userNameController,
+                          style: textTheme.bodyLarge,
+                          onChanged: (text) {
+                            _adminBloc.add(AdminsFetched(
+                                getAdminsParams: GetAdminsParams(
+                              username: text == '' ? null : text,
+                            )));
+                          },
+                          decoration: InputDecoration(
+                            hintText: 'اسم المستخدم',
+                            hintStyle: textTheme.bodyMedium,
+                            suffixIcon: const Icon(Icons.search),
+                            isCollapsed: true,
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 12),
+                          ),
                         ),
-                        const SizedBox(height: 20),
-                        Expanded(
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  state.adminsFetchingStatus == AdminsFetchingStatus.initial ||
+                          state.adminsFetchingStatus ==
+                              AdminsFetchingStatus.loading
+                      ? const LoadingWidget()
+                      : Expanded(
                           child: DataTable2(
                             decoration: BoxDecoration(
                               color: colorScheme.background,
@@ -127,23 +154,14 @@ class _AdminsPageState extends State<AdminsPage> {
                               DataColumn(
                                 label: Text('التفعيل'),
                               ),
+                              DataColumn(
+                                label: Text(''),
+                              ),
                             ],
                             rows: [
                               for (var admin in state.admins)
                                 DataRow2(
-                                  onTap: () {
-                                    showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          return _AddUpdateAdminDialog(
-                                            isUpdate: true,
-                                            adminBloc: _adminBloc,
-                                            adminId: admin.id,
-                                            name: admin.name,
-                                            username: admin.username,
-                                          );
-                                        });
-                                  },
+                                  onTap: () {},
                                   cells: [
                                     DataCell(Text(admin.name)),
                                     DataCell(Text(admin.username)),
@@ -156,15 +174,54 @@ class _AdminsPageState extends State<AdminsPage> {
                                         },
                                         activeColor: colorScheme.primary,
                                       ),
+                                    ),
+                                    DataCell(
+                                      PopupMenuButton<String>(
+                                        padding: EdgeInsets.zero,
+                                        tooltip: 'خيارات',
+                                        onSelected: (value) {
+                                          if (value == 'edit') {
+                                            showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  return _AddUpdateAdminDialog(
+                                                    isUpdate: true,
+                                                    adminBloc: _adminBloc,
+                                                    adminId: admin.id,
+                                                    name: admin.name,
+                                                    username: admin.username,
+                                                  );
+                                                });
+                                          } else {}
+                                        },
+                                        splashRadius: 30,
+                                        itemBuilder: (context) =>
+                                            <PopupMenuItem<String>>[
+                                          const PopupMenuItem<String>(
+                                            value: 'edit',
+                                            child: Text(
+                                              'تعديل',
+                                            ),
+                                          ),
+                                          const PopupMenuItem<String>(
+                                            value: 'delete',
+                                            child: Text(
+                                              'حذف',
+                                            ),
+                                          ),
+                                        ],
+                                        child: const Icon(
+                                            Icons.more_vert_outlined),
+                                      ),
                                     )
                                   ],
                                 ),
                             ],
                           ),
                         ),
-                      ],
-                    ),
-                  );
+                ],
+              ),
+            );
           },
         ),
       ),
@@ -197,6 +254,7 @@ class _AddUpdateAdminDialogState extends State<_AddUpdateAdminDialog> {
   late final TextEditingController usernameController;
   late final TextEditingController passwordController;
   late final TextEditingController passwordConfirmationController;
+  final GlobalKey<FormState> _formKey = GlobalKey();
   @override
   void initState() {
     super.initState();
@@ -224,168 +282,202 @@ class _AddUpdateAdminDialogState extends State<_AddUpdateAdminDialog> {
         textDirection: TextDirection.rtl,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Text(
-                  widget.isUpdate ? 'تعديل مسؤول' : 'إضافة مسؤول',
-                  style: textTheme.headlineSmall?.copyWith(
-                    color: colorScheme.onBackground,
-                    fontWeight: FontWeight.bold,
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Text(
+                    widget.isUpdate ? 'تعديل مسؤول' : 'إضافة مسؤول',
+                    style: textTheme.headlineSmall?.copyWith(
+                      color: colorScheme.onBackground,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 40),
-              SizedBox(
-                width: 320,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'الاسم:',
-                      style: textTheme.bodyLarge
-                          ?.copyWith(color: colorScheme.onBackground),
-                    ),
-                    SizedBox(
-                      width: 200,
-                      child: TextField(
-                        controller: nameController,
-                        style: textTheme.bodyLarge,
-                        decoration: const InputDecoration(
-                          isCollapsed: true,
-                          contentPadding: EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 11),
+                const SizedBox(height: 40),
+                SizedBox(
+                  width: 340,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'الاسم:',
+                        style: textTheme.bodyLarge
+                            ?.copyWith(color: colorScheme.onBackground),
+                      ),
+                      SizedBox(
+                        width: 230,
+                        child: TextFormField(
+                          autofocus: true,
+                          controller: nameController,
+                          style: textTheme.bodyLarge,
+                          validator: (value) {
+                            if (value == null || value.length < 5) {
+                              return 'الاسم يجب أن يتكون من 5 أحرف على الأقل';
+                            }
+                            return null;
+                          },
+                          decoration: const InputDecoration(
+                            isCollapsed: true,
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 11),
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: 320,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'اسم المستخدم:',
-                      style: textTheme.bodyLarge
-                          ?.copyWith(color: colorScheme.onBackground),
-                    ),
-                    SizedBox(
-                      width: 200,
-                      child: TextField(
-                        controller: usernameController,
-                        style: textTheme.bodyLarge,
-                        decoration: const InputDecoration(
-                          isCollapsed: true,
-                          contentPadding: EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 11),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: 340,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'اسم المستخدم:',
+                        style: textTheme.bodyLarge
+                            ?.copyWith(color: colorScheme.onBackground),
+                      ),
+                      SizedBox(
+                        width: 230,
+                        child: TextFormField(
+                          controller: usernameController,
+                          style: textTheme.bodyLarge,
+                          validator: (value) {
+                            if (value == null || value.length < 5) {
+                              return 'اسم المستخدم يجب أن يتكون من 3 أحرف على الأقل';
+                            }
+                            return null;
+                          },
+                          decoration: const InputDecoration(
+                            isCollapsed: true,
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 11),
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: 320,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'كلمة المرور:',
-                      style: textTheme.bodyLarge
-                          ?.copyWith(color: colorScheme.onBackground),
-                    ),
-                    SizedBox(
-                      width: 200,
-                      child: TextField(
-                        controller: passwordController,
-                        style: textTheme.bodyLarge,
-                        obscureText: true,
-                        decoration: const InputDecoration(
-                          isCollapsed: true,
-                          contentPadding: EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 11),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: 340,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'كلمة المرور:',
+                        style: textTheme.bodyLarge
+                            ?.copyWith(color: colorScheme.onBackground),
+                      ),
+                      SizedBox(
+                        width: 230,
+                        child: TextFormField(
+                          controller: passwordController,
+                          style: textTheme.bodyLarge,
+                          obscureText: true,
+                          validator: (value) {
+                            if (value == null ||
+                                !Validations.passwordValidation(
+                                    password: value)) {
+                              return 'كلمة المرور يجب أن تتكون من 6 محارف على الأقل';
+                            }
+                            return null;
+                          },
+                          decoration: const InputDecoration(
+                            isCollapsed: true,
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 11),
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: 320,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'تأكيد كلمة المرور:',
-                      style: textTheme.bodyLarge
-                          ?.copyWith(color: colorScheme.onBackground),
-                    ),
-                    SizedBox(
-                      width: 200,
-                      child: TextField(
-                        controller: passwordConfirmationController,
-                        style: textTheme.bodyLarge,
-                        obscureText: true,
-                        decoration: const InputDecoration(
-                          isCollapsed: true,
-                          contentPadding: EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 11),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: 340,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'تأكيد كلمة المرور:',
+                        style: textTheme.bodyLarge
+                            ?.copyWith(color: colorScheme.onBackground),
+                      ),
+                      SizedBox(
+                        width: 230,
+                        child: TextFormField(
+                          controller: passwordConfirmationController,
+                          style: textTheme.bodyLarge,
+                          obscureText: true,
+                          validator: (value) {
+                            if (value == null ||
+                                value != passwordController.text) {
+                              return 'كلمتي المرور غير متطابقتين';
+                            }
+                            return null;
+                          },
+                          decoration: const InputDecoration(
+                            isCollapsed: true,
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 11),
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 30),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextButton(
-                      onPressed: () {
-                        context.pop();
-                      },
-                      child: Text(
-                        'إلغاء',
-                        style: textTheme.bodyLarge?.copyWith(
-                          color: colorScheme.primary,
-                          fontWeight: FontWeight.bold,
+                const SizedBox(height: 30),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          context.pop();
+                        },
+                        child: Text(
+                          'إلغاء',
+                          style: textTheme.bodyLarge?.copyWith(
+                            color: colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    AppElevatedButton(
-                      onPressed: () {
-                        widget.isUpdate
-                            ? widget.adminBloc.add(AdminUpdated(
-                                updateAdminsParams: UpdateAdminParams(
-                                name: nameController.text,
-                                username: usernameController.text,
-                                password: passwordController.text,
-                                adminId: widget.adminId!,
-                              )))
-                            : widget.adminBloc.add(AdminAdded(
-                                addAdminsParams: AddAdminParams(
-                                name: nameController.text,
-                                username: usernameController.text,
-                                password: passwordController.text,
-                              )));
-                        context.pop();
-                      },
-                      text: widget.isUpdate ? 'حفظ' : 'إضافة',
-                    ),
-                  ],
-                ),
-              )
-            ],
+                      const SizedBox(width: 12),
+                      AppElevatedButton(
+                        onPressed: () {
+                          if (!_formKey.currentState!.validate()) {
+                            return;
+                          }
+                          widget.isUpdate
+                              ? widget.adminBloc.add(AdminUpdated(
+                                  updateAdminsParams: UpdateAdminParams(
+                                  name: nameController.text,
+                                  username: usernameController.text,
+                                  password: passwordController.text,
+                                  adminId: widget.adminId!,
+                                )))
+                              : widget.adminBloc.add(AdminAdded(
+                                  addAdminsParams: AddAdminParams(
+                                  name: nameController.text,
+                                  username: usernameController.text,
+                                  password: passwordController.text,
+                                )));
+                          context.pop();
+                        },
+                        text: widget.isUpdate ? 'حفظ' : 'إضافة',
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       ),

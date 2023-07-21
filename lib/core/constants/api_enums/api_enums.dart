@@ -7,13 +7,26 @@ enum AdminRole {
 }
 
 enum SubscriptionableType {
+  all(-1),
   yearSemester(3),
   subject(4);
 
   final int value;
   const SubscriptionableType(this.value);
   static String typeInArabic(int value) {
-    return value == 3 ? 'فصل' : 'مادة';
+    return value == 3
+        ? 'فصل'
+        : (value == 4)
+            ? 'مادة'
+            : 'الكل';
+  }
+
+  static String typeInEnglish(int value) {
+    return value == 3
+        ? 'Semester'
+        : (value == 4)
+            ? 'Subject'
+            : 'Everything';
   }
 }
 

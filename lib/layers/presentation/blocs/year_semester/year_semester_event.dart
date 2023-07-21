@@ -11,12 +11,12 @@ class YearSemesterFetched extends YearSemesterEvent {
 
 class YearSemesterActiveToggled extends YearSemesterEvent {
   final int yearSemesterId;
-  final int year;
-  final int semester;
 
-  YearSemesterActiveToggled({
-    required this.yearSemesterId,
-    required this.year,
-    required this.semester,
-  });
+  YearSemesterActiveToggled({required this.yearSemesterId});
+}
+
+class SubjectActiveToggled extends YearSemesterEvent {
+  final int subjectId;
+
+  SubjectActiveToggled({required this.subjectId});
 }

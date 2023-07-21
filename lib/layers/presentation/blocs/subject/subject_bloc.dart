@@ -19,7 +19,8 @@ class SubjectBloc extends Bloc<SubjectEvent, SubjectState> {
   SubjectBloc() : super(const SubjectState()) {
     on<SubjectsFetched>(_mapSubjectsFetched);
     on<SemestersFetched>(_mapSemestersFetched);
-    on<SemesterValueChanged>(_mapSemesterValueChanged);
+    on<MainSemesterValueChanged>(_mapMainSemesterValueChanged);
+    on<DialogSemesterValueChanged>(_mapDialogSemesterValueChanged);
     on<SubjectAdded>(_mapSubjectAdded);
     on<SubjectUpdated>(_mapSubjectUpdated);
     on<SubjectDeleted>(_mapSubjectDeleted);
@@ -40,6 +41,8 @@ class SubjectBloc extends Bloc<SubjectEvent, SubjectState> {
 
   FutureOr<void> _mapSubjectsFetched(
       SubjectsFetched event, Emitter<SubjectState> emit) async {
+    emit(
+        state.copyWith(subjectsFetchingStatus: SubjectsFetchingStatus.loading));
     final result = await _getSubjectsUseCase(event.getSubjectsParams);
     await result.fold(
       (l) async {
@@ -71,7 +74,7 @@ class SubjectBloc extends Bloc<SubjectEvent, SubjectState> {
         List<({String text, int value})> semesters = [];
         for (var ys in yearSemesters) {
           for (var sem in ys.semesters) {
-            final String text = '${ys.arabicName} - ${sem.arabicName}';
+            final String text = '${ys.arabicName} - ${sem.semesterArabicName}';
             final int value = sem.id;
             semesters.add((text: text, value: value));
           }
@@ -84,9 +87,14 @@ class SubjectBloc extends Bloc<SubjectEvent, SubjectState> {
     );
   }
 
-  FutureOr<void> _mapSemesterValueChanged(
-      SemesterValueChanged event, Emitter<SubjectState> emit) {
-    emit(state.copyWith(currenSemesterId: event.newVlaue));
+  FutureOr<void> _mapMainSemesterValueChanged(
+      MainSemesterValueChanged event, Emitter<SubjectState> emit) {
+    emit(state.copyWith(mainSemesterId: event.newVlaue));
+  }
+
+  FutureOr<void> _mapDialogSemesterValueChanged(
+      DialogSemesterValueChanged event, Emitter<SubjectState> emit) {
+    emit(state.copyWith(dialogSemesterId: event.newVlaue));
   }
 
   FutureOr<void> _mapSubjectAdded(

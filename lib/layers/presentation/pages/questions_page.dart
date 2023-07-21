@@ -144,7 +144,7 @@ class _QuestionsPageState extends State<QuestionsPage> {
                                       state.questionBank!.bankType ==
                                               QuestionBankType
                                                   .previousExam.value
-                                          ? '${state.questionBank!.title} - دورة ${state.questionBank!.yearOfExam} - فصل ${state.questionBank!.semesterOfExam}'
+                                          ? '${state.questionBank!.subject!.title} - ${state.questionBank!.title} - دورة ${state.questionBank!.yearOfExam} - فصل ${state.questionBank!.semesterOfExam}'
                                           : '${state.questionBank!.title} - الفصل رقم ${state.questionBank!.chapterOrder}',
                                       style: textTheme.bodyLarge?.copyWith(
                                         color: colorScheme.onBackground,
@@ -190,10 +190,12 @@ class _QuestionsPageState extends State<QuestionsPage> {
                                   ],
                                 ),
                                 const SizedBox(height: 10),
-                                for (var question
-                                    in state.questionBank!.questions!)
+                                for (int i = 0;
+                                    i < state.questionBank!.questions!.length;
+                                    i++)
                                   QuestionCard(
-                                    question: question,
+                                    question: state.questionBank!.questions![i],
+                                    questionNumber: i + 1,
                                   ),
                               ],
                             ),
@@ -213,8 +215,10 @@ class QuestionCard extends StatelessWidget {
   const QuestionCard({
     super.key,
     required this.question,
+    required this.questionNumber,
   });
   final Question question;
+  final int questionNumber;
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -223,7 +227,7 @@ class QuestionCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 6),
       child: ExpansionTile(
         title: Text(
-          question.questionText,
+          '$questionNumber. ${question.questionText}',
           style: textTheme.headlineSmall?.copyWith(
             color: colorScheme.onBackground,
             fontWeight: FontWeight.bold,
@@ -390,6 +394,7 @@ class _AddUpdateQuestionDialogState extends State<_AddUpdateQuestionDialog> {
   late final TextEditingController questionTextController;
   late final TextEditingController hintController;
   late final QuestionDialogBloc _questionDialogBloc;
+  final GlobalKey<FormState> _formKey = GlobalKey();
   @override
   void initState() {
     super.initState();
@@ -430,425 +435,456 @@ class _AddUpdateQuestionDialogState extends State<_AddUpdateQuestionDialog> {
             bloc: _questionDialogBloc,
             builder: (context, state) {
               return SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: Text(
-                        widget.isUpdate ? 'تعديل سؤال' : 'إضافة سؤال',
-                        style: textTheme.headlineSmall?.copyWith(
-                          color: colorScheme.onBackground,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 40),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            'السؤال:',
-                            style: textTheme.bodyLarge
-                                ?.copyWith(color: colorScheme.onBackground),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 3,
-                          child: TextField(
-                            controller: questionTextController,
-                            style: textTheme.bodyLarge,
-                            maxLines: null,
-                            decoration: const InputDecoration(
-                              isCollapsed: true,
-                              contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 11),
-                            ),
-                          ),
-                        ),
-                        if (isDesktop) const Spacer(),
-                      ],
-                    ),
-                    if (!state.showHint)
-                      TextButton(
-                        onPressed: () {
-                          _questionDialogBloc.add(HintToggled());
-                        },
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
                         child: Text(
-                          'إضافة تلميح',
-                          style: textTheme.bodyLarge?.copyWith(
-                            color: colorScheme.primary,
+                          widget.isUpdate ? 'تعديل سؤال' : 'إضافة سؤال',
+                          style: textTheme.headlineSmall?.copyWith(
+                            color: colorScheme.onBackground,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
-                    if (state.showHint) const SizedBox(height: 12),
-                    if (state.showHint)
+                      const SizedBox(height: 40),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
                             child: Text(
-                              'التلميح:',
+                              'السؤال:',
                               style: textTheme.bodyLarge
                                   ?.copyWith(color: colorScheme.onBackground),
                             ),
                           ),
                           Expanded(
                             flex: 3,
-                            child: Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                TextField(
-                                  controller: hintController,
-                                  style: textTheme.bodyLarge,
-                                  decoration: const InputDecoration(
-                                    isCollapsed: true,
-                                    contentPadding: EdgeInsets.only(
-                                      right: 10,
-                                      top: 11,
-                                      bottom: 11,
-                                      left: 30,
-                                    ),
-                                  ),
-                                ),
-                                Positioned(
-                                  left: 8,
-                                  child: Tooltip(
-                                    message: 'حذف التلميح',
-                                    child: InkWell(
-                                      onTap: () {
-                                        _questionDialogBloc.add(HintToggled());
-                                      },
-                                      child: Icon(
-                                        Icons.cancel,
-                                        color: colorScheme.secondary,
-                                        size: 20,
-                                      ),
-                                    ),
-                                  ),
-                                )
-                              ],
+                            child: TextFormField(
+                              controller: questionTextController,
+                              style: textTheme.bodyLarge,
+                              maxLines: null,
+                              autovalidateMode:
+                                  AutovalidateMode.onUserInteraction,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'يجب ادخال نص السؤال';
+                                }
+                                return null;
+                              },
+                              decoration: const InputDecoration(
+                                isCollapsed: true,
+                                contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 11),
+                              ),
                             ),
                           ),
                           if (isDesktop) const Spacer(),
                         ],
                       ),
-                    for (int i = 0; i < state.answersControllers.length; i++)
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const SizedBox(height: 12),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  'الإجابة ${i + 1}:',
-                                  style: textTheme.bodyLarge?.copyWith(
-                                      color: colorScheme.onBackground),
-                                ),
+                      if (!state.showHint)
+                        TextButton(
+                          onPressed: () {
+                            _questionDialogBloc.add(HintToggled());
+                          },
+                          child: Text(
+                            'إضافة تلميح',
+                            style: textTheme.bodyLarge?.copyWith(
+                              color: colorScheme.primary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      if (state.showHint) const SizedBox(height: 12),
+                      if (state.showHint)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                'التلميح:',
+                                style: textTheme.bodyLarge
+                                    ?.copyWith(color: colorScheme.onBackground),
                               ),
-                              Expanded(
-                                flex: 3,
-                                child: Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    TextField(
-                                      key: ValueKey(i),
-                                      controller: state.answersControllers[i],
-                                      style: textTheme.bodyLarge,
-                                      decoration: InputDecoration(
-                                        isCollapsed: true,
-                                        contentPadding: EdgeInsets.only(
-                                          right: 10,
-                                          top: 11,
-                                          bottom: 11,
-                                          left:
-                                              state.answersControllers.length >
-                                                      2
-                                                  ? 30
-                                                  : 10,
+                            ),
+                            Expanded(
+                              flex: 3,
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  TextField(
+                                    controller: hintController,
+                                    style: textTheme.bodyLarge,
+                                    decoration: const InputDecoration(
+                                      isCollapsed: true,
+                                      contentPadding: EdgeInsets.only(
+                                        right: 10,
+                                        top: 11,
+                                        bottom: 11,
+                                        left: 30,
+                                      ),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    left: 8,
+                                    child: Tooltip(
+                                      message: 'حذف التلميح',
+                                      child: InkWell(
+                                        onTap: () {
+                                          _questionDialogBloc
+                                              .add(HintToggled());
+                                        },
+                                        child: Icon(
+                                          Icons.cancel,
+                                          color: colorScheme.secondary,
+                                          size: 20,
                                         ),
                                       ),
                                     ),
-                                    if (state.answersControllers.length > 2)
-                                      Positioned(
-                                        left: 8,
-                                        child: Tooltip(
-                                          message: 'حذف الإجابة',
-                                          child: InkWell(
-                                            onTap: () {
-                                              _questionDialogBloc
-                                                  .add(AnswerDeleted(i));
-                                            },
-                                            child: Icon(
-                                              Icons.cancel,
-                                              color: colorScheme.secondary,
-                                              size: 20,
-                                            ),
-                                          ),
-                                        ),
-                                      )
-                                  ],
-                                ),
+                                  )
+                                ],
                               ),
-                              if (isDesktop)
+                            ),
+                            if (isDesktop) const Spacer(),
+                          ],
+                        ),
+                      for (int i = 0; i < state.answersControllers.length; i++)
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const SizedBox(height: 12),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
                                 Expanded(
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        'صحيح',
-                                        style: textTheme.bodyLarge,
-                                      ),
-                                      const SizedBox(width: 2),
-                                      InkWell(
-                                        onTap: () {
-                                          if (state.answersValidity[i]) {
-                                            return;
-                                          }
-                                          _questionDialogBloc.add(
-                                              AnswerValidityToggled(index: i));
-                                        },
-                                        child: SvgImage(
-                                          state.answersValidity[i]
-                                              ? SvgImages.check
-                                              : SvgImages.emptyCircle,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 10),
-                                      Text(
-                                        'خاطىء',
-                                        style: textTheme.bodyLarge,
-                                      ),
-                                      const SizedBox(width: 2),
-                                      InkWell(
-                                        onTap: () {
-                                          if (!state.answersValidity[i]) {
-                                            return;
-                                          }
-                                          _questionDialogBloc.add(
-                                              AnswerValidityToggled(index: i));
-                                        },
-                                        child: SvgImage(
-                                          !state.answersValidity[i]
-                                              ? SvgImages.cancel
-                                              : SvgImages.emptyCircle,
-                                          color: !state.answersValidity[i]
-                                              ? Colors.red
-                                              : null,
-                                        ),
-                                      ),
-                                    ],
+                                  child: Text(
+                                    'الإجابة ${i + 1}:',
+                                    style: textTheme.bodyLarge?.copyWith(
+                                        color: colorScheme.onBackground),
                                   ),
                                 ),
-                            ],
-                          ),
-                          if (!isDesktop) const SizedBox(height: 4),
-                          if (!isDesktop)
-                            Row(
-                              children: [
-                                const Spacer(),
-                                const SizedBox(width: 30),
                                 Expanded(
                                   flex: 3,
-                                  child: Row(
+                                  child: Stack(
+                                    alignment: Alignment.center,
                                     children: [
-                                      Text(
-                                        'صحيح',
+                                      TextFormField(
+                                        key: ValueKey(i),
+                                        autovalidateMode:
+                                            AutovalidateMode.onUserInteraction,
+                                        controller: state.answersControllers[i],
                                         style: textTheme.bodyLarge,
-                                      ),
-                                      const SizedBox(width: 2),
-                                      InkWell(
-                                        onTap: () {
-                                          if (state.answersValidity[i]) {
-                                            return;
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return 'يجب ادخال نص الجواب';
                                           }
-                                          _questionDialogBloc.add(
-                                              AnswerValidityToggled(index: i));
+                                          return null;
                                         },
-                                        child: SvgImage(
-                                          state.answersValidity[i]
-                                              ? SvgImages.check
-                                              : SvgImages.emptyCircle,
+                                        decoration: InputDecoration(
+                                          isCollapsed: true,
+                                          contentPadding: EdgeInsets.only(
+                                            right: 10,
+                                            top: 11,
+                                            bottom: 11,
+                                            left: state.answersControllers
+                                                        .length >
+                                                    2
+                                                ? 30
+                                                : 10,
+                                          ),
                                         ),
                                       ),
-                                      const SizedBox(width: 10),
-                                      Text(
-                                        'خاطىء',
-                                        style: textTheme.bodyLarge,
-                                      ),
-                                      const SizedBox(width: 2),
-                                      InkWell(
-                                        onTap: () {
-                                          if (!state.answersValidity[i]) {
-                                            return;
-                                          }
-                                          _questionDialogBloc.add(
-                                              AnswerValidityToggled(index: i));
-                                        },
-                                        child: SvgImage(
-                                          !state.answersValidity[i]
-                                              ? SvgImages.cancel
-                                              : SvgImages.emptyCircle,
-                                          color: !state.answersValidity[i]
-                                              ? Colors.red
-                                              : null,
-                                        ),
-                                      ),
+                                      if (state.answersControllers.length > 2)
+                                        Positioned(
+                                          left: 8,
+                                          child: Tooltip(
+                                            message: 'حذف الإجابة',
+                                            child: InkWell(
+                                              onTap: () {
+                                                _questionDialogBloc
+                                                    .add(AnswerDeleted(i));
+                                              },
+                                              child: Icon(
+                                                Icons.cancel,
+                                                color: colorScheme.secondary,
+                                                size: 20,
+                                              ),
+                                            ),
+                                          ),
+                                        )
                                     ],
                                   ),
                                 ),
-                                const Spacer(),
+                                if (isDesktop)
+                                  Expanded(
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          'صحيح',
+                                          style: textTheme.bodyLarge,
+                                        ),
+                                        const SizedBox(width: 2),
+                                        InkWell(
+                                          onTap: () {
+                                            if (state.answersValidity[i]) {
+                                              return;
+                                            }
+                                            _questionDialogBloc.add(
+                                                AnswerValidityToggled(
+                                                    index: i));
+                                          },
+                                          child: SvgImage(
+                                            state.answersValidity[i]
+                                                ? SvgImages.check
+                                                : SvgImages.emptyCircle,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Text(
+                                          'خاطىء',
+                                          style: textTheme.bodyLarge,
+                                        ),
+                                        const SizedBox(width: 2),
+                                        InkWell(
+                                          onTap: () {
+                                            if (!state.answersValidity[i]) {
+                                              return;
+                                            }
+                                            _questionDialogBloc.add(
+                                                AnswerValidityToggled(
+                                                    index: i));
+                                          },
+                                          child: SvgImage(
+                                            !state.answersValidity[i]
+                                                ? SvgImages.cancel
+                                                : SvgImages.emptyCircle,
+                                            color: !state.answersValidity[i]
+                                                ? Colors.red
+                                                : null,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                               ],
                             ),
-                        ],
-                      ),
-                    if (state.answersControllers.length < 6)
-                      TextButton(
-                        onPressed: () {
-                          _questionDialogBloc.add(AnswerAdded());
-                        },
-                        child: Text(
-                          'إضافة إجابة',
-                          style: textTheme.bodyLarge?.copyWith(
-                            color: colorScheme.primary,
-                            fontWeight: FontWeight.bold,
+                            if (!isDesktop) const SizedBox(height: 4),
+                            if (!isDesktop)
+                              Row(
+                                children: [
+                                  const Spacer(),
+                                  const SizedBox(width: 30),
+                                  Expanded(
+                                    flex: 3,
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          'صحيح',
+                                          style: textTheme.bodyLarge,
+                                        ),
+                                        const SizedBox(width: 2),
+                                        InkWell(
+                                          onTap: () {
+                                            if (state.answersValidity[i]) {
+                                              return;
+                                            }
+                                            _questionDialogBloc.add(
+                                                AnswerValidityToggled(
+                                                    index: i));
+                                          },
+                                          child: SvgImage(
+                                            state.answersValidity[i]
+                                                ? SvgImages.check
+                                                : SvgImages.emptyCircle,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Text(
+                                          'خاطىء',
+                                          style: textTheme.bodyLarge,
+                                        ),
+                                        const SizedBox(width: 2),
+                                        InkWell(
+                                          onTap: () {
+                                            if (!state.answersValidity[i]) {
+                                              return;
+                                            }
+                                            _questionDialogBloc.add(
+                                                AnswerValidityToggled(
+                                                    index: i));
+                                          },
+                                          child: SvgImage(
+                                            !state.answersValidity[i]
+                                                ? SvgImages.cancel
+                                                : SvgImages.emptyCircle,
+                                            color: !state.answersValidity[i]
+                                                ? Colors.red
+                                                : null,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                ],
+                              ),
+                          ],
+                        ),
+                      if (state.answersControllers.length < 6)
+                        TextButton(
+                          onPressed: () {
+                            _questionDialogBloc.add(AnswerAdded());
+                          },
+                          child: Text(
+                            'إضافة إجابة',
+                            style: textTheme.bodyLarge?.copyWith(
+                              color: colorScheme.primary,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                      ),
-                    const SizedBox(height: 12),
-                    if (state.image == null)
-                      TextButton(
-                        onPressed: () async {
-                          final FilePickerResult? result =
-                              await FilePickerWeb.platform.pickFiles(
-                            type: FileType.image,
-                          );
-                          if (result != null) {
-                            _questionDialogBloc.add(
-                                ImageAdded(image: result.files.first.bytes!));
-                          }
-                        },
-                        style: TextButton.styleFrom(
-                          backgroundColor: colorScheme.primaryContainer,
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(6),
+                      const SizedBox(height: 12),
+                      if (state.image == null)
+                        TextButton(
+                          onPressed: () async {
+                            final FilePickerResult? result =
+                                await FilePickerWeb.platform.pickFiles(
+                              type: FileType.image,
+                            );
+                            if (result != null) {
+                              _questionDialogBloc.add(
+                                  ImageAdded(image: result.files.first.bytes!));
+                            }
+                          },
+                          style: TextButton.styleFrom(
+                            backgroundColor: colorScheme.primaryContainer,
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'اختيار صورة',
+                                style: textTheme.bodyLarge?.copyWith(
+                                  color: colorScheme.onPrimaryContainer,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Icon(
+                                Icons.image,
+                                color: colorScheme.onPrimaryContainer,
+                              )
+                            ],
                           ),
                         ),
+                      if (state.image != null)
+                        Center(
+                          child: Stack(
+                            children: [
+                              Image.memory(
+                                state.image!,
+                                width: 200,
+                                height: 150,
+                                fit: BoxFit.fill,
+                              ),
+                              Positioned(
+                                left: 4,
+                                top: 4,
+                                child: Tooltip(
+                                  message: 'حذف الصورة',
+                                  child: InkWell(
+                                    onTap: () {
+                                      _questionDialogBloc.add(ImageDeleted());
+                                    },
+                                    child: Icon(
+                                      Icons.cancel,
+                                      color: colorScheme.secondary,
+                                      size: 20,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      const SizedBox(height: 30),
+                      Align(
+                        alignment: Alignment.centerLeft,
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(
-                              'اختيار صورة',
-                              style: textTheme.bodyLarge?.copyWith(
-                                color: colorScheme.onPrimaryContainer,
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                            Icon(
-                              Icons.image,
-                              color: colorScheme.onPrimaryContainer,
-                            )
-                          ],
-                        ),
-                      ),
-                    if (state.image != null)
-                      Center(
-                        child: Stack(
-                          children: [
-                            Image.memory(
-                              state.image!,
-                              width: 200,
-                              height: 150,
-                              fit: BoxFit.fill,
-                            ),
-                            Positioned(
-                              left: 4,
-                              top: 4,
-                              child: Tooltip(
-                                message: 'حذف الصورة',
-                                child: InkWell(
-                                  onTap: () {
-                                    _questionDialogBloc.add(ImageDeleted());
-                                  },
-                                  child: Icon(
-                                    Icons.cancel,
-                                    color: colorScheme.secondary,
-                                    size: 20,
-                                  ),
+                            TextButton(
+                              onPressed: () {
+                                context.pop();
+                              },
+                              child: Text(
+                                'إلغاء',
+                                style: textTheme.bodyLarge?.copyWith(
+                                  color: colorScheme.primary,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ),
+                            const SizedBox(width: 12),
+                            AppElevatedButton(
+                              onPressed: () {
+                                if (!_formKey.currentState!.validate()) {
+                                  return;
+                                }
+                                final List<Answer> answers = [];
+                                for (int i = 0;
+                                    i < state.answersControllers.length;
+                                    i++) {
+                                  answers.add(Answer(
+                                      id: 1,
+                                      answerText:
+                                          state.answersControllers[i].text,
+                                      isTrue:
+                                          state.answersValidity[i] ? 1 : 0));
+                                }
+                                widget.isUpdate
+                                    ? widget.questionBloc.add(QuestionUpdated(
+                                        updateQuestionParams:
+                                            UpdateQuestionParams(
+                                        questionBankId: widget.questionBankId,
+                                        questionText:
+                                            questionTextController.text,
+                                        answers: answers,
+                                        questionId: widget.question!.id,
+                                        hint: state.showHint &&
+                                                hintController.text != ''
+                                            ? hintController.text
+                                            : null,
+                                      )))
+                                    : widget.questionBloc.add(QuestionAdded(
+                                        addQuestionParams: AddQuestionParams(
+                                        questionBankId: widget.questionBankId,
+                                        questionText:
+                                            questionTextController.text,
+                                        answers: answers,
+                                        hint: state.showHint &&
+                                                hintController.text != ''
+                                            ? hintController.text
+                                            : null,
+                                      )));
+                                context.pop();
+                              },
+                              text: widget.isUpdate ? 'حفظ' : 'إضافة',
+                            ),
                           ],
                         ),
                       ),
-                    const SizedBox(height: 30),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          TextButton(
-                            onPressed: () {
-                              context.pop();
-                            },
-                            child: Text(
-                              'إلغاء',
-                              style: textTheme.bodyLarge?.copyWith(
-                                color: colorScheme.primary,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          AppElevatedButton(
-                            onPressed: () {
-                              final List<Answer> answers = [];
-                              for (int i = 0;
-                                  i < state.answersControllers.length;
-                                  i++) {
-                                answers.add(Answer(
-                                    id: 1,
-                                    answerText:
-                                        state.answersControllers[i].text,
-                                    isTrue: state.answersValidity[i] ? 1 : 0));
-                              }
-                              widget.isUpdate
-                                  ? widget.questionBloc.add(QuestionUpdated(
-                                      updateQuestionParams:
-                                          UpdateQuestionParams(
-                                      questionBankId: widget.questionBankId,
-                                      questionText: questionTextController.text,
-                                      answers: answers,
-                                      questionId: widget.question!.id,
-                                      hint: state.showHint &&
-                                              hintController.text != ''
-                                          ? hintController.text
-                                          : null,
-                                    )))
-                                  : widget.questionBloc.add(QuestionAdded(
-                                      addQuestionParams: AddQuestionParams(
-                                      questionBankId: widget.questionBankId,
-                                      questionText: questionTextController.text,
-                                      answers: answers,
-                                      hint: state.showHint &&
-                                              hintController.text != ''
-                                          ? hintController.text
-                                          : null,
-                                    )));
-                              context.pop();
-                            },
-                            text: widget.isUpdate ? 'حفظ' : 'إضافة',
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               );
             },
@@ -935,9 +971,9 @@ class _AddExcelFileDialogState extends State<_AddExcelFileDialog> {
                             excelFile = result.files.first.bytes!;
                           }
                         },
-                        readOnly: true,
                         controller: titleController,
                         style: textTheme.bodyLarge,
+                        readOnly: true,
                         showCursor: false,
                         mouseCursor: SystemMouseCursors.click,
                         canRequestFocus: false,

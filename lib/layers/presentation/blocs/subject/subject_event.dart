@@ -41,8 +41,14 @@ class SubjectFetched extends SubjectEvent {
 
 class SemestersFetched extends SubjectEvent {}
 
-class SemesterValueChanged extends SubjectEvent {
+class MainSemesterValueChanged extends SubjectEvent {
   final int? newVlaue;
 
-  SemesterValueChanged(this.newVlaue);
+  MainSemesterValueChanged(this.newVlaue);
+}
+
+class DialogSemesterValueChanged extends SubjectEvent {
+  final int? newVlaue;
+
+  DialogSemesterValueChanged(this.newVlaue);
 }

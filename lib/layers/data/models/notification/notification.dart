@@ -17,10 +17,10 @@ class NotificationModel {
   });
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
-    return _$NotificationFromJson(json);
+    return _$NotificationModelFromJson(json);
   }
 
   Map<String, dynamic> toJson() {
-    return _$NotificationToJson(this);
+    return _$NotificationModelToJson(this);
   }
 }

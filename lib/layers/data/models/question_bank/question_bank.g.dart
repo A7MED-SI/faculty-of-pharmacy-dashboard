@@ -10,7 +10,7 @@ QuestionBank _$QuestionBankFromJson(Map<String, dynamic> json) => QuestionBank(
       id: json['id'] as int,
       title: json['title'] as String,
       bankType: json['bank_type'] as int,
-      isActive: json['is_active'] as int,
+      isActive: json['is_active'] as int? ?? 1,
       subject: json['subject'] == null
           ? null
           : Subject.fromJson(json['subject'] as Map<String, dynamic>),

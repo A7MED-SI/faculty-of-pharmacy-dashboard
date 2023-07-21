@@ -85,10 +85,12 @@ class _HomeNavigatorState extends State<HomeNavigator> {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
     final isDesktop = isDisplayDesktop(context);
-    if (widget.currentRoute != null &&
+    final String? currentRouteMapped =
+        widget.currentRoute?.replaceAllMapped(RegExp(r'\?.*'), (match) => '');
+    if (currentRouteMapped != null &&
         isInitialized &&
-        indexForPage.containsKey(widget.currentRoute)) {
-      _homeBloc.add(PageIndexChanged(indexForPage[widget.currentRoute]!));
+        indexForPage.containsKey(currentRouteMapped)) {
+      _homeBloc.add(PageIndexChanged(indexForPage[currentRouteMapped]!));
     }
 
     return BlocProvider(

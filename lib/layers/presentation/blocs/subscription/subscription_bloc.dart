@@ -26,6 +26,7 @@ class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
 
   FutureOr<void> _mapSubscriptionsFetched(
       SubscriptionsFetched event, Emitter<SubscriptionState> emit) async {
+    emit(state.copyWith(subsFetchingStatus: SubsFetchingStatus.loading));
     final result = await _getSubscriptionsUseCase(event.params);
 
     await result.fold(

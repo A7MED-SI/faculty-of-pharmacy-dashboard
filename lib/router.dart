@@ -82,7 +82,11 @@ class MyRouter {
                 name: SubjectsPage.routeName,
                 path: '/${SubjectsPage.routeName}',
                 builder: (context, state) {
-                  return const SubjectsPage();
+                  return SubjectsPage(
+                    semesterId: state.queryParameters['semesterId'] != null
+                        ? int.parse(state.queryParameters['semesterId']!)
+                        : null,
+                  );
                 },
                 routes: [
                   GoRoute(
@@ -90,8 +94,7 @@ class MyRouter {
                     path: ':subId/${QuestionBanksPage.routeName}',
                     builder: (context, state) {
                       return QuestionBanksPage(
-                        subjectId:
-                            int.parse(state.pathParameters['subId']!),
+                        subjectId: int.parse(state.pathParameters['subId']!),
                       );
                     },
                     routes: [
@@ -99,8 +102,9 @@ class MyRouter {
                         name: QuestionsPage.routeName,
                         path: ':qBankId/${QuestionsPage.routeName}',
                         builder: (context, state) {
-                          return  QuestionsPage(
-                            questionBankId: int.parse(state.pathParameters['qBankId']!),
+                          return QuestionsPage(
+                            questionBankId:
+                                int.parse(state.pathParameters['qBankId']!),
                           );
                         },
                       ),
