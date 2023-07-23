@@ -38,4 +38,14 @@ class GlobalPurposeFunctions {
     }
     return Admin.fromJson(jsonDecode(adminJson));
   }
+
+  static Future<bool> setCurrentPath(String path) async {
+    final prefs = serviceLocator<SharedPreferences>();
+    return await prefs.setString(SharedPreferanceKeys.currentPath, path);
+  }
+
+  static String? getCurrentPath() {
+    final prefs = serviceLocator<SharedPreferences>();
+    return prefs.getString(SharedPreferanceKeys.currentPath);
+  }
 }

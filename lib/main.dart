@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pharmacy_dashboard/core/global_functions/global_purpose_functions.dart';
 import 'package:pharmacy_dashboard/core/injection.dart';
 import 'package:pharmacy_dashboard/core/theme/app_text_theme.dart';
 import 'package:pharmacy_dashboard/core/theme/color_schemes.dart';
@@ -21,12 +22,15 @@ class MyApp extends StatelessWidget {
       create: (context) => AuthBloc(),
       child: BlocBuilder<AuthBloc, AuthState>(
         buildWhen: (previous, current) {
-          return current.status == AuthStatus.unAuthorized ||
-              current.status == AuthStatus.authorized;
+          return current.status == AuthStatus.initial;
         },
         builder: (context, state) {
+          final currentPath = GlobalPurposeFunctions.getCurrentPath();
           return MaterialApp.router(
-            routerConfig: MyRouter.getRouter(state),
+            routerConfig: MyRouter.getRouter(
+              authState: state,
+              currentLocation: currentPath,
+            ),
             title: 'DO IT RIGHT',
             debugShowCheckedModeBanner: false,
             theme: ThemeData(

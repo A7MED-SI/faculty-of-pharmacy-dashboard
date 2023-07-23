@@ -1,12 +1,12 @@
 part of 'auth_bloc.dart';
 
-enum AuthStatus { authorized, unAuthorized, loading, error }
+enum AuthStatus { initial, loading, error }
 
 class AuthState {
   final AuthStatus status;
 
   const AuthState({
-    this.status = AuthStatus.unAuthorized,
+    this.status = AuthStatus.initial,
   });
 
   AuthState copyWith({

@@ -19,12 +19,13 @@ GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 GlobalKey<NavigatorState> _shellNavigatorKey = GlobalKey<NavigatorState>();
 
 class MyRouter {
-  static GoRouter getRouter(AuthState authState) {
+  static GoRouter getRouter(
+      {required AuthState authState, required String? currentLocation}) {
     return GoRouter(
       navigatorKey: _rootNavigatorKey,
-      initialLocation: '/${LoginPage.routeName}',
+      initialLocation: currentLocation ?? '/${LoginPage.routeName}',
       redirect: (context, state) {
-        bool isNotLoggedIn = authState.status != AuthStatus.authorized;
+        bool isNotLoggedIn = GlobalPurposeFunctions.getAccessToken() == null;
         bool isInLoginPage = state.location == '/${LoginPage.routeName}';
         if (isNotLoggedIn) {
           return isInLoginPage ? null : '/${LoginPage.routeName}';
@@ -59,6 +60,7 @@ class MyRouter {
               name: DashboardPage.routeName,
               path: '/${DashboardPage.routeName}',
               builder: (context, state) {
+                GlobalPurposeFunctions.setCurrentPath(state.location);
                 return const DashboardPage();
               },
             ),
@@ -66,6 +68,7 @@ class MyRouter {
               name: AdminsPage.routeName,
               path: '/${AdminsPage.routeName}',
               builder: (context, state) {
+                GlobalPurposeFunctions.setCurrentPath(state.location);
                 return const AdminsPage();
               },
             ),
@@ -73,6 +76,7 @@ class MyRouter {
               name: SubscriptionsPage.routeName,
               path: '/${SubscriptionsPage.routeName}',
               builder: (context, state) {
+                GlobalPurposeFunctions.setCurrentPath(state.location);
                 return const SubscriptionsPage();
               },
             ),
@@ -80,6 +84,7 @@ class MyRouter {
               name: SemestersPage.routeName,
               path: '/${SemestersPage.routeName}',
               builder: (context, state) {
+                GlobalPurposeFunctions.setCurrentPath(state.location);
                 return const SemestersPage();
               },
             ),
@@ -87,6 +92,7 @@ class MyRouter {
                 name: SubjectsPage.routeName,
                 path: '/${SubjectsPage.routeName}',
                 builder: (context, state) {
+                  GlobalPurposeFunctions.setCurrentPath(state.location);
                   return SubjectsPage(
                     semesterId: state.queryParameters['semesterId'] != null
                         ? int.parse(state.queryParameters['semesterId']!)
@@ -98,6 +104,7 @@ class MyRouter {
                     name: QuestionBanksPage.routeName,
                     path: ':subId/${QuestionBanksPage.routeName}',
                     builder: (context, state) {
+                      GlobalPurposeFunctions.setCurrentPath(state.location);
                       return QuestionBanksPage(
                         subjectId: int.parse(state.pathParameters['subId']!),
                       );
@@ -107,6 +114,7 @@ class MyRouter {
                         name: QuestionsPage.routeName,
                         path: ':qBankId/${QuestionsPage.routeName}',
                         builder: (context, state) {
+                          GlobalPurposeFunctions.setCurrentPath(state.location);
                           return QuestionsPage(
                             questionBankId:
                                 int.parse(state.pathParameters['qBankId']!),
@@ -120,6 +128,7 @@ class MyRouter {
               name: NotificationsPage.routeName,
               path: '/${NotificationsPage.routeName}',
               builder: (context, state) {
+                GlobalPurposeFunctions.setCurrentPath(state.location);
                 return const NotificationsPage();
               },
             ),
@@ -127,6 +136,7 @@ class MyRouter {
               name: AdsPage.routeName,
               path: '/${AdsPage.routeName}',
               builder: (context, state) {
+                GlobalPurposeFunctions.setCurrentPath(state.location);
                 return const AdsPage();
               },
             )

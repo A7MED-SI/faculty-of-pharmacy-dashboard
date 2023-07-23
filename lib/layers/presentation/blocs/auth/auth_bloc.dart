@@ -27,7 +27,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       (r) async {
         await GlobalPurposeFunctions.setAccesToken(r.token);
         await GlobalPurposeFunctions.storeAdminModel(r.admin);
-        emit(state.copyWith(status: AuthStatus.authorized));
+        emit(state.copyWith(status: AuthStatus.initial));
       },
     );
   }
