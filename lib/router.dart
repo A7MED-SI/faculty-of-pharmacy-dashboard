@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pharmacy_dashboard/core/global_functions/global_purpose_functions.dart';
 import 'package:pharmacy_dashboard/layers/presentation/blocs/auth/auth_bloc.dart';
 import 'package:pharmacy_dashboard/layers/presentation/pages/admins_page.dart';
 import 'package:pharmacy_dashboard/layers/presentation/pages/ads_page.dart';
@@ -29,7 +30,11 @@ class MyRouter {
           return isInLoginPage ? null : '/${LoginPage.routeName}';
         }
         if (isInLoginPage) {
-          return '/${DashboardPage.routeName}';
+          final isUserSuperAdmin =
+              GlobalPurposeFunctions.getAdminModel()!.isSuperAdmin;
+          return isUserSuperAdmin
+              ? '/${DashboardPage.routeName}'
+              : '/${SubscriptionsPage.routeName}';
         }
         return null;
       },

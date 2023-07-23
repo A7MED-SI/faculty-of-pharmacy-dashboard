@@ -47,14 +47,21 @@ class _SubscriptionsPageState extends State<SubscriptionsPage> {
   ];
   late final SubscriptionBloc _subscriptionBloc;
   late final ValueNotifier<int> subTypeNotifier;
+  final perPageNumbers = [10, 30, 50];
+  late final ValueNotifier<int> currentPerPageNotifier;
+  var currentPage = 1;
 
   @override
   void initState() {
     super.initState();
     _subscriptionBloc = SubscriptionBloc();
-    _subscriptionBloc
-        .add(SubscriptionsFetched(params: GetSubscriptoinsParams()));
     subTypeNotifier = ValueNotifier(subsTypes.first.type.value);
+    currentPerPageNotifier = ValueNotifier(perPageNumbers[0]);
+    _subscriptionBloc.add(SubscriptionsFetched(
+        params: GetSubscriptoinsParams(
+      page: 1,
+      perPage: currentPerPageNotifier.value,
+    )));
   }
 
   @override
@@ -200,50 +207,79 @@ class _SubscriptionsPageState extends State<SubscriptionsPage> {
                         ),
                         const SizedBox(height: 20),
                         Expanded(
-                          child: PaginatedDataTable2(
-                            renderEmptyRowsInTheEnd: false,
-                            columns: [
-                              DataColumn(
-                                label: Text(
-                                  'نوع الاشتراك',
-                                  style: textTheme.bodyLarge?.copyWith(
-                                    color: colorScheme.onBackground,
-                                    fontWeight: FontWeight.bold,
+                          child: ValueListenableBuilder<int>(
+                              valueListenable: currentPerPageNotifier,
+                              builder: (context, currentValue, _) {
+                                return PaginatedDataTable2(
+                                  renderEmptyRowsInTheEnd: false,
+                                  columns: [
+                                    DataColumn(
+                                      label: Text(
+                                        'نوع الاشتراك',
+                                        style: textTheme.bodyLarge?.copyWith(
+                                          color: colorScheme.onBackground,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    DataColumn(
+                                      label: Text(
+                                        'الكود',
+                                        style: textTheme.bodyLarge?.copyWith(
+                                          color: colorScheme.onBackground,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                  onSelectAll: (value) {
+                                    if (value != null) {
+                                      _subscriptionBloc
+                                          .add(AllSelectedChanged(value));
+                                    }
+                                  },
+                                  source: SubscriptionsTableDataSource(
+                                    subscriptions: state.subscriptions,
+                                    subscriptionBloc: _subscriptionBloc,
+                                    selection: state.selection,
+                                    colorScheme: colorScheme,
+                                    textTheme: textTheme,
+                                    perPageNumber: currentValue,
+                                    totalRowCount: 72,
                                   ),
-                                ),
-                              ),
-                              DataColumn(
-                                label: Text(
-                                  'الكود',
-                                  style: textTheme.bodyLarge?.copyWith(
-                                    color: colorScheme.onBackground,
-                                    fontWeight: FontWeight.bold,
+                                  rowsPerPage: currentValue,
+                                  onPageChanged: (value) {
+                                    currentPage = value ~/ currentValue + 1;
+
+                                    _subscriptionBloc.add(SubscriptionsFetched(
+                                        params: GetSubscriptoinsParams(
+                                      page: currentPage,
+                                      perPage: currentValue,
+                                    )));
+                                  },
+                                  onRowsPerPageChanged: (value) async {
+                                    if (value != null) {
+                                      _subscriptionBloc
+                                          .add(SubscriptionsFetched(
+                                              params: GetSubscriptoinsParams(
+                                        page: currentPage,
+                                        perPage: value,
+                                      )));
+                                      await Future.delayed(
+                                          const Duration(seconds: 2));
+                                      currentPerPageNotifier.value = value;
+                                    }
+                                  },
+                                  availableRowsPerPage: perPageNumbers,
+                                  empty: Center(
+                                    child: Container(
+                                      padding: const EdgeInsets.all(20),
+                                      color: Colors.grey[200],
+                                      child: const Text('No data'),
+                                    ),
                                   ),
-                                ),
-                              ),
-                            ],
-                            onSelectAll: (value) {
-                              if (value != null) {
-                                _subscriptionBloc
-                                    .add(AllSelectedChanged(value));
-                              }
-                            },
-                            source: SubscriptionsTableDataSource(
-                              subscriptions: state.subscriptions,
-                              subscriptionBloc: _subscriptionBloc,
-                              selection: state.selection,
-                              colorScheme: colorScheme,
-                              textTheme: textTheme,
-                            ),
-                            rowsPerPage: 10,
-                            empty: Center(
-                              child: Container(
-                                padding: const EdgeInsets.all(20),
-                                color: Colors.grey[200],
-                                child: const Text('No data'),
-                              ),
-                            ),
-                          ),
+                                );
+                              }),
                         ),
                       ],
                     ),
@@ -296,6 +332,8 @@ class SubscriptionsTableDataSource extends DataTableSource {
     required this.colorScheme,
     required this.textTheme,
     required this.selection,
+    required this.perPageNumber,
+    required this.totalRowCount,
   });
 
   final List<Subscription> subscriptions;
@@ -303,6 +341,8 @@ class SubscriptionsTableDataSource extends DataTableSource {
   final ColorScheme colorScheme;
   final TextTheme textTheme;
   final List<bool> selection;
+  final int totalRowCount;
+  final int perPageNumber;
 
   @override
   int get selectedRowCount => 0;
@@ -310,22 +350,22 @@ class SubscriptionsTableDataSource extends DataTableSource {
   DataRow? getRow(int index) {
     return DataRow.byIndex(
       index: index,
-      selected: selection[index],
+      selected: selection[index % perPageNumber],
       onSelectChanged: (value) {
         if (value != null) {
-          subscriptionBloc.add(RowSelectionToggled(index));
+          subscriptionBloc.add(RowSelectionToggled(index % perPageNumber));
         }
       },
       cells: [
         DataCell(Text(
           SubscriptionableType.typeInArabic(
-              subscriptions[index].subscriptionableType),
+              subscriptions[index % perPageNumber].subscriptionableType),
           style: textTheme.bodyMedium!.copyWith(
             color: colorScheme.onBackground,
           ),
         )),
         DataCell(SelectableText(
-          subscriptions[index].subCode,
+          subscriptions[index % perPageNumber].subCode,
           style: textTheme.bodyMedium!.copyWith(
             color: colorScheme.onBackground,
           ),
@@ -335,7 +375,7 @@ class SubscriptionsTableDataSource extends DataTableSource {
   }
 
   @override
-  int get rowCount => subscriptions.length;
+  int get rowCount => totalRowCount;
 
   @override
   bool get isRowCountApproximate => false;

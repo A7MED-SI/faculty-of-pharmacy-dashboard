@@ -5,6 +5,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pharmacy_dashboard/core/global_functions/global_purpose_functions.dart';
 import 'package:pharmacy_dashboard/layers/presentation/pages/admins_page.dart';
 import 'package:pharmacy_dashboard/layers/presentation/pages/ads_page.dart';
 import 'package:pharmacy_dashboard/layers/presentation/pages/dashboard_page.dart';
@@ -22,6 +23,7 @@ import 'list_drawer.dart';
 
 import 'dart:math' show pi;
 
+
 enum TabsNumber {
   dashboardPage(0),
   subscriptionPage(1),
@@ -36,7 +38,7 @@ enum TabsNumber {
   final int order;
 }
 
-Map<int, String> pageForIndex = {
+Map<int, String> pageForIndexSuper = {
   TabsNumber.adminsPage.order: AdminsPage.routeName,
   TabsNumber.dashboardPage.order: DashboardPage.routeName,
   TabsNumber.subscriptionPage.order: SubscriptionsPage.routeName,
@@ -46,7 +48,15 @@ Map<int, String> pageForIndex = {
   TabsNumber.adsPage.order: AdsPage.routeName,
 };
 
-Map<String, int> indexForPage = {
+Map<int, String> pageForIndexAdmin = {
+  TabsNumber.subscriptionPage.order - 1: SubscriptionsPage.routeName,
+  TabsNumber.semestersPage.order - 2: SemestersPage.routeName,
+  TabsNumber.subjectsPage.order - 2: SubjectsPage.routeName,
+  TabsNumber.notificationPage.order - 2: NotificationsPage.routeName,
+  TabsNumber.adsPage.order - 2: AdsPage.routeName,
+};
+
+Map<String, int> indexForPageSuper = {
   AdminsPage.routeName: TabsNumber.adminsPage.order,
   DashboardPage.routeName: TabsNumber.dashboardPage.order,
   SubscriptionsPage.routeName: TabsNumber.subscriptionPage.order,
@@ -54,6 +64,13 @@ Map<String, int> indexForPage = {
   SubjectsPage.routeName: TabsNumber.subjectsPage.order,
   NotificationsPage.routeName: TabsNumber.notificationPage.order,
   AdsPage.routeName: TabsNumber.adsPage.order,
+};
+Map<String, int> indexForPageAdmin = {
+  SubscriptionsPage.routeName: TabsNumber.subscriptionPage.order - 1,
+  SemestersPage.routeName: TabsNumber.semestersPage.order - 2,
+  SubjectsPage.routeName: TabsNumber.subjectsPage.order - 2,
+  NotificationsPage.routeName: TabsNumber.notificationPage.order - 2,
+  AdsPage.routeName: TabsNumber.adsPage.order - 2,
 };
 
 class HomeNavigator extends StatefulWidget {
@@ -72,6 +89,7 @@ class HomeNavigator extends StatefulWidget {
 class _HomeNavigatorState extends State<HomeNavigator> {
   late final HomeBloc _homeBloc;
   bool isInitialized = false;
+  final isUserSuperAdmin = GlobalPurposeFunctions.getAdminModel()!.isSuperAdmin;
 
   @override
   void initState() {
@@ -89,8 +107,13 @@ class _HomeNavigatorState extends State<HomeNavigator> {
         widget.currentRoute?.replaceAllMapped(RegExp(r'\?.*'), (match) => '');
     if (currentRouteMapped != null &&
         isInitialized &&
-        indexForPage.containsKey(currentRouteMapped)) {
-      _homeBloc.add(PageIndexChanged(indexForPage[currentRouteMapped]!));
+        isUserSuperAdmin &&
+        indexForPageSuper.containsKey(currentRouteMapped)) {
+      _homeBloc.add(PageIndexChanged(indexForPageSuper[currentRouteMapped]!));
+    } else if (currentRouteMapped != null &&
+        isInitialized &&
+        indexForPageAdmin.containsKey(currentRouteMapped)) {
+      _homeBloc.add(PageIndexChanged(indexForPageAdmin[currentRouteMapped]!));
     }
 
     return BlocProvider(
@@ -115,6 +138,9 @@ class _HomeNavigatorState extends State<HomeNavigator> {
 
   void _navigatorDelegate(int index) {
     int actualIndex = index;
-    context.goNamed(pageForIndex[actualIndex]!);
+    log('The actual index is $actualIndex and the page for it is ${pageForIndexSuper[actualIndex]}');
+    context.goNamed(isUserSuperAdmin
+        ? pageForIndexSuper[actualIndex]!
+        : pageForIndexAdmin[actualIndex]!);
   }
 }

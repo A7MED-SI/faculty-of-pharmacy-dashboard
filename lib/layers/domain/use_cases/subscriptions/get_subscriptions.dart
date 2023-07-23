@@ -39,8 +39,8 @@ class GetSubscriptoinsParams {
       if (subscriptionableType != null)
         'filter[subscriptionable_type]': subscriptionableType,
       if (userId != null) 'filter[user_id]': userId.toString(),
-      if (page != null) 'page': page,
-      if (perPage != null) 'perPage': perPage,
+      if (page != null) 'page': page.toString(),
+      if (perPage != null) 'perPage': perPage.toString(),
     };
   }
 }

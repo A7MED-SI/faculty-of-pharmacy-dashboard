@@ -29,14 +29,20 @@ class NotificationsPage extends StatefulWidget {
 class _NotificationsPageState extends State<NotificationsPage> {
   late final NotificationBloc _notificationBloc;
   late final PaginatorController _paginatorController;
-
+  final perPageNumbers = [10, 30, 50];
+  late final ValueNotifier<int> currentPerPageNotifier;
+  var currentPage = 1;
   @override
   void initState() {
     super.initState();
     _notificationBloc = NotificationBloc();
     _paginatorController = PaginatorController();
-    _notificationBloc.add(
-        NotificationsFetched(getNotificationsParams: GetNotificationsParams()));
+    currentPerPageNotifier = ValueNotifier(perPageNumbers[0]);
+    _notificationBloc.add(NotificationsFetched(
+        getNotificationsParams: GetNotificationsParams(
+      page: 1,
+      perPage: currentPerPageNotifier.value,
+    )));
   }
 
   @override
@@ -103,45 +109,75 @@ class _NotificationsPageState extends State<NotificationsPage> {
                         ),
                         const SizedBox(height: 20),
                         Expanded(
-                          child: PaginatedDataTable2(
-                            columns: [
-                              DataColumn(
-                                label: Text(
-                                  'العنوان',
-                                  style: textTheme.bodyLarge?.copyWith(
-                                    color: colorScheme.onBackground,
-                                    fontWeight: FontWeight.bold,
+                          child: ValueListenableBuilder<int>(
+                              valueListenable: currentPerPageNotifier,
+                              builder: (context, currentValue, _) {
+                                return PaginatedDataTable2(
+                                  columns: [
+                                    DataColumn(
+                                      label: Text(
+                                        'العنوان',
+                                        style: textTheme.bodyLarge?.copyWith(
+                                          color: colorScheme.onBackground,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    DataColumn(
+                                      label: Text(
+                                        'النص',
+                                        style: textTheme.bodyLarge?.copyWith(
+                                          color: colorScheme.onBackground,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    const DataColumn(label: Text('')),
+                                    const DataColumn(label: Text('')),
+                                  ],
+                                  source: NotificationTableDataSource(
+                                    notifications: state.notifications,
+                                    notificationBloc: _notificationBloc,
+                                    colorScheme: colorScheme,
+                                    textTheme: textTheme,
+                                    context: context,
+                                    totalRowCount: 62,
+                                    perPageNumber: currentValue,
                                   ),
-                                ),
-                              ),
-                              DataColumn(
-                                label: Text(
-                                  'النص',
-                                  style: textTheme.bodyLarge?.copyWith(
-                                    color: colorScheme.onBackground,
-                                    fontWeight: FontWeight.bold,
+                                  rowsPerPage: currentValue,
+                                  onPageChanged: (value) {
+                                    currentPage = value ~/ currentValue + 1;
+                                    _notificationBloc.add(NotificationsFetched(
+                                        getNotificationsParams:
+                                            GetNotificationsParams(
+                                      page: currentPage,
+                                      perPage: currentValue,
+                                    )));
+                                  },
+                                  onRowsPerPageChanged: (value) async {
+                                    if (value != null) {
+                                      _notificationBloc.add(
+                                          NotificationsFetched(
+                                              getNotificationsParams:
+                                                  GetNotificationsParams(
+                                        page: currentPage,
+                                        perPage: value,
+                                      )));
+                                      await Future.delayed(
+                                          const Duration(seconds: 2));
+                                      currentPerPageNotifier.value = value;
+                                    }
+                                  },
+                                  availableRowsPerPage: perPageNumbers,
+                                  empty: Center(
+                                    child: Container(
+                                      padding: const EdgeInsets.all(20),
+                                      color: Colors.grey[200],
+                                      child: const Text('لا يوجد إشعارات'),
+                                    ),
                                   ),
-                                ),
-                              ),
-                              const DataColumn(label: Text('')),
-                              const DataColumn(label: Text('')),
-                            ],
-                            source: NotificationTableDataSource(
-                              notifications: state.notifications,
-                              notificationBloc: _notificationBloc,
-                              colorScheme: colorScheme,
-                              textTheme: textTheme,
-                              context: context,
-                            ),
-                            rowsPerPage: 10,
-                            empty: Center(
-                              child: Container(
-                                padding: const EdgeInsets.all(20),
-                                color: Colors.grey[200],
-                                child: const Text('لا يوجد إشعارات'),
-                              ),
-                            ),
-                          ),
+                                );
+                              }),
                         ),
                       ],
                     ),
@@ -160,6 +196,8 @@ class NotificationTableDataSource extends DataTableSource {
     required this.colorScheme,
     required this.textTheme,
     required this.context,
+    required this.totalRowCount,
+    required this.perPageNumber,
   });
 
   final List<NotificationModel> notifications;
@@ -167,6 +205,8 @@ class NotificationTableDataSource extends DataTableSource {
   final ColorScheme colorScheme;
   final TextTheme textTheme;
   final BuildContext context;
+  final int totalRowCount;
+  final int perPageNumber;
 
   @override
   int get selectedRowCount => 0;
@@ -176,13 +216,13 @@ class NotificationTableDataSource extends DataTableSource {
       index: index,
       cells: [
         DataCell(Text(
-          notifications[index].title,
+          notifications[index % perPageNumber].title,
           style: textTheme.bodyMedium!.copyWith(
             color: colorScheme.onBackground,
           ),
         )),
         DataCell(Text(
-          notifications[index].body,
+          notifications[index % perPageNumber].body,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: textTheme.bodyMedium!.copyWith(
@@ -192,7 +232,8 @@ class NotificationTableDataSource extends DataTableSource {
         DataCell(
           ElevatedButton(
             onPressed: () {
-              js.context.callMethod('open', [notifications[index].image]);
+              js.context.callMethod(
+                  'open', [notifications[index % perPageNumber].image]);
             },
             style: ButtonStyle(
                 backgroundColor: MaterialStatePropertyAll(colorScheme.primary),
@@ -214,7 +255,7 @@ class NotificationTableDataSource extends DataTableSource {
                 builder: (context) {
                   return _SendNotificationDialog(
                     notificationBloc: notificationBloc,
-                    notification: notifications[index],
+                    notification: notifications[index % perPageNumber],
                   );
                 },
               );
@@ -233,7 +274,7 @@ class NotificationTableDataSource extends DataTableSource {
   }
 
   @override
-  int get rowCount => notifications.length;
+  int get rowCount => totalRowCount;
 
   @override
   bool get isRowCountApproximate => false;

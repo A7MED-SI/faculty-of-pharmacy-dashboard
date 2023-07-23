@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pharmacy_dashboard/core/global_functions/global_purpose_functions.dart';
 import 'package:pharmacy_dashboard/layers/presentation/pages/admins_page.dart';
 import 'package:pharmacy_dashboard/layers/presentation/pages/ads_page.dart';
 import 'package:pharmacy_dashboard/layers/presentation/pages/dashboard_page.dart';
@@ -22,6 +23,7 @@ class ListDrawer extends StatefulWidget {
 }
 
 class _ListDrawerState extends State<ListDrawer> {
+  final isUserSuperAdmin = GlobalPurposeFunctions.getAdminModel()!.isSuperAdmin;
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<HomeBloc, HomeState>(
@@ -30,61 +32,65 @@ class _ListDrawerState extends State<ListDrawer> {
           child: SafeArea(
             child: ListView(
               children: [
-                DrawerTile(
-                  icon: const SvgImage(
-                    SvgImages.statistics,
-                    height: 20,
+                if (isUserSuperAdmin)
+                  DrawerTile(
+                    icon: const SvgImage(
+                      SvgImages.statistics,
+                      height: 20,
+                    ),
+                    title: 'الإحصائيات',
+                    selected: isTileSelected(
+                        selectedIndex: state.selectedIndex,
+                        tabsNumber: TabsNumber.dashboardPage),
+                    onTap: () {
+                      context.read<HomeBloc>().add(PageIndexChanged(
+                          selectedPageIndex(TabsNumber.dashboardPage)));
+                      context.goNamed(DashboardPage.routeName);
+                    },
                   ),
-                  title: 'الإحصائيات',
-                  selected:
-                      state.selectedIndex == TabsNumber.dashboardPage.order,
-                  onTap: () {
-                    context
-                        .read<HomeBloc>()
-                        .add(PageIndexChanged(TabsNumber.dashboardPage.order));
-                    context.goNamed(DashboardPage.routeName);
-                  },
-                ),
                 DrawerTile(
                   icon: const SvgImage(
                     SvgImages.qr,
                     height: 20,
                   ),
                   title: 'الإشتراكات',
-                  selected:
-                      state.selectedIndex == TabsNumber.subscriptionPage.order,
+                  selected: isTileSelected(
+                      selectedIndex: state.selectedIndex,
+                      tabsNumber: TabsNumber.subscriptionPage),
                   onTap: () {
-                    context.read<HomeBloc>().add(
-                        PageIndexChanged(TabsNumber.subscriptionPage.order));
+                    context.read<HomeBloc>().add(PageIndexChanged(
+                        selectedPageIndex(TabsNumber.subscriptionPage)));
                     context.goNamed(SubscriptionsPage.routeName);
                   },
                 ),
-                DrawerTile(
-                  icon: const SvgImage(
-                    SvgImages.admin,
-                    height: 20,
+                if (isUserSuperAdmin)
+                  DrawerTile(
+                    icon: const SvgImage(
+                      SvgImages.admin,
+                      height: 20,
+                    ),
+                    title: 'المسؤولين',
+                    selected: isTileSelected(
+                        selectedIndex: state.selectedIndex,
+                        tabsNumber: TabsNumber.adminsPage),
+                    onTap: () {
+                      context.read<HomeBloc>().add(PageIndexChanged(
+                          selectedPageIndex(TabsNumber.adminsPage)));
+                      context.goNamed(AdminsPage.routeName);
+                    },
                   ),
-                  title: 'المسؤولين',
-                  selected: state.selectedIndex == TabsNumber.adminsPage.order,
-                  onTap: () {
-                    context
-                        .read<HomeBloc>()
-                        .add(PageIndexChanged(TabsNumber.adminsPage.order));
-                    context.goNamed(AdminsPage.routeName);
-                  },
-                ),
                 DrawerTile(
                   icon: const SvgImage(
                     SvgImages.graduationHat,
                     height: 20,
                   ),
                   title: 'الفصول',
-                  selected:
-                      state.selectedIndex == TabsNumber.semestersPage.order,
+                  selected: isTileSelected(
+                      selectedIndex: state.selectedIndex,
+                      tabsNumber: TabsNumber.semestersPage),
                   onTap: () {
-                    context
-                        .read<HomeBloc>()
-                        .add(PageIndexChanged(TabsNumber.semestersPage.order));
+                    context.read<HomeBloc>().add(PageIndexChanged(
+                        selectedPageIndex(TabsNumber.semestersPage)));
                     context.goNamed(SemestersPage.routeName);
                   },
                 ),
@@ -94,12 +100,12 @@ class _ListDrawerState extends State<ListDrawer> {
                     height: 20,
                   ),
                   title: 'المواد',
-                  selected:
-                      state.selectedIndex == TabsNumber.subjectsPage.order,
+                  selected: isTileSelected(
+                      selectedIndex: state.selectedIndex,
+                      tabsNumber: TabsNumber.subjectsPage),
                   onTap: () {
-                    context
-                        .read<HomeBloc>()
-                        .add(PageIndexChanged(TabsNumber.subjectsPage.order));
+                    context.read<HomeBloc>().add(PageIndexChanged(
+                        selectedPageIndex(TabsNumber.subjectsPage)));
                     context.goNamed(SubjectsPage.routeName);
                   },
                 ),
@@ -109,11 +115,12 @@ class _ListDrawerState extends State<ListDrawer> {
                     height: 20,
                   ),
                   title: 'الإشعارات',
-                  selected:
-                      state.selectedIndex == TabsNumber.notificationPage.order,
+                  selected: isTileSelected(
+                      selectedIndex: state.selectedIndex,
+                      tabsNumber: TabsNumber.notificationPage),
                   onTap: () {
-                    context.read<HomeBloc>().add(
-                        PageIndexChanged(TabsNumber.notificationPage.order));
+                    context.read<HomeBloc>().add(PageIndexChanged(
+                        selectedPageIndex(TabsNumber.notificationPage)));
                     context.goNamed(NotificationsPage.routeName);
                   },
                 ),
@@ -123,11 +130,12 @@ class _ListDrawerState extends State<ListDrawer> {
                     height: 20,
                   ),
                   title: 'الإعلانات',
-                  selected: state.selectedIndex == TabsNumber.adsPage.order,
+                  selected: isTileSelected(
+                      selectedIndex: state.selectedIndex,
+                      tabsNumber: TabsNumber.adsPage),
                   onTap: () {
-                    context
-                        .read<HomeBloc>()
-                        .add(PageIndexChanged(TabsNumber.adsPage.order));
+                    context.read<HomeBloc>().add(PageIndexChanged(
+                        selectedPageIndex(TabsNumber.adsPage)));
                     context.goNamed(AdsPage.routeName);
                   },
                 ),
@@ -137,6 +145,27 @@ class _ListDrawerState extends State<ListDrawer> {
         );
       },
     );
+  }
+
+  bool isTileSelected(
+      {required int selectedIndex, required TabsNumber tabsNumber}) {
+    if (isUserSuperAdmin) {
+      return selectedIndex == tabsNumber.order;
+    }
+    if (tabsNumber == TabsNumber.subscriptionPage) {
+      return selectedIndex == tabsNumber.order - 1;
+    }
+    return selectedIndex == tabsNumber.order - 2;
+  }
+
+  int selectedPageIndex(TabsNumber tabsNumber) {
+    if (isUserSuperAdmin) {
+      return tabsNumber.order;
+    }
+    if (tabsNumber == TabsNumber.subscriptionPage) {
+      return tabsNumber.order - 1;
+    }
+    return tabsNumber.order - 2;
   }
 }
 

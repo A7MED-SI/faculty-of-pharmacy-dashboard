@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:pharmacy_dashboard/core/constants/api_enums/api_enums.dart';
 part 'login_response.g.dart';
 
 @JsonSerializable(explicitToJson: true)
@@ -27,7 +28,7 @@ class Admin {
   final String username;
   @JsonKey(name: 'is_active')
   final int? isActive;
-  @JsonKey(fromJson: _roleFromJson)
+  @JsonKey(fromJson: _roleFromJson, toJson: _roleToJson)
   final List<int> role;
 
   Admin({
@@ -52,5 +53,17 @@ class Admin {
         return int.parse(e as String);
       },
     ).toList();
+  }
+
+  static List<String> _roleToJson(List<int> role) {
+    return role.map<String>(
+      (e) {
+        return e.toString();
+      },
+    ).toList();
+  }
+
+  bool get isSuperAdmin {
+    return role.contains(AdminRole.superAdmin.value);
   }
 }

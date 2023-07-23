@@ -31,5 +31,5 @@ Map<String, dynamic> _$AdminToJson(Admin instance) => <String, dynamic>{
       'name': instance.name,
       'username': instance.username,
       'is_active': instance.isActive,
-      'role': instance.role,
+      'role': Admin._roleToJson(instance.role),
     };

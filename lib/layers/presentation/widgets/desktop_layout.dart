@@ -1,6 +1,9 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pharmacy_dashboard/core/constants/images/svg_images.dart';
+import 'package:pharmacy_dashboard/core/global_functions/global_purpose_functions.dart';
 import 'package:pharmacy_dashboard/layers/presentation/widgets/svg_image.dart';
 
 import 'dart:math' show pi;
@@ -8,7 +11,7 @@ import 'dart:math' show pi;
 import '../../../core/constants/images/app_images.dart';
 import '../blocs/home/home_bloc.dart';
 
-class DesktopLayout extends StatelessWidget {
+class DesktopLayout extends StatefulWidget {
   const DesktopLayout({
     super.key,
     required this.colorScheme,
@@ -21,6 +24,19 @@ class DesktopLayout extends StatelessWidget {
   final TextTheme textTheme;
   final Widget body;
   final void Function(int) navigatorDelegate;
+
+  @override
+  State<DesktopLayout> createState() => _DesktopLayoutState();
+}
+
+class _DesktopLayoutState extends State<DesktopLayout> {
+  late final bool isUserSuperAdmin;
+
+  @override
+  void initState() {
+    super.initState();
+    isUserSuperAdmin = GlobalPurposeFunctions.getAdminModel()!.isSuperAdmin;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,52 +55,54 @@ class DesktopLayout extends StatelessWidget {
                       minHeight: MediaQuery.of(context).size.height),
                   child: IntrinsicHeight(
                     child: NavigationRail(
-                      backgroundColor: colorScheme.background,
+                      backgroundColor: widget.colorScheme.background,
                       extended: state.isExtended,
-                      destinations: const [
-                        NavigationRailDestination(
-                          icon: SvgImage(
-                            SvgImages.statistics,
-                            height: 30,
+                      destinations: [
+                        if (isUserSuperAdmin)
+                          const NavigationRailDestination(
+                            icon: SvgImage(
+                              SvgImages.statistics,
+                              height: 30,
+                            ),
+                            label: Text('الإحصائيات'),
                           ),
-                          label: Text('الإحصائيات'),
-                        ),
-                        NavigationRailDestination(
+                        const NavigationRailDestination(
                           icon: SvgImage(
                             SvgImages.qr,
                             height: 30,
                           ),
                           label: Text('الاشتراكات'),
                         ),
-                        NavigationRailDestination(
-                          icon: SvgImage(
-                            SvgImages.admin,
-                            height: 30,
+                        if (isUserSuperAdmin)
+                          const NavigationRailDestination(
+                            icon: SvgImage(
+                              SvgImages.admin,
+                              height: 30,
+                            ),
+                            label: Text('المسؤولين'),
                           ),
-                          label: Text('المسؤولين'),
-                        ),
-                        NavigationRailDestination(
+                        const NavigationRailDestination(
                           icon: SvgImage(
                             SvgImages.graduationHat,
                             height: 30,
                           ),
                           label: Text('الفصول'),
                         ),
-                        NavigationRailDestination(
+                        const NavigationRailDestination(
                           icon: SvgImage(
                             SvgImages.books,
                             height: 30,
                           ),
                           label: Text('المواد'),
                         ),
-                        NavigationRailDestination(
+                        const NavigationRailDestination(
                           icon: SvgImage(
                             SvgImages.notificationBell,
                             height: 30,
                           ),
                           label: Text('الإشعارات'),
                         ),
-                        NavigationRailDestination(
+                        const NavigationRailDestination(
                           icon: SvgImage(
                             SvgImages.ads,
                             height: 30,
@@ -97,23 +115,26 @@ class DesktopLayout extends StatelessWidget {
                       labelType: state.isExtended
                           ? NavigationRailLabelType.none
                           : NavigationRailLabelType.selected,
-                      indicatorColor: colorScheme.primaryContainer,
-                      unselectedLabelTextStyle: textTheme.bodyLarge!.copyWith(
-                        color: colorScheme.onBackground,
+                      indicatorColor: widget.colorScheme.primaryContainer,
+                      unselectedLabelTextStyle:
+                          widget.textTheme.bodyLarge!.copyWith(
+                        color: widget.colorScheme.onBackground,
                       ),
-                      selectedLabelTextStyle: textTheme.bodyLarge!.copyWith(
-                        color: colorScheme.primary,
+                      selectedLabelTextStyle:
+                          widget.textTheme.bodyLarge!.copyWith(
+                        color: widget.colorScheme.primary,
                         fontWeight: FontWeight.bold,
                       ),
-                      selectedIconTheme:
-                          IconThemeData(color: colorScheme.onPrimaryContainer),
+                      selectedIconTheme: IconThemeData(
+                          color: widget.colorScheme.onPrimaryContainer),
                       leading: const _NavigationRailHeader(),
                       useIndicator: true,
                       onDestinationSelected: (newIndex) {
+                        log('Current Destination Index $newIndex');
                         context
                             .read<HomeBloc>()
                             .add(PageIndexChanged(newIndex));
-                        navigatorDelegate(newIndex);
+                        widget.navigatorDelegate(newIndex);
                       },
                     ),
                   ),
@@ -122,8 +143,8 @@ class DesktopLayout extends StatelessWidget {
             ),
             Expanded(
               child: Scaffold(
-                backgroundColor: colorScheme.surfaceVariant,
-                body: body,
+                backgroundColor: widget.colorScheme.surfaceVariant,
+                body: widget.body,
               ),
             ),
           ],
