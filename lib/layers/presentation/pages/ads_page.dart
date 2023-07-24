@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:extended_image/extended_image.dart';
 import 'package:file_picker/_internal/file_picker_web.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -7,9 +8,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pharmacy_dashboard/core/layout/adaptive.dart';
 import 'package:pharmacy_dashboard/layers/domain/use_cases/ad/add_ad.dart';
+import 'package:pharmacy_dashboard/layers/domain/use_cases/ad/update_ad.dart';
 import 'package:pharmacy_dashboard/layers/presentation/AppWidgetsDisplayer.dart';
 import 'package:pharmacy_dashboard/layers/presentation/blocs/ads/ads_bloc.dart';
 import 'package:pharmacy_dashboard/layers/presentation/widgets/app_text_button.dart';
+import 'package:pharmacy_dashboard/layers/presentation/widgets/delete_confirmation_dialog.dart';
 import 'package:pharmacy_dashboard/layers/presentation/widgets/loading_widget.dart';
 
 import '../widgets/app_elevated_button.dart';
@@ -57,6 +60,36 @@ class _AdsPageState extends State<AdsPage> {
                 message: 'تم إضافة الإعلان بنجاح',
               );
             }
+            if (state.deletingAdStatus == DeletingAdStatus.failed) {
+              AppWidgetsDisplayer.dispalyErrorSnackBar(
+                context: context,
+                message: 'فشل الحذف يرجى التحقق من الإنترنت والمحاولة لاحقا',
+              );
+            }
+            if (state.deletingAdStatus == DeletingAdStatus.success) {
+              AppWidgetsDisplayer.dispalySuccessSnackBar(
+                context: context,
+                message: 'تم حذف الإعلان بنجاح',
+              );
+            }
+            if (state.togglingAdStatus == TogglingAdStatus.failed) {
+              AppWidgetsDisplayer.dispalyErrorSnackBar(
+                context: context,
+                message: 'يرجى التحقق من الإنترنت والمحاولة لاحقا',
+              );
+            }
+            if (state.updatingAdStatus == UpdatingAdStatus.failed) {
+              AppWidgetsDisplayer.dispalyErrorSnackBar(
+                context: context,
+                message: 'فشل التعديل يرجى التحقق من الإنترنت والمحاولة لاحقا',
+              );
+            }
+            if (state.updatingAdStatus == UpdatingAdStatus.success) {
+              AppWidgetsDisplayer.dispalySuccessSnackBar(
+                context: context,
+                message: 'تم تعديل الإعلان بنجاح',
+              );
+            }
           },
           bloc: _adsBloc,
           builder: (context, state) {
@@ -67,16 +100,22 @@ class _AdsPageState extends State<AdsPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only(right: 12, top: 12),
-                        child: AppTextButton(
-                          onPressed: () {
-                            showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return _AdAddDialog(adsBloc: _adsBloc);
-                                });
-                          },
-                          text: 'إضافة إعلان',
+                        padding:
+                            const EdgeInsets.only(right: 12, top: 12, left: 12),
+                        child: Row(
+                          children: [
+                            const Spacer(),
+                            AppTextButton(
+                              onPressed: () {
+                                showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return _AdAddDialog(adsBloc: _adsBloc);
+                                    });
+                              },
+                              text: 'إضافة إعلان',
+                            ),
+                          ],
                         ),
                       ),
                       Expanded(
@@ -87,24 +126,96 @@ class _AdsPageState extends State<AdsPage> {
                                   horizontal: 12, vertical: 20),
                               sliver: SliverGrid.count(
                                 crossAxisCount: isDesktop ? 6 : 2,
+                                childAspectRatio: 1.6,
+                                crossAxisSpacing: 2,
+                                mainAxisSpacing: 2,
                                 children: [
                                   for (var ad in state.ads)
                                     Stack(
                                       children: [
-                                        Image.network(
+                                        ExtendedImage.network(
                                           ad.image,
                                           fit: BoxFit.fill,
-                                          height: 80,
+                                          width: double.infinity,
+                                          height: double.infinity,
+                                          cache: true,
                                         ),
                                         Positioned(
                                           bottom: 6,
-                                          right: 8,
+                                          left: 8,
                                           child: Switch(
-                                            onChanged: (value) {},
+                                            onChanged: (value) {
+                                              _adsBloc.add(
+                                                  AdActiveToggled(adId: ad.id));
+                                            },
                                             value: ad.isActive == 1,
                                             activeColor: colorScheme.primary,
                                           ),
-                                        )
+                                        ),
+                                        Positioned(
+                                          top: 6,
+                                          right: 8,
+                                          child: PopupMenuButton<String>(
+                                            padding: EdgeInsets.zero,
+                                            tooltip: 'خيارات',
+                                            onSelected: (value) async {
+                                              if (value == 'edit') {
+                                                showDialog(
+                                                    context: context,
+                                                    builder: (context) {
+                                                      return _AdAddDialog(
+                                                        adsBloc: _adsBloc,
+                                                        isUpdate: true,
+                                                        adId: ad.id,
+                                                      );
+                                                    });
+                                              } else {
+                                                final result =
+                                                    await showDialog<bool?>(
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return const DeleteConfirmationDialog(
+                                                      text:
+                                                          'هل أنت متأكد أنك تريد حذف هذا الإعلان؟',
+                                                    );
+                                                  },
+                                                );
+                                                if (result != null && result) {
+                                                  _adsBloc.add(
+                                                      AdDeleted(adId: ad.id));
+                                                }
+                                              }
+                                            },
+                                            splashRadius: 30,
+                                            itemBuilder: (context) =>
+                                                <PopupMenuItem<String>>[
+                                              const PopupMenuItem<String>(
+                                                value: 'edit',
+                                                child: Text(
+                                                  'تعديل',
+                                                ),
+                                              ),
+                                              const PopupMenuItem<String>(
+                                                value: 'delete',
+                                                child: Text(
+                                                  'حذف',
+                                                ),
+                                              ),
+                                            ],
+                                            child: Container(
+                                              padding: const EdgeInsets.all(2),
+                                              decoration: const BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: Colors.black38,
+                                              ),
+                                              child: const Icon(
+                                                Icons.more_vert_outlined,
+                                                color: Colors.white,
+                                                size: 18,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
                                       ],
                                     ),
                                 ],
@@ -125,8 +236,12 @@ class _AdsPageState extends State<AdsPage> {
 class _AdAddDialog extends StatefulWidget {
   const _AdAddDialog({
     required this.adsBloc,
+    this.isUpdate = false,
+    this.adId,
   });
   final AdsBloc adsBloc;
+  final bool isUpdate;
+  final int? adId;
   @override
   State<_AdAddDialog> createState() => _AdAddDialogState();
 }
@@ -170,7 +285,7 @@ class _AdAddDialogState extends State<_AdAddDialog> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        'إضافة إعلان',
+                        widget.isUpdate ? 'تعديل إعلان' : 'إضافة إعلان',
                         style: textTheme.headlineSmall?.copyWith(
                           color: colorScheme.onBackground,
                           fontWeight: FontWeight.bold,
@@ -201,7 +316,9 @@ class _AdAddDialogState extends State<_AdAddDialog> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                'اختيار صورة',
+                                widget.isUpdate
+                                    ? 'اختيار صورة جديدة'
+                                    : 'اختيار صورة',
                                 style: textTheme.bodyLarge?.copyWith(
                                   color: colorScheme.onPrimaryContainer,
                                 ),
@@ -266,15 +383,24 @@ class _AdAddDialogState extends State<_AdAddDialog> {
                             const SizedBox(width: 12),
                             AppElevatedButton(
                               onPressed: () {
-                                widget.adsBloc.add(AdAdded(
-                                    addAdParams: AddAdParams(
-                                  image: imageNotifier.value!,
-                                  imageName: 'image.$imageExtension',
-                                  title: '',
-                                )));
+                                if (imageNotifier.value == null) {
+                                  return;
+                                }
+                                widget.isUpdate
+                                    ? widget.adsBloc.add(AdUpdated(
+                                        updateAdParams: UpdateAdParams(
+                                        image: imageNotifier.value!,
+                                        adId: widget.adId!,
+                                        imageName: 'image.$imageExtension',
+                                      )))
+                                    : widget.adsBloc.add(AdAdded(
+                                        addAdParams: AddAdParams(
+                                        image: imageNotifier.value!,
+                                        imageName: 'image.$imageExtension',
+                                      )));
                                 context.pop();
                               },
-                              text: 'إضافة',
+                              text: widget.isUpdate ? 'حفظ' : 'إضافة',
                             ),
                           ],
                         ),

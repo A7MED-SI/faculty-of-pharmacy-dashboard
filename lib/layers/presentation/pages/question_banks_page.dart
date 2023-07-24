@@ -19,6 +19,7 @@ import 'package:pharmacy_dashboard/layers/presentation/widgets/loading_widget.da
 
 import '../../../core/constants/api_enums/api_enums.dart';
 import '../widgets/app_elevated_button.dart';
+import '../widgets/delete_confirmation_dialog.dart';
 
 class QuestionBanksPage extends StatefulWidget {
   const QuestionBanksPage({
@@ -319,13 +320,14 @@ class _QuestionBankCardState extends State<_QuestionBankCard> {
             leading: PopupMenuButton<String>(
               padding: EdgeInsets.zero,
               tooltip: 'خيارات',
-              onSelected: (value) {
+              onSelected: (value) async {
+                final questionBankBloc = context.read<QuestionBankBloc>();
                 if (value == 'edit') {
                   showDialog(
                     context: context,
                     builder: (newContext) {
                       return _AddUpdateQuestionBankDialog(
-                        questionBankBloc: context.read<QuestionBankBloc>(),
+                        questionBankBloc: questionBankBloc,
                         isUpdate: true,
                         bankType: widget.questionBank.bankType,
                         chapterOrder: widget.questionBank.chapterOrder,
@@ -338,8 +340,18 @@ class _QuestionBankCardState extends State<_QuestionBankCard> {
                     },
                   );
                 } else {
-                  context.read<QuestionBankBloc>().add(QuestionBankDeleted(
-                      questionBankId: widget.questionBank.id));
+                  final result = await showDialog<bool?>(
+                    context: context,
+                    builder: (context) {
+                      return const DeleteConfirmationDialog(
+                        text: 'هل أنت متأكد أنك تريد حذف هذا الإمتحان؟',
+                      );
+                    },
+                  );
+                  if (result != null && result) {
+                    questionBankBloc.add(QuestionBankDeleted(
+                        questionBankId: widget.questionBank.id));
+                  }
                 }
               },
               splashRadius: 30,

@@ -5,6 +5,8 @@ import 'package:pharmacy_dashboard/core/unified_api/get_api.dart';
 import 'package:pharmacy_dashboard/core/unified_api/post_api.dart';
 import 'package:pharmacy_dashboard/layers/data/models/login_response/login_response.dart';
 
+import '../../../core/unified_api/delete_api.dart';
+
 class AdminsDataSource {
   Future<List<Admin>> getAdmins({Map<String, dynamic>? queryParams}) async {
     final getApi = GetApi<List<Admin>>(
@@ -33,6 +35,17 @@ class AdminsDataSource {
       requestName: 'Update Admin',
     );
     return await postApi.callRequest();
+  }
+
+  Future<bool> deleteAdmin({required int adminId}) async {
+    final deleteApi = DeleteApi<bool>(
+      uri: ApiUris.deleteAdminUri(adminId: adminId),
+      fromJson: (json) {
+        return jsonDecode(json)['success'];
+      },
+      requestName: 'Delete Admin',
+    );
+    return await deleteApi.callRequest();
   }
 
   Future<Admin> addAdmin({required Map<String, dynamic> body}) async {

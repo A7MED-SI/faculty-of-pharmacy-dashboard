@@ -41,11 +41,11 @@ class AdDataSource extends Printing with HandlingResponse {
   }
 
   Future<Ad> addAd({
-    required Map<String, String> fields,
+    Map<String, String>? fields,
     required Uint8List image,
     required String imageName,
   }) async {
-   final request = http.MultipartRequest(
+    final request = http.MultipartRequest(
       'POST',
       ApiUris.addAdUri(),
     );
@@ -60,31 +60,54 @@ class AdDataSource extends Printing with HandlingResponse {
       image,
       filename: imageName,
     ));
-    request.fields.addAll(fields);
+    if (fields != null) {
+      request.fields.addAll(fields);
+    }
     // ignore: unused_local_variable
     final response = await request.send();
     final bodyString = await response.stream.bytesToString();
     print(
         'the response from add Ad is ${response.statusCode} \n the response body is \n $bodyString');
     if (response.statusCode == 200) {
-      return Ad.fromJson(
-          jsonDecode(bodyString)['data']['ad']);
+      return Ad.fromJson(jsonDecode(bodyString)['data']['ad']);
     }
     Exception exception = getException(statusCode: response.statusCode);
     throw (exception);
   }
 
   Future<Ad> updateAd(
-      {required int adId, required Map<String, dynamic> body}) async {
-    final postApi = PostApi<Ad>(
-      uri: ApiUris.updateAdUri(adId: adId),
-      fromJson: (json) {
-        return Ad.fromJson(jsonDecode(json)['data']['ad']);
-      },
-      body: body,
-      requestName: 'Update Ad',
+      {required int adId,
+      required Uint8List image,
+      required String imageName,
+      Map<String, String>? fields}) async {
+    final request = http.MultipartRequest(
+      'POST',
+      ApiUris.updateAdUri(adId: adId),
     );
-    return await postApi.callRequest();
+    request.headers.addAll({
+      HttpHeaders.authorizationHeader:
+          "Bearer ${GlobalPurposeFunctions.getAccessToken()}",
+      HttpHeaders.contentTypeHeader: "application/x-www-form-urlencoded",
+      HttpHeaders.acceptHeader: "application/json"
+    });
+    request.files.add(http.MultipartFile.fromBytes(
+      'image',
+      image,
+      filename: imageName,
+    ));
+    if (fields != null) {
+      request.fields.addAll(fields);
+    }
+    // ignore: unused_local_variable
+    final response = await request.send();
+    final bodyString = await response.stream.bytesToString();
+    print(
+        'the response from Update Ad is ${response.statusCode} \n the response body is \n $bodyString');
+    if (response.statusCode == 200) {
+      return Ad.fromJson(jsonDecode(bodyString)['data']['ad']);
+    }
+    Exception exception = getException(statusCode: response.statusCode);
+    throw (exception);
   }
 
   Future<bool> toggleAdActive({required int adId}) async {

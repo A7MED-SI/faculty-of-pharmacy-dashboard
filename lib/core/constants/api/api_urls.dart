@@ -74,6 +74,12 @@ class ApiUris {
     );
   }
 
+  static Uri deleteAdminUri({required int adminId}) {
+    return _mainUri(
+      path: '$_adminApi$adminId/destroy',
+    );
+  }
+
   static Uri toggleAdminActiveUri({required int adminId}) {
     return _mainUri(
       path: '$_adminApi$adminId/toggleActive',

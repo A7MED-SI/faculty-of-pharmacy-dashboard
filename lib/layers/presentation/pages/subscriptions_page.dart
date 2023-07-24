@@ -68,6 +68,7 @@ class _SubscriptionsPageState extends State<SubscriptionsPage> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final isDesktop = isDisplayDesktop(context);
 
     return Directionality(
       textDirection: TextDirection.rtl,
@@ -97,22 +98,10 @@ class _SubscriptionsPageState extends State<SubscriptionsPage> {
                 : Container(
                     margin: const EdgeInsets.all(20),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
-                            AppTextButton(
-                              text: 'إضافة اشتراكات',
-                              onPressed: () {
-                                showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return _AddSubsDialog(
-                                        subscriptionBloc: _subscriptionBloc,
-                                      );
-                                    });
-                              },
-                            ),
-                            const SizedBox(width: 40),
                             SizedBox(
                               width: 220,
                               child: Row(
@@ -192,8 +181,23 @@ class _SubscriptionsPageState extends State<SubscriptionsPage> {
                               ),
                             ),
                             const Spacer(),
-                            if (state.selection
-                                .reduce((value, element) => value | element))
+                            if (isDesktop)
+                              AppTextButton(
+                                text: 'إضافة اشتراكات',
+                                onPressed: () {
+                                  showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return _AddSubsDialog(
+                                          subscriptionBloc: _subscriptionBloc,
+                                        );
+                                      });
+                                },
+                              ),
+                            const SizedBox(width: 10),
+                            if (state.selection.reduce(
+                                    (value, element) => value | element) &&
+                                isDesktop)
                               AppTextButton(
                                 onPressed: () async {
                                   await downloadQrPdf(
@@ -205,7 +209,34 @@ class _SubscriptionsPageState extends State<SubscriptionsPage> {
                               ),
                           ],
                         ),
-                        const SizedBox(height: 20),
+                        if (!isDesktop) const SizedBox(height: 8),
+                        if (!isDesktop)
+                          AppTextButton(
+                            text: 'إضافة اشتراكات',
+                            onPressed: () {
+                              showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return _AddSubsDialog(
+                                      subscriptionBloc: _subscriptionBloc,
+                                    );
+                                  });
+                            },
+                          ),
+                        const SizedBox(height: 8),
+                        if (state.selection
+                                .reduce((value, element) => value | element) &&
+                            !isDesktop)
+                          AppTextButton(
+                            onPressed: () async {
+                              await downloadQrPdf(
+                                subscriptions: state.subscriptions,
+                                selection: state.selection,
+                              );
+                            },
+                            text: 'توليد ملف رموز',
+                          ),
+                        const SizedBox(height: 12),
                         Expanded(
                           child: ValueListenableBuilder<int>(
                               valueListenable: currentPerPageNotifier,

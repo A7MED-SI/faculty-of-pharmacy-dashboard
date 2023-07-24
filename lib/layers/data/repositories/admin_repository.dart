@@ -47,4 +47,12 @@ class AdminRepositoryImplementaion implements AdminRepository {
       return Right(response);
     });
   }
+
+  @override
+  Future<Either<Failure, bool>> deleteAdmin({required int adminId}) async {
+    return await HandlingExceptionManager.wrapHandling<bool>(tryCall: () async {
+      final response = await _adminDataSource.deleteAdmin(adminId: adminId);
+      return Right(response);
+    });
+  }
 }

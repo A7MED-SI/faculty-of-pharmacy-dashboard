@@ -9,6 +9,7 @@ import '../../domain/use_cases/admin/add_admin.dart';
 import '../../domain/use_cases/admin/update_admin.dart';
 import '../AppWidgetsDisplayer.dart';
 import '../widgets/app_text_button.dart';
+import '../widgets/delete_confirmation_dialog.dart';
 import '../widgets/loading_widget.dart';
 import '../../domain/use_cases/admin/get_admins.dart';
 import '../blocs/admin/admin_bloc.dart';
@@ -39,6 +40,7 @@ class _AdminsPageState extends State<AdminsPage> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final isDesktop = isDisplayDesktop(context);
 
     return Directionality(
       textDirection: TextDirection.rtl,
@@ -76,7 +78,20 @@ class _AdminsPageState extends State<AdminsPage> {
             if (state.updatingStatus == UpdatingStatus.success) {
               AppWidgetsDisplayer.dispalySuccessSnackBar(
                 context: context,
-                message: 'تم حفظ التعديل بنجاح',
+                message: 'تم تعديل المسؤول بنجاح',
+              );
+            }
+            if (state.deletingStatus == DeletingStatus.failed) {
+              AppWidgetsDisplayer.dispalyErrorSnackBar(
+                context: context,
+                message:
+                    'فشل الحذف يرجى التحقق من الإتصال من الإنترنت والمحاولة مرة أخرى',
+              );
+            }
+            if (state.deletingStatus == DeletingStatus.success) {
+              AppWidgetsDisplayer.dispalySuccessSnackBar(
+                context: context,
+                message: 'تم حذف المسؤول بنجاح',
               );
             }
           },
@@ -85,22 +100,10 @@ class _AdminsPageState extends State<AdminsPage> {
             return Container(
               margin: const EdgeInsets.all(20),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      AppTextButton(
-                        onPressed: () {
-                          showDialog(
-                              context: context,
-                              builder: (context) {
-                                return _AddUpdateAdminDialog(
-                                  adminBloc: _adminBloc,
-                                );
-                              });
-                        },
-                        text: 'إضافة مسؤول',
-                      ),
-                      const SizedBox(width: 40),
                       SizedBox(
                         width: 200,
                         child: TextField(
@@ -123,8 +126,37 @@ class _AdminsPageState extends State<AdminsPage> {
                           ),
                         ),
                       ),
+                      const Spacer(),
+                      if (isDesktop)
+                        AppTextButton(
+                          onPressed: () {
+                            showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return _AddUpdateAdminDialog(
+                                    adminBloc: _adminBloc,
+                                  );
+                                });
+                          },
+                          text: 'إضافة مسؤول',
+                        ),
                     ],
                   ),
+                  if (!isDesktop)
+                  const SizedBox(height: 8),
+                  if (!isDesktop)
+                    AppTextButton(
+                      onPressed: () {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return _AddUpdateAdminDialog(
+                                adminBloc: _adminBloc,
+                              );
+                            });
+                      },
+                      text: 'إضافة مسؤول',
+                    ),
                   const SizedBox(height: 20),
                   state.adminsFetchingStatus == AdminsFetchingStatus.initial ||
                           state.adminsFetchingStatus ==
@@ -179,7 +211,7 @@ class _AdminsPageState extends State<AdminsPage> {
                                       PopupMenuButton<String>(
                                         padding: EdgeInsets.zero,
                                         tooltip: 'خيارات',
-                                        onSelected: (value) {
+                                        onSelected: (value) async {
                                           if (value == 'edit') {
                                             showDialog(
                                                 context: context,
@@ -192,7 +224,22 @@ class _AdminsPageState extends State<AdminsPage> {
                                                     username: admin.username,
                                                   );
                                                 });
-                                          } else {}
+                                          } else {
+                                            final result =
+                                                await showDialog<bool?>(
+                                              context: context,
+                                              builder: (context) {
+                                                return const DeleteConfirmationDialog(
+                                                  text:
+                                                      'هل أنت متأكد أنك تريد حذف هذا الإعلان؟',
+                                                );
+                                              },
+                                            );
+                                            if (result != null && result) {
+                                              _adminBloc.add(AdminDeleted(
+                                                  adminId: admin.id));
+                                            }
+                                          }
                                         },
                                         splashRadius: 30,
                                         itemBuilder: (context) =>

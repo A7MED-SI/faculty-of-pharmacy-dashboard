@@ -12,6 +12,7 @@ abstract class AdminRepository {
   Future<Either<Failure, Admin>> updateAdmin(
       {required Map<String, dynamic> params, required int adminId});
 
-  Future<Either<Failure, bool>> toggleAdminActive(
-      {required int adminId});
+  Future<Either<Failure, bool>> toggleAdminActive({required int adminId});
+
+  Future<Either<Failure, bool>> deleteAdmin({required int adminId});
 }

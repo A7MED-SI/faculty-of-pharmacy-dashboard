@@ -92,6 +92,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                       children: [
                         Row(
                           children: [
+                            const Spacer(),
                             AppTextButton(
                               text: 'إرسال إشعار',
                               onPressed: () {

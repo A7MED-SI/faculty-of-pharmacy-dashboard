@@ -12,11 +12,13 @@ class AdRepositoryImplementation implements AdRepository {
   final _adDataSource = AdDataSource();
   @override
   Future<Either<Failure, Ad>> addAd(
-      {required Map<String, String> params, required Uint8List image, required String imageName}) async {
+      {Map<String, String>? params,
+      required Uint8List image,
+      required String imageName}) async {
     return await HandlingExceptionManager.wrapHandling<Ad>(
       tryCall: () async {
-        final response =
-            await _adDataSource.addAd(fields: params, image: image, imageName: imageName);
+        final response = await _adDataSource.addAd(
+            fields: params, image: image, imageName: imageName);
         return Right(response);
       },
     );
@@ -66,11 +68,20 @@ class AdRepositoryImplementation implements AdRepository {
   }
 
   @override
-  Future<Either<Failure, Ad>> updateAd(
-      {required Map<String, dynamic> params, required int adId}) async {
+  Future<Either<Failure, Ad>> updateAd({
+    Map<String, String>? params,
+    required int adId,
+    required Uint8List image,
+    required String imageName,
+  }) async {
     return await HandlingExceptionManager.wrapHandling<Ad>(
       tryCall: () async {
-        final response = await _adDataSource.updateAd(adId: adId, body: params);
+        final response = await _adDataSource.updateAd(
+          adId: adId,
+          fields: params,
+          image: image,
+          imageName: imageName,
+        );
         return Right(response);
       },
     );

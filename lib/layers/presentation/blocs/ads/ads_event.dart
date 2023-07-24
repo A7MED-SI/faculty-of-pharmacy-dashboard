@@ -16,3 +16,15 @@ class AdDeleted extends AdsEvent {
 
   AdDeleted({required this.adId});
 }
+
+class AdActiveToggled extends AdsEvent {
+  final int adId;
+
+  AdActiveToggled({required this.adId});
+}
+
+class AdUpdated extends AdsEvent {
+  final UpdateAdParams updateAdParams;
+
+  AdUpdated({required this.updateAdParams});
+}

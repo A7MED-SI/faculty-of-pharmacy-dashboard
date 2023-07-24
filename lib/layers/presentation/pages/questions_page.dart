@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'dart:js' as js;
 
 import 'package:file_picker/_internal/file_picker_web.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +22,7 @@ import 'package:pharmacy_dashboard/layers/presentation/widgets/svg_image.dart';
 import '../../../core/constants/images/svg_images.dart';
 import '../../../core/layout/adaptive.dart';
 import '../widgets/app_elevated_button.dart';
+import '../widgets/delete_confirmation_dialog.dart';
 
 class QuestionsPage extends StatefulWidget {
   const QuestionsPage({
@@ -50,11 +52,8 @@ class _QuestionsPageState extends State<QuestionsPage> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    // ignore: unused_local_variable
     final textTheme = Theme.of(context).textTheme;
-    // ignore: unused_local_variable
-    final size = MediaQuery.of(context).size;
-
+    final isDesktop = isDisplayDesktop(context);
     return BlocProvider(
       create: (context) => _questionBloc,
       child: Directionality(
@@ -151,44 +150,84 @@ class _QuestionsPageState extends State<QuestionsPage> {
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                    Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        AppTextButton(
-                                          onPressed: () {
-                                            showDialog(
-                                              context: context,
-                                              builder: (newContext) {
-                                                return _AddUpdateQuestionDialog(
-                                                  questionBloc: _questionBloc,
-                                                  questionBankId:
-                                                      widget.questionBankId,
-                                                );
-                                              },
-                                            );
-                                          },
-                                          text: 'إضافة سؤال',
-                                        ),
-                                        const SizedBox(width: 10),
-                                        AppTextButton(
-                                          onPressed: () {
-                                            showDialog(
-                                              context: context,
-                                              builder: (context) {
-                                                return _AddExcelFileDialog(
-                                                  questionBloc: _questionBloc,
-                                                  questionBankId:
-                                                      widget.questionBankId,
-                                                );
-                                              },
-                                            );
-                                          },
-                                          text: 'إضافة ملف اكسل',
-                                        ),
-                                      ],
-                                    )
+                                    if (isDesktop)
+                                      Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          AppTextButton(
+                                            onPressed: () {
+                                              showDialog(
+                                                context: context,
+                                                builder: (newContext) {
+                                                  return _AddUpdateQuestionDialog(
+                                                    questionBloc: _questionBloc,
+                                                    questionBankId:
+                                                        widget.questionBankId,
+                                                  );
+                                                },
+                                              );
+                                            },
+                                            text: 'إضافة سؤال',
+                                          ),
+                                          const SizedBox(width: 10),
+                                          AppTextButton(
+                                            onPressed: () {
+                                              showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  return _AddExcelFileDialog(
+                                                    questionBloc: _questionBloc,
+                                                    questionBankId:
+                                                        widget.questionBankId,
+                                                  );
+                                                },
+                                              );
+                                            },
+                                            text: 'إضافة ملف اكسل',
+                                          ),
+                                        ],
+                                      )
                                   ],
                                 ),
+                                if(!isDesktop)
+                                const SizedBox(height:8),
+                                if (!isDesktop)
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      AppTextButton(
+                                        onPressed: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (newContext) {
+                                              return _AddUpdateQuestionDialog(
+                                                questionBloc: _questionBloc,
+                                                questionBankId:
+                                                    widget.questionBankId,
+                                              );
+                                            },
+                                          );
+                                        },
+                                        text: 'إضافة سؤال',
+                                      ),
+                                      const SizedBox(width: 10),
+                                      AppTextButton(
+                                        onPressed: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              return _AddExcelFileDialog(
+                                                questionBloc: _questionBloc,
+                                                questionBankId:
+                                                    widget.questionBankId,
+                                              );
+                                            },
+                                          );
+                                        },
+                                        text: 'إضافة ملف اكسل',
+                                      ),
+                                    ],
+                                  ),
                                 const SizedBox(height: 10),
                                 for (int i = 0;
                                     i < state.questionBank!.questions!.length;
@@ -236,13 +275,14 @@ class QuestionCard extends StatelessWidget {
         leading: PopupMenuButton<String>(
           tooltip: 'خيارات',
           padding: EdgeInsets.zero,
-          onSelected: (value) {
+          onSelected: (value) async {
+            final questionBloc = context.read<QuestionBloc>();
             if (value == 'edit') {
               showDialog(
                 context: context,
                 builder: (newContext) {
                   return _AddUpdateQuestionDialog(
-                    questionBloc: context.read<QuestionBloc>(),
+                    questionBloc: questionBloc,
                     isUpdate: true,
                     question: question,
                     questionBankId: question.questionBankId,
@@ -250,11 +290,21 @@ class QuestionCard extends StatelessWidget {
                 },
               );
             } else {
-              context.read<QuestionBloc>().add(
-                    QuestionDeleted(
-                        questionId: question.id,
-                        questionBankId: question.questionBankId),
+              final result = await showDialog<bool?>(
+                context: context,
+                builder: (context) {
+                  return const DeleteConfirmationDialog(
+                    text: 'هل أنت متأكد أنك تريد حذف هذا السؤال؟',
                   );
+                },
+              );
+              if (result != null && result) {
+                questionBloc.add(
+                  QuestionDeleted(
+                      questionId: question.id,
+                      questionBankId: question.questionBankId),
+                );
+              }
             }
           },
           splashRadius: 30,
@@ -293,13 +343,44 @@ class QuestionCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (question.hint != null)
-                  Text(
-                    'تلميح: ${question.hint}',
-                    style: textTheme.bodyLarge?.copyWith(
-                      color: colorScheme.secondary,
-                      fontWeight: FontWeight.bold,
-                    ),
+                if (question.hint != null || question.image != null)
+                  Row(
+                    children: [
+                      if (question.hint != null)
+                        Expanded(
+                          flex: 4,
+                          child: Text(
+                            'تلميح: ${question.hint}',
+                            style: textTheme.bodyLarge?.copyWith(
+                              color: colorScheme.secondary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      const Spacer(),
+                      if (question.image != null)
+                        SizedBox(
+                          width: 100,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              js.context.callMethod('open', [question.image]);
+                            },
+                            style: ButtonStyle(
+                              backgroundColor:
+                                  MaterialStatePropertyAll(colorScheme.primary),
+                              shape: MaterialStatePropertyAll(
+                                  RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15))),
+                            ),
+                            child: Text(
+                              'فتح الصورة',
+                              style: textTheme.bodyMedium?.copyWith(
+                                color: colorScheme.onPrimary,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 Text(
                   '${question.answers.length} أجوبة:',
@@ -355,17 +436,12 @@ class AnswerRow extends StatelessWidget {
           ),
           isCorrect
               ? const Expanded(
-                  child: Icon(
-                    Icons.check_circle,
-                    color: Colors.green,
-                    size: 20,
-                  ),
+                  child: SvgImage(SvgImages.check),
                 )
               : const Expanded(
-                  child: Icon(
-                    Icons.cancel_rounded,
+                  child: SvgImage(
+                    SvgImages.cancel,
                     color: Colors.red,
-                    size: 20,
                   ),
                 ),
         ],
@@ -773,7 +849,9 @@ class _AddUpdateQuestionDialogState extends State<_AddUpdateQuestionDialog> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                'اختيار صورة',
+                                widget.isUpdate
+                                    ? 'اختيار صورة جديدة'
+                                    : 'اختيار صورة',
                                 style: textTheme.bodyLarge?.copyWith(
                                   color: colorScheme.onPrimaryContainer,
                                 ),

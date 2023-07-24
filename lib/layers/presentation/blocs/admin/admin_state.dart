@@ -8,12 +8,15 @@ enum AddingStatus { initial, success, failed }
 
 enum UpdatingStatus { initial, success, failed }
 
+enum DeletingStatus { initial, success, failed }
+
 @immutable
 class AdminState {
   final AdminsFetchingStatus adminsFetchingStatus;
   final TogglingStatus togglingStatus;
   final AddingStatus addingStatus;
   final UpdatingStatus updatingStatus;
+  final DeletingStatus deletingStatus;
   final List<Admin> admins;
 
   const AdminState({
@@ -21,6 +24,7 @@ class AdminState {
     this.togglingStatus = TogglingStatus.initial,
     this.addingStatus = AddingStatus.initial,
     this.updatingStatus = UpdatingStatus.initial,
+    this.deletingStatus = DeletingStatus.initial,
     this.admins = const [],
   });
 
@@ -30,6 +34,7 @@ class AdminState {
     TogglingStatus? togglingStatus,
     AddingStatus? addingStatus,
     UpdatingStatus? updatingStatus,
+    DeletingStatus? deletingStatus,
   }) {
     return AdminState(
       admins: admins ?? this.admins,
@@ -37,6 +42,7 @@ class AdminState {
       togglingStatus: togglingStatus ?? this.togglingStatus,
       addingStatus: addingStatus ?? this.addingStatus,
       updatingStatus: updatingStatus ?? this.updatingStatus,
+      deletingStatus: deletingStatus ?? this.deletingStatus,
     );
   }
 }

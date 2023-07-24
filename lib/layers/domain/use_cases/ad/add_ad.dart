@@ -21,19 +21,16 @@ class AddAdUseCase implements UseCase<Ad, AddAdParams> {
 }
 
 class AddAdParams {
-  final String title;
   final Uint8List image;
   final String imageName;
 
   AddAdParams({
-    required this.title,
     required this.image,
     required this.imageName,
   });
 
   Map<String, String> toMap() {
     return {
-      'title': title,
     };
   }
 }

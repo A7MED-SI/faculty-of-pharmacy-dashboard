@@ -23,7 +23,6 @@ import 'list_drawer.dart';
 
 import 'dart:math' show pi;
 
-
 enum TabsNumber {
   dashboardPage(0),
   subscriptionPage(1),
@@ -103,8 +102,11 @@ class _HomeNavigatorState extends State<HomeNavigator> {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
     final isDesktop = isDisplayDesktop(context);
-    final String? currentRouteMapped =
+    String? currentRouteMapped =
         widget.currentRoute?.replaceAllMapped(RegExp(r'\?.*'), (match) => '');
+    currentRouteMapped =
+        currentRouteMapped?.replaceAllMapped(RegExp(r'\/.*'), (match) => '');
+
     if (currentRouteMapped != null &&
         isInitialized &&
         isUserSuperAdmin &&

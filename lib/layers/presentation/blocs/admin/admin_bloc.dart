@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:pharmacy_dashboard/layers/data/repositories/admin_repository.dart';
+import 'package:pharmacy_dashboard/layers/domain/use_cases/admin/delete_admin_use_case.dart';
 import 'package:pharmacy_dashboard/layers/domain/use_cases/admin/toggle_admin_active.dart';
 
 import '../../../data/models/login_response/login_response.dart';
@@ -20,6 +21,7 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
     on<AdminActiveToggled>(_mapAdminActiveToggled);
     on<AdminAdded>(_mapAdminAdded);
     on<AdminUpdated>(_mapAdminUpdated);
+    on<AdminDeleted>(_mapAdminDeleted);
   }
   final _getAdminsUseCase =
       GetAdminsUseCase(adminRepository: AdminRepositoryImplementaion());
@@ -29,6 +31,8 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
       AddAdminUseCase(adminRepository: AdminRepositoryImplementaion());
   final _updateAdminUseCase =
       UpdateAdminUseCase(adminRepository: AdminRepositoryImplementaion());
+  final _deleteAdminUseCase =
+      DeleteAdminUseCase(adminRepository: AdminRepositoryImplementaion());
   FutureOr<void> _mapAdminsFetched(
       AdminsFetched event, Emitter<AdminState> emit) async {
     emit(state.copyWith(adminsFetchingStatus: AdminsFetchingStatus.loading));
@@ -124,6 +128,30 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
             updatingStatus: UpdatingStatus.success,
             admins: admins));
         emit(state.copyWith(updatingStatus: UpdatingStatus.initial));
+      },
+    );
+  }
+
+  FutureOr<void> _mapAdminDeleted(
+      AdminDeleted event, Emitter<AdminState> emit) async {
+    emit(state.copyWith(adminsFetchingStatus: AdminsFetchingStatus.loading));
+    final result = await _deleteAdminUseCase(event.adminId);
+
+    await result.fold(
+      (l) async {
+        emit(state.copyWith(
+            adminsFetchingStatus: AdminsFetchingStatus.success,
+            deletingStatus: DeletingStatus.failed));
+        emit(state.copyWith(addingStatus: AddingStatus.initial));
+      },
+      (admin) async {
+        final admins = List.of(state.admins)
+          ..removeWhere((admin) => admin.id == event.adminId);
+        emit(state.copyWith(
+            adminsFetchingStatus: AdminsFetchingStatus.success,
+            deletingStatus: DeletingStatus.success,
+            admins: admins));
+        emit(state.copyWith(deletingStatus: DeletingStatus.initial));
       },
     );
   }

@@ -14,6 +14,7 @@ import 'package:pharmacy_dashboard/layers/presentation/widgets/loading_widget.da
 import '../../../core/layout/adaptive.dart';
 import '../AppWidgetsDisplayer.dart';
 import '../widgets/app_elevated_button.dart';
+import '../widgets/delete_confirmation_dialog.dart';
 
 class SubjectsPage extends StatefulWidget {
   const SubjectsPage({super.key, this.semesterId});
@@ -42,6 +43,7 @@ class _SubjectsPageState extends State<SubjectsPage> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final isDesktop = isDisplayDesktop(context);
 
     return Directionality(
       textDirection: TextDirection.rtl,
@@ -109,27 +111,12 @@ class _SubjectsPageState extends State<SubjectsPage> {
                 : Container(
                     margin: const EdgeInsets.all(20),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
-                            AppTextButton(
-                              onPressed: () {
-                                showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return _AddUpdateSubjectDialog(
-                                        subjectBloc: _subjectBloc,
-                                        semesterId: state.mainSemesterId == -1
-                                            ? null
-                                            : state.mainSemesterId,
-                                      );
-                                    });
-                              },
-                              text: 'إضافة مادة',
-                            ),
-                            const SizedBox(width: 40),
                             SizedBox(
-                              width: 310,
+                              width: 320,
                               child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
@@ -140,7 +127,7 @@ class _SubjectsPageState extends State<SubjectsPage> {
                                         color: colorScheme.onBackground),
                                   ),
                                   SizedBox(
-                                    width: 250,
+                                    width: 260,
                                     child: DropdownButtonFormField2<int>(
                                       decoration: InputDecoration(
                                         isDense: true,
@@ -198,8 +185,42 @@ class _SubjectsPageState extends State<SubjectsPage> {
                                 ],
                               ),
                             ),
+                            const Spacer(),
+                            if (isDesktop)
+                              AppTextButton(
+                                onPressed: () {
+                                  showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return _AddUpdateSubjectDialog(
+                                          subjectBloc: _subjectBloc,
+                                          semesterId: state.mainSemesterId == -1
+                                              ? null
+                                              : state.mainSemesterId,
+                                        );
+                                      });
+                                },
+                                text: 'إضافة مادة',
+                              ),
                           ],
                         ),
+                        if (!isDesktop) const SizedBox(height: 8),
+                        if (!isDesktop)
+                          AppTextButton(
+                            onPressed: () {
+                              showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return _AddUpdateSubjectDialog(
+                                      subjectBloc: _subjectBloc,
+                                      semesterId: state.mainSemesterId == -1
+                                          ? null
+                                          : state.mainSemesterId,
+                                    );
+                                  });
+                            },
+                            text: 'إضافة مادة',
+                          ),
                         const SizedBox(height: 20),
                         Expanded(
                           child: DataTable2(
@@ -266,7 +287,7 @@ class _SubjectsPageState extends State<SubjectsPage> {
                                       PopupMenuButton<String>(
                                         padding: EdgeInsets.zero,
                                         tooltip: 'خيارات',
-                                        onSelected: (value) {
+                                        onSelected: (value) async {
                                           if (value == 'edit') {
                                             showDialog(
                                               context: context,
@@ -282,8 +303,20 @@ class _SubjectsPageState extends State<SubjectsPage> {
                                               },
                                             );
                                           } else {
-                                            _subjectBloc.add(SubjectDeleted(
-                                                subjectId: subject.id));
+                                            final result =
+                                                await showDialog<bool?>(
+                                              context: context,
+                                              builder: (context) {
+                                                return const DeleteConfirmationDialog(
+                                                  text:
+                                                      'هل أنت متأكد أنك تريد حذف هذه المادة؟',
+                                                );
+                                              },
+                                            );
+                                            if (result != null && result) {
+                                              _subjectBloc.add(SubjectDeleted(
+                                                  subjectId: subject.id));
+                                            }
                                           }
                                         },
                                         splashRadius: 30,

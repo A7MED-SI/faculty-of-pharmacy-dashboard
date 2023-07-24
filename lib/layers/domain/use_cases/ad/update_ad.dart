@@ -12,24 +12,26 @@ class UpdateAdUseCase implements UseCase<Ad, UpdateAdParams> {
   UpdateAdUseCase({required this.adsRepository});
   @override
   Future<Either<Failure, Ad>> call(UpdateAdParams params) async {
-    return adsRepository.updateAd(params: params.toMap(), adId: params.adId);
+    return adsRepository.updateAd(
+      adId: params.adId,
+      image: params.image,
+      imageName: params.imageName,
+    );
   }
 }
 
 class UpdateAdParams {
   final int adId;
-  final String title;
   final Uint8List image;
+  final String imageName;
 
   UpdateAdParams({
-    required this.title,
     required this.image,
     required this.adId,
+    required this.imageName,
   });
 
   Map<String, dynamic> toMap() {
-    return {
-      'title': title,
-    };
+    return {};
   }
 }

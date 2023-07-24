@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pharmacy_dashboard/layers/domain/use_cases/year_semester/get_year_semesters.dart';
 import 'package:pharmacy_dashboard/layers/presentation/blocs/year_semester/year_semester_bloc.dart';
+import 'package:pharmacy_dashboard/layers/presentation/pages/question_banks_page.dart';
 import 'package:pharmacy_dashboard/layers/presentation/pages/subjects_page.dart';
 import 'package:pharmacy_dashboard/layers/presentation/widgets/loading_widget.dart';
 
@@ -157,13 +158,22 @@ class _SemestersPageState extends State<SemestersPage> {
                                                               MainAxisAlignment
                                                                   .spaceBetween,
                                                           children: [
-                                                            Text(
-                                                              subject.title,
-                                                              style: textTheme
-                                                                  .bodyLarge
-                                                                  ?.copyWith(
-                                                                color: colorScheme
-                                                                    .onBackground,
+                                                            MouseRegion(
+                                                              cursor: SystemMouseCursors.click,
+                                                              child: GestureDetector(
+                                                                onTap: () {
+                                                                  context.go(
+                                                                      '/${SubjectsPage.routeName}/${subject.id}/${QuestionBanksPage.routeName}');
+                                                                },
+                                                                child: Text(
+                                                                  subject.title,
+                                                                  style: textTheme
+                                                                      .bodyLarge
+                                                                      ?.copyWith(
+                                                                    color: colorScheme
+                                                                        .onBackground,
+                                                                  ),
+                                                                ),
                                                               ),
                                                             ),
                                                             Switch(
@@ -268,13 +278,25 @@ class _SemestersPageState extends State<SemestersPage> {
                                                             MainAxisAlignment
                                                                 .spaceBetween,
                                                         children: [
-                                                          Text(
-                                                            subject.title,
-                                                            style: textTheme
-                                                                .bodyLarge
-                                                                ?.copyWith(
-                                                              color: colorScheme
-                                                                  .onBackground,
+                                                          MouseRegion(
+                                                            cursor:
+                                                                SystemMouseCursors
+                                                                    .click,
+                                                            child:
+                                                                GestureDetector(
+                                                              onTap: () {
+                                                                context.go(
+                                                                    '/${SubjectsPage.routeName}/${subject.id}/${QuestionBanksPage.routeName}');
+                                                              },
+                                                              child: Text(
+                                                                subject.title,
+                                                                style: textTheme
+                                                                    .bodyLarge
+                                                                    ?.copyWith(
+                                                                  color: colorScheme
+                                                                      .onBackground,
+                                                                ),
+                                                              ),
                                                             ),
                                                           ),
                                                           Switch(

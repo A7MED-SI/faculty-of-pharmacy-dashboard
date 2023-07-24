@@ -26,3 +26,9 @@ class AdminActiveToggled extends AdminEvent {
 
   AdminActiveToggled({required this.adminId});
 }
+
+class AdminDeleted extends AdminEvent {
+  final int adminId;
+
+  AdminDeleted({required this.adminId});
+}
