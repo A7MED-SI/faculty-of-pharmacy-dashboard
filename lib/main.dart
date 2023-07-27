@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:pharmacy_dashboard/core/global_functions/global_purpose_functions.dart';
 import 'package:pharmacy_dashboard/core/injection.dart';
 import 'package:pharmacy_dashboard/core/theme/app_text_theme.dart';
@@ -26,57 +27,59 @@ class MyApp extends StatelessWidget {
         },
         builder: (context, state) {
           final currentPath = GlobalPurposeFunctions.getCurrentPath();
-          return MaterialApp.router(
-            routerConfig: MyRouter.getRouter(
-              authState: state,
-              currentLocation: currentPath,
-            ),
-            title: 'DO IT RIGHT',
-            debugShowCheckedModeBanner: false,
-            theme: ThemeData(
-              useMaterial3: false,
-              checkboxTheme: CheckboxThemeData(
-                fillColor: MaterialStatePropertyAll(lightColorScheme.primary),
+          return OKToast(
+            child: MaterialApp.router(
+              routerConfig: MyRouter.getRouter(
+                authState: state,
+                currentLocation: currentPath,
               ),
-              colorScheme: lightColorScheme,
-              textTheme: appTextTheme,
-              inputDecorationTheme: InputDecorationTheme(
-                border: OutlineInputBorder(
-                  borderSide: const BorderSide(),
-                  borderRadius: BorderRadius.circular(12),
+              title: 'DO IT RIGHT',
+              debugShowCheckedModeBanner: false,
+              theme: ThemeData(
+                useMaterial3: false,
+                checkboxTheme: CheckboxThemeData(
+                  fillColor: MaterialStatePropertyAll(lightColorScheme.primary),
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: lightColorScheme.primary,
+                colorScheme: lightColorScheme,
+                textTheme: appTextTheme,
+                inputDecorationTheme: InputDecorationTheme(
+                  border: OutlineInputBorder(
+                    borderSide: const BorderSide(),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              scrollbarTheme: const ScrollbarThemeData().copyWith(
-                  thumbColor: MaterialStateProperty.resolveWith(
-                (states) {
-                  if (states.contains(MaterialState.hovered) ||
-                      states.contains(MaterialState.pressed)) {
-                    return Colors.grey.shade700;
-                  }
-                  return Colors.grey;
-                },
-              )),
-            ),
-            darkTheme: ThemeData(
-              useMaterial3: false,
-              colorScheme: darkColorScheme,
-              textTheme: appTextTheme,
-              inputDecorationTheme: InputDecorationTheme(
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: darkColorScheme.primary,
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: lightColorScheme.primary,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  borderRadius: BorderRadius.circular(12),
+                ),
+                scrollbarTheme: const ScrollbarThemeData().copyWith(
+                    thumbColor: MaterialStateProperty.resolveWith(
+                  (states) {
+                    if (states.contains(MaterialState.hovered) ||
+                        states.contains(MaterialState.pressed)) {
+                      return Colors.grey.shade700;
+                    }
+                    return Colors.grey;
+                  },
+                )),
+              ),
+              darkTheme: ThemeData(
+                useMaterial3: false,
+                colorScheme: darkColorScheme,
+                textTheme: appTextTheme,
+                inputDecorationTheme: InputDecorationTheme(
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: darkColorScheme.primary,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
+              themeMode: ThemeMode.light,
             ),
-            themeMode: ThemeMode.light,
           );
         },
       ),

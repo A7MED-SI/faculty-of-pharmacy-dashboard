@@ -27,6 +27,8 @@ class YearSemesterBloc extends Bloc<YearSemesterEvent, YearSemesterState> {
       subjectRepository: SubjectRepositoryImplementation());
   FutureOr<void> _mapYearSemesterFetched(
       YearSemesterFetched event, Emitter<YearSemesterState> emit) async {
+    emit(state.copyWith(
+        yearSemestersFetchingStatus: YearSemestersFetchingStatus.loading));
     final result = await _getYearSemestersUseCase(event.getYearSemestersParams);
 
     await result.fold(

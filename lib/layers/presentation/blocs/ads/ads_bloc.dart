@@ -34,6 +34,7 @@ class AdsBloc extends Bloc<AdsEvent, AdsState> {
       UpdateAdUseCase(adsRepository: AdRepositoryImplementation());
   FutureOr<void> _mapAdsFetched(
       AdsFetched event, Emitter<AdsState> emit) async {
+    emit(state.copyWith(adsFetchingStatus: AdsFetchingStatus.loading));
     final result = await _getAdsUseCase(NoParams());
 
     await result.fold(

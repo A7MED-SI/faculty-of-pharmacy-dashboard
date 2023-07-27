@@ -11,6 +11,7 @@ import 'package:pharmacy_dashboard/layers/domain/use_cases/ad/add_ad.dart';
 import 'package:pharmacy_dashboard/layers/domain/use_cases/ad/update_ad.dart';
 import 'package:pharmacy_dashboard/layers/presentation/AppWidgetsDisplayer.dart';
 import 'package:pharmacy_dashboard/layers/presentation/blocs/ads/ads_bloc.dart';
+import 'package:pharmacy_dashboard/layers/presentation/widgets/app_error_widget.dart';
 import 'package:pharmacy_dashboard/layers/presentation/widgets/app_text_button.dart';
 import 'package:pharmacy_dashboard/layers/presentation/widgets/delete_confirmation_dialog.dart';
 import 'package:pharmacy_dashboard/layers/presentation/widgets/loading_widget.dart';
@@ -96,136 +97,147 @@ class _AdsPageState extends State<AdsPage> {
             return state.adsFetchingStatus == AdsFetchingStatus.initial ||
                     state.adsFetchingStatus == AdsFetchingStatus.loading
                 ? const LoadingWidget()
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding:
-                            const EdgeInsets.only(right: 12, top: 12, left: 12),
-                        child: Row(
-                          children: [
-                            const Spacer(),
-                            AppTextButton(
-                              onPressed: () {
-                                showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return _AdAddDialog(adsBloc: _adsBloc);
-                                    });
-                              },
-                              text: 'إضافة إعلان',
+                : state.adsFetchingStatus == AdsFetchingStatus.failed
+                    ? AppErrorWidget(
+                        onRefreshPressed: () {
+                          _adsBloc.add(AdsFetched());
+                        },
+                      )
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(
+                                right: 12, top: 12, left: 12),
+                            child: Row(
+                              children: [
+                                const Spacer(),
+                                AppTextButton(
+                                  onPressed: () {
+                                    showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return _AdAddDialog(
+                                              adsBloc: _adsBloc);
+                                        });
+                                  },
+                                  text: 'إضافة إعلان',
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: CustomScrollView(
-                          slivers: [
-                            SliverPadding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 20),
-                              sliver: SliverGrid.count(
-                                crossAxisCount: isDesktop ? 6 : 2,
-                                childAspectRatio: 1.6,
-                                crossAxisSpacing: 2,
-                                mainAxisSpacing: 2,
-                                children: [
-                                  for (var ad in state.ads)
-                                    Stack(
-                                      children: [
-                                        ExtendedImage.network(
-                                          ad.image,
-                                          fit: BoxFit.fill,
-                                          width: double.infinity,
-                                          height: double.infinity,
-                                          cache: true,
-                                        ),
-                                        Positioned(
-                                          bottom: 6,
-                                          left: 8,
-                                          child: Switch(
-                                            onChanged: (value) {
-                                              _adsBloc.add(
-                                                  AdActiveToggled(adId: ad.id));
-                                            },
-                                            value: ad.isActive == 1,
-                                            activeColor: colorScheme.primary,
-                                          ),
-                                        ),
-                                        Positioned(
-                                          top: 6,
-                                          right: 8,
-                                          child: PopupMenuButton<String>(
-                                            padding: EdgeInsets.zero,
-                                            tooltip: 'خيارات',
-                                            onSelected: (value) async {
-                                              if (value == 'edit') {
-                                                showDialog(
-                                                    context: context,
-                                                    builder: (context) {
-                                                      return _AdAddDialog(
-                                                        adsBloc: _adsBloc,
-                                                        isUpdate: true,
-                                                        adId: ad.id,
-                                                      );
-                                                    });
-                                              } else {
-                                                final result =
-                                                    await showDialog<bool?>(
-                                                  context: context,
-                                                  builder: (context) {
-                                                    return const DeleteConfirmationDialog(
-                                                      text:
-                                                          'هل أنت متأكد أنك تريد حذف هذا الإعلان؟',
-                                                    );
-                                                  },
-                                                );
-                                                if (result != null && result) {
-                                                  _adsBloc.add(
-                                                      AdDeleted(adId: ad.id));
-                                                }
-                                              }
-                                            },
-                                            splashRadius: 30,
-                                            itemBuilder: (context) =>
-                                                <PopupMenuItem<String>>[
-                                              const PopupMenuItem<String>(
-                                                value: 'edit',
-                                                child: Text(
-                                                  'تعديل',
-                                                ),
-                                              ),
-                                              const PopupMenuItem<String>(
-                                                value: 'delete',
-                                                child: Text(
-                                                  'حذف',
-                                                ),
-                                              ),
-                                            ],
-                                            child: Container(
-                                              padding: const EdgeInsets.all(2),
-                                              decoration: const BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                color: Colors.black38,
-                                              ),
-                                              child: const Icon(
-                                                Icons.more_vert_outlined,
-                                                color: Colors.white,
-                                                size: 18,
+                          ),
+                          Expanded(
+                            child: CustomScrollView(
+                              slivers: [
+                                SliverPadding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 20),
+                                  sliver: SliverGrid.count(
+                                    crossAxisCount: isDesktop ? 6 : 2,
+                                    childAspectRatio: 1.6,
+                                    crossAxisSpacing: 2,
+                                    mainAxisSpacing: 2,
+                                    children: [
+                                      for (var ad in state.ads)
+                                        Stack(
+                                          children: [
+                                            ExtendedImage.network(
+                                              ad.image,
+                                              fit: BoxFit.fill,
+                                              width: double.infinity,
+                                              height: double.infinity,
+                                              cache: true,
+                                            ),
+                                            Positioned(
+                                              bottom: 6,
+                                              left: 8,
+                                              child: Switch(
+                                                onChanged: (value) {
+                                                  _adsBloc.add(AdActiveToggled(
+                                                      adId: ad.id));
+                                                },
+                                                value: ad.isActive == 1,
+                                                activeColor:
+                                                    colorScheme.primary,
                                               ),
                                             ),
-                                          ),
+                                            Positioned(
+                                              top: 6,
+                                              right: 8,
+                                              child: PopupMenuButton<String>(
+                                                padding: EdgeInsets.zero,
+                                                tooltip: 'خيارات',
+                                                onSelected: (value) async {
+                                                  if (value == 'edit') {
+                                                    showDialog(
+                                                        context: context,
+                                                        builder: (context) {
+                                                          return _AdAddDialog(
+                                                            adsBloc: _adsBloc,
+                                                            isUpdate: true,
+                                                            adId: ad.id,
+                                                          );
+                                                        });
+                                                  } else {
+                                                    final result =
+                                                        await showDialog<bool?>(
+                                                      context: context,
+                                                      builder: (context) {
+                                                        return const DeleteConfirmationDialog(
+                                                          text:
+                                                              'هل أنت متأكد أنك تريد حذف هذا الإعلان؟',
+                                                        );
+                                                      },
+                                                    );
+                                                    if (result != null &&
+                                                        result) {
+                                                      _adsBloc.add(AdDeleted(
+                                                          adId: ad.id));
+                                                    }
+                                                  }
+                                                },
+                                                splashRadius: 30,
+                                                itemBuilder: (context) =>
+                                                    <PopupMenuItem<String>>[
+                                                  const PopupMenuItem<String>(
+                                                    value: 'edit',
+                                                    child: Text(
+                                                      'تعديل',
+                                                    ),
+                                                  ),
+                                                  const PopupMenuItem<String>(
+                                                    value: 'delete',
+                                                    child: Text(
+                                                      'حذف',
+                                                    ),
+                                                  ),
+                                                ],
+                                                child: Container(
+                                                  padding:
+                                                      const EdgeInsets.all(2),
+                                                  decoration:
+                                                      const BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    color: Colors.black38,
+                                                  ),
+                                                  child: const Icon(
+                                                    Icons.more_vert_outlined,
+                                                    color: Colors.white,
+                                                    size: 18,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                      ],
-                                    ),
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                    ],
-                  );
+                                    ],
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                        ],
+                      );
           },
         ),
       ),

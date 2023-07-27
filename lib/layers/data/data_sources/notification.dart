@@ -74,7 +74,10 @@ class NotificationDataSource extends Printing with HandlingResponse {
       return NotificationModel.fromJson(
           jsonDecode(bodyString)['data']['notification']);
     }
-    Exception exception = getException(statusCode: response.statusCode);
+    Exception exception = getException(
+      statusCode: response.statusCode,
+      errorMessage: jsonDecode(bodyString)['message'],
+    );
     throw (exception);
   }
 

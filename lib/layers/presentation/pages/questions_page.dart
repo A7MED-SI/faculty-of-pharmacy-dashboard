@@ -6,7 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:go_router/go_router.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:pharmacy_dashboard/core/constants/api_enums/api_enums.dart';
+import 'package:pharmacy_dashboard/core/global_functions/global_purpose_functions.dart';
 import 'package:pharmacy_dashboard/layers/data/models/question/question.dart';
 import 'package:pharmacy_dashboard/layers/domain/use_cases/question/add_question.dart';
 import 'package:pharmacy_dashboard/layers/domain/use_cases/question/add_question_from_exel.dart';
@@ -14,6 +16,7 @@ import 'package:pharmacy_dashboard/layers/domain/use_cases/question/update_quest
 import 'package:pharmacy_dashboard/layers/domain/use_cases/question_bank/show_question_bank.dart';
 import 'package:pharmacy_dashboard/layers/presentation/AppWidgetsDisplayer.dart';
 import 'package:pharmacy_dashboard/layers/presentation/blocs/question/question_bloc.dart';
+import 'package:pharmacy_dashboard/layers/presentation/widgets/app_error_widget.dart';
 import 'package:pharmacy_dashboard/layers/presentation/widgets/app_text_button.dart';
 import 'package:pharmacy_dashboard/layers/presentation/widgets/loading_widget.dart';
 import 'package:pharmacy_dashboard/layers/presentation/blocs/question_dialog/question_dialog_bloc.dart';
@@ -94,7 +97,7 @@ class _QuestionsPageState extends State<QuestionsPage> {
                   DeletingQuestionStatus.failed) {
                 AppWidgetsDisplayer.dispalyErrorSnackBar(
                   context: context,
-                  message:
+                  message: state.errorMessage ??
                       'فشل الحذف يرجى التحقق من اتصالك بالإنترنت والمحاولة لاحقا',
                 );
               }
@@ -127,30 +130,98 @@ class _QuestionsPageState extends State<QuestionsPage> {
                       state.questionBankFetchingStatus ==
                           QuestionBankFetchingStatus.loading
                   ? const LoadingWidget()
-                  : CustomScrollView(
-                      slivers: [
-                        SliverPadding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 12),
-                          sliver: SliverList(
-                            delegate: SliverChildListDelegate(
-                              [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      state.questionBank!.bankType ==
-                                              QuestionBankType
-                                                  .previousExam.value
-                                          ? '${state.questionBank!.subject!.title} - ${state.questionBank!.title} - دورة ${state.questionBank!.yearOfExam} - فصل ${state.questionBank!.semesterOfExam}'
-                                          : '${state.questionBank!.title} - الفصل رقم ${state.questionBank!.chapterOrder}',
-                                      style: textTheme.bodyLarge?.copyWith(
-                                        color: colorScheme.onBackground,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                  : state.questionBankFetchingStatus ==
+                          QuestionBankFetchingStatus.failed
+                      ? AppErrorWidget(
+                          onRefreshPressed: () {
+                            _questionBloc.add(QuestionBankFetched(
+                                showQuestionBankParams: ShowQuestionBankParams(
+                              questionBankId: widget.questionBankId,
+                            )));
+                          },
+                        )
+                      : CustomScrollView(
+                          slivers: [
+                            SliverPadding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 12),
+                              sliver: SliverList(
+                                delegate: SliverChildListDelegate(
+                                  [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          state.questionBank!.bankType ==
+                                                  QuestionBankType
+                                                      .previousExam.value
+                                              ? '${state.questionBank!.subject!.title} - ${state.questionBank!.title} - دورة ${state.questionBank!.yearOfExam} - فصل ${state.questionBank!.semesterOfExam}'
+                                              : '${state.questionBank!.title} - الفصل رقم ${state.questionBank!.chapterOrder}',
+                                          style: textTheme.bodyLarge?.copyWith(
+                                            color: colorScheme.onBackground,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        if (isDesktop)
+                                          Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              AppTextButton(
+                                                onPressed: () {
+                                                  showDialog(
+                                                    context: context,
+                                                    builder: (newContext) {
+                                                      return _AddUpdateQuestionDialog(
+                                                        questionBloc:
+                                                            _questionBloc,
+                                                        questionBankId: widget
+                                                            .questionBankId,
+                                                      );
+                                                    },
+                                                  );
+                                                },
+                                                text: 'إضافة سؤال',
+                                              ),
+                                              const SizedBox(width: 10),
+                                              AppTextButton(
+                                                onPressed: () {
+                                                  final currentAdmin =
+                                                      GlobalPurposeFunctions
+                                                          .getAdminModel()!;
+                                                  if (!currentAdmin
+                                                          .isSuperAdmin &&
+                                                      !currentAdmin
+                                                          .canAddQuestionFromExcel) {
+                                                    showToast(
+                                                      'ليس لديك الصلاحية للإضافة بهذه الطريقة',
+                                                      position:
+                                                          const ToastPosition(
+                                                              align: Alignment
+                                                                  .bottomCenter),
+                                                    );
+                                                    return;
+                                                  }
+                                                  showDialog(
+                                                    context: context,
+                                                    builder: (context) {
+                                                      return _AddExcelFileDialog(
+                                                        questionBloc:
+                                                            _questionBloc,
+                                                        questionBankId: widget
+                                                            .questionBankId,
+                                                      );
+                                                    },
+                                                  );
+                                                },
+                                                text: 'إضافة ملف اكسل',
+                                              ),
+                                            ],
+                                          )
+                                      ],
                                     ),
-                                    if (isDesktop)
+                                    if (!isDesktop) const SizedBox(height: 8),
+                                    if (!isDesktop)
                                       Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
@@ -186,62 +257,24 @@ class _QuestionsPageState extends State<QuestionsPage> {
                                             text: 'إضافة ملف اكسل',
                                           ),
                                         ],
-                                      )
+                                      ),
+                                    const SizedBox(height: 10),
+                                    for (int i = 0;
+                                        i <
+                                            state.questionBank!.questions!
+                                                .length;
+                                        i++)
+                                      QuestionCard(
+                                        question:
+                                            state.questionBank!.questions![i],
+                                        questionNumber: i + 1,
+                                      ),
                                   ],
                                 ),
-                                if(!isDesktop)
-                                const SizedBox(height:8),
-                                if (!isDesktop)
-                                  Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      AppTextButton(
-                                        onPressed: () {
-                                          showDialog(
-                                            context: context,
-                                            builder: (newContext) {
-                                              return _AddUpdateQuestionDialog(
-                                                questionBloc: _questionBloc,
-                                                questionBankId:
-                                                    widget.questionBankId,
-                                              );
-                                            },
-                                          );
-                                        },
-                                        text: 'إضافة سؤال',
-                                      ),
-                                      const SizedBox(width: 10),
-                                      AppTextButton(
-                                        onPressed: () {
-                                          showDialog(
-                                            context: context,
-                                            builder: (context) {
-                                              return _AddExcelFileDialog(
-                                                questionBloc: _questionBloc,
-                                                questionBankId:
-                                                    widget.questionBankId,
-                                              );
-                                            },
-                                          );
-                                        },
-                                        text: 'إضافة ملف اكسل',
-                                      ),
-                                    ],
-                                  ),
-                                const SizedBox(height: 10),
-                                for (int i = 0;
-                                    i < state.questionBank!.questions!.length;
-                                    i++)
-                                  QuestionCard(
-                                    question: state.questionBank!.questions![i],
-                                    questionNumber: i + 1,
-                                  ),
-                              ],
-                            ),
-                          ),
-                        )
-                      ],
-                    );
+                              ),
+                            )
+                          ],
+                        );
             },
           ),
         ),
@@ -676,6 +709,7 @@ class _AddUpdateQuestionDialogState extends State<_AddUpdateQuestionDialog> {
                                       if (state.answersControllers.length > 2)
                                         Positioned(
                                           left: 8,
+                                          top: 5,
                                           child: Tooltip(
                                             message: 'حذف الإجابة',
                                             child: InkWell(
@@ -918,6 +952,14 @@ class _AddUpdateQuestionDialogState extends State<_AddUpdateQuestionDialog> {
                                 if (!_formKey.currentState!.validate()) {
                                   return;
                                 }
+                                if (!listHasOnlyOneTrueAnswer(
+                                    answersValidity: state.answersValidity)) {
+                                  showToast(
+                                      'يجب أن تكون هناك إجابة صحيحة واحدة وباقي الإجابات خاطئة',
+                                      position: const ToastPosition(
+                                          align: Alignment.bottomCenter));
+                                  return;
+                                }
                                 final List<Answer> answers = [];
                                 for (int i = 0;
                                     i < state.answersControllers.length;
@@ -970,6 +1012,16 @@ class _AddUpdateQuestionDialogState extends State<_AddUpdateQuestionDialog> {
         ),
       ),
     );
+  }
+
+  bool listHasOnlyOneTrueAnswer({required List<bool> answersValidity}) {
+    int count = 0;
+    for (var element in answersValidity) {
+      if (element) {
+        count++;
+      }
+    }
+    return count == 1;
   }
 }
 

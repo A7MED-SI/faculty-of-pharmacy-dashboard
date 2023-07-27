@@ -16,6 +16,7 @@ class ApiUris {
   static const String _questionApi = 'admin/question/';
   static const String _notificationApi = 'admin/notification/';
   static const String _adApi = 'admin/ad/';
+  static const String _dashboardApi = 'admin/dashboard/';
   //Api endpoints
   static Uri _mainUri(
       {required String path, Map<String, dynamic>? queryParams}) {
@@ -34,6 +35,14 @@ class ApiUris {
 
   static Uri logoutUri() {
     return _mainUri(path: '${_authApi}logout');
+  }
+
+  //Dashboard
+  static Uri getAllStatisticsUri({Map<String, dynamic>? queryParams}) {
+    return _mainUri(
+      path: '${_dashboardApi}index',
+      queryParams: queryParams,
+    );
   }
 
   //Subscription

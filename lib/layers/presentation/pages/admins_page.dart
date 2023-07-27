@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pharmacy_dashboard/core/validations/validations.dart';
+import 'package:pharmacy_dashboard/layers/presentation/widgets/app_error_widget.dart';
+import '../../data/models/login_response/login_response.dart';
 import '../../domain/use_cases/admin/add_admin.dart';
 import '../../domain/use_cases/admin/update_admin.dart';
 import '../AppWidgetsDisplayer.dart';
@@ -142,8 +144,7 @@ class _AdminsPageState extends State<AdminsPage> {
                         ),
                     ],
                   ),
-                  if (!isDesktop)
-                  const SizedBox(height: 8),
+                  if (!isDesktop) const SizedBox(height: 8),
                   if (!isDesktop)
                     AppTextButton(
                       onPressed: () {
@@ -162,110 +163,128 @@ class _AdminsPageState extends State<AdminsPage> {
                           state.adminsFetchingStatus ==
                               AdminsFetchingStatus.loading
                       ? const LoadingWidget()
-                      : Expanded(
-                          child: DataTable2(
-                            decoration: BoxDecoration(
-                              color: colorScheme.background,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            headingTextStyle: textTheme.bodyLarge?.copyWith(
-                              color: colorScheme.onBackground,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            dataTextStyle: textTheme.bodyMedium?.copyWith(
-                              color: colorScheme.onBackground,
-                            ),
-                            isHorizontalScrollBarVisible: true,
-                            columns: const [
-                              DataColumn(
-                                label: Text('الاسم'),
-                              ),
-                              DataColumn(
-                                label: Text('اسم المستخدم'),
-                              ),
-                              DataColumn(
-                                label: Text('التفعيل'),
-                              ),
-                              DataColumn(
-                                label: Text(''),
-                              ),
-                            ],
-                            rows: [
-                              for (var admin in state.admins)
-                                DataRow2(
-                                  onTap: () {},
-                                  cells: [
-                                    DataCell(Text(admin.name)),
-                                    DataCell(Text(admin.username)),
-                                    DataCell(
-                                      Switch(
-                                        value: admin.isActive == 1,
-                                        onChanged: (newValue) {
-                                          _adminBloc.add(AdminActiveToggled(
-                                              adminId: admin.id));
-                                        },
-                                        activeColor: colorScheme.primary,
-                                      ),
-                                    ),
-                                    DataCell(
-                                      PopupMenuButton<String>(
-                                        padding: EdgeInsets.zero,
-                                        tooltip: 'خيارات',
-                                        onSelected: (value) async {
-                                          if (value == 'edit') {
-                                            showDialog(
-                                                context: context,
-                                                builder: (context) {
-                                                  return _AddUpdateAdminDialog(
-                                                    isUpdate: true,
-                                                    adminBloc: _adminBloc,
-                                                    adminId: admin.id,
-                                                    name: admin.name,
-                                                    username: admin.username,
-                                                  );
-                                                });
-                                          } else {
-                                            final result =
-                                                await showDialog<bool?>(
-                                              context: context,
-                                              builder: (context) {
-                                                return const DeleteConfirmationDialog(
-                                                  text:
-                                                      'هل أنت متأكد أنك تريد حذف هذا الإعلان؟',
-                                                );
-                                              },
-                                            );
-                                            if (result != null && result) {
-                                              _adminBloc.add(AdminDeleted(
-                                                  adminId: admin.id));
-                                            }
-                                          }
-                                        },
-                                        splashRadius: 30,
-                                        itemBuilder: (context) =>
-                                            <PopupMenuItem<String>>[
-                                          const PopupMenuItem<String>(
-                                            value: 'edit',
-                                            child: Text(
-                                              'تعديل',
-                                            ),
-                                          ),
-                                          const PopupMenuItem<String>(
-                                            value: 'delete',
-                                            child: Text(
-                                              'حذف',
-                                            ),
-                                          ),
-                                        ],
-                                        child: const Icon(
-                                            Icons.more_vert_outlined),
-                                      ),
-                                    )
-                                  ],
+                      : state.adminsFetchingStatus ==
+                              AdminsFetchingStatus.failed
+                          ? AppErrorWidget(
+                              onRefreshPressed: () {
+                                _adminBloc.add(AdminsFetched(
+                                    getAdminsParams: GetAdminsParams(
+                                  username: userNameController.text.isNotEmpty
+                                      ? userNameController.text
+                                      : null,
+                                )));
+                              },
+                            )
+                          : Expanded(
+                              child: DataTable2(
+                                decoration: BoxDecoration(
+                                  color: colorScheme.background,
+                                  borderRadius: BorderRadius.circular(20),
                                 ),
-                            ],
-                          ),
-                        ),
+                                headingTextStyle: textTheme.bodyLarge?.copyWith(
+                                  color: colorScheme.onBackground,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                dataTextStyle: textTheme.bodyMedium?.copyWith(
+                                  color: colorScheme.onBackground,
+                                ),
+                                isHorizontalScrollBarVisible: true,
+                                columns: const [
+                                  DataColumn(
+                                    label: Text('الاسم'),
+                                  ),
+                                  DataColumn(
+                                    label: Text('اسم المستخدم'),
+                                  ),
+                                  DataColumn(
+                                    label: Text('التفعيل'),
+                                  ),
+                                  DataColumn(
+                                    label: Text(''),
+                                  ),
+                                ],
+                                rows: [
+                                  for (var admin in state.admins)
+                                    DataRow2(
+                                      onTap: () {},
+                                      cells: [
+                                        DataCell(Text(admin.name)),
+                                        DataCell(Text(admin.username)),
+                                        DataCell(
+                                          Switch(
+                                            value: admin.isActive == 1,
+                                            onChanged: (newValue) {
+                                              _adminBloc.add(AdminActiveToggled(
+                                                  adminId: admin.id));
+                                            },
+                                            activeColor: colorScheme.primary,
+                                          ),
+                                        ),
+                                        DataCell(
+                                          PopupMenuButton<String>(
+                                            padding: EdgeInsets.zero,
+                                            tooltip: 'خيارات',
+                                            onSelected: (value) async {
+                                              if (value == 'edit') {
+                                                showDialog(
+                                                    context: context,
+                                                    builder: (context) {
+                                                      return _AddUpdateAdminDialog(
+                                                        isUpdate: true,
+                                                        adminBloc: _adminBloc,
+                                                        admin: admin,
+                                                      );
+                                                    });
+                                              } else {
+                                                final result =
+                                                    await showDialog<bool?>(
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return const DeleteConfirmationDialog(
+                                                      text:
+                                                          'هل أنت متأكد أنك تريد حذف هذا الإعلان؟',
+                                                    );
+                                                  },
+                                                );
+                                                if (result != null && result) {
+                                                  _adminBloc.add(AdminDeleted(
+                                                      adminId: admin.id));
+                                                }
+                                              }
+                                            },
+                                            splashRadius: 30,
+                                            itemBuilder: (context) =>
+                                                <PopupMenuItem<String>>[
+                                              const PopupMenuItem<String>(
+                                                value: 'edit',
+                                                child: Text(
+                                                  'تعديل',
+                                                ),
+                                              ),
+                                              const PopupMenuItem<String>(
+                                                value: 'delete',
+                                                child: Text(
+                                                  'حذف',
+                                                ),
+                                              ),
+                                            ],
+                                            child: const Icon(
+                                                Icons.more_vert_outlined),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                ],
+                                empty: Center(
+                                  child: Container(
+                                    padding: const EdgeInsets.all(20),
+                                    color: Colors.grey[200],
+                                    child:
+                                        const Text('لا يوجد أي مسؤولين حاليا'),
+                                  ),
+                                ),
+                              ),
+                            ),
                 ],
               ),
             );
@@ -280,17 +299,11 @@ class _AddUpdateAdminDialog extends StatefulWidget {
   const _AddUpdateAdminDialog({
     required this.adminBloc,
     this.isUpdate = false,
-    this.name,
-    this.username,
-    this.adminId,
-    this.password,
+    this.admin,
   });
   final AdminBloc adminBloc;
   final bool isUpdate;
-  final String? name;
-  final String? username;
-  final String? password;
-  final int? adminId;
+  final Admin? admin;
 
   @override
   State<_AddUpdateAdminDialog> createState() => _AddUpdateAdminDialogState();
@@ -301,15 +314,20 @@ class _AddUpdateAdminDialogState extends State<_AddUpdateAdminDialog> {
   late final TextEditingController usernameController;
   late final TextEditingController passwordController;
   late final TextEditingController passwordConfirmationController;
+  late final ValueNotifier<bool> canAddExcelNotifier;
+  late final ValueNotifier<bool> canAddSubsNotifier;
   final GlobalKey<FormState> _formKey = GlobalKey();
   @override
   void initState() {
     super.initState();
-    nameController = TextEditingController(text: widget.name);
-    usernameController = TextEditingController(text: widget.username);
-    passwordController = TextEditingController(text: widget.password);
-    passwordConfirmationController =
-        TextEditingController(text: widget.password);
+    nameController = TextEditingController(text: widget.admin?.name);
+    usernameController = TextEditingController(text: widget.admin?.username);
+    passwordController = TextEditingController();
+    passwordConfirmationController = TextEditingController();
+    canAddExcelNotifier =
+        ValueNotifier(widget.admin?.canAddQuestionFromExcel ?? false);
+    canAddSubsNotifier =
+        ValueNotifier(widget.admin?.canAddSubscriptions ?? false);
   }
 
   @override
@@ -478,6 +496,57 @@ class _AddUpdateAdminDialogState extends State<_AddUpdateAdminDialog> {
                     ],
                   ),
                 ),
+                const SizedBox(height: 12),
+                ValueListenableBuilder(
+                  valueListenable: canAddExcelNotifier,
+                  builder: (context, canAdd, _) {
+                    return SizedBox(
+                      width: 250,
+                      child: Row(
+                        children: [
+                          Text(
+                            'يمكنه رفع ملف اكسل:',
+                            style: textTheme.bodyLarge
+                                ?.copyWith(color: colorScheme.onBackground),
+                          ),
+                          const Spacer(),
+                          Switch(
+                            value: canAdd,
+                            onChanged: (value) {
+                              canAddExcelNotifier.value = value;
+                            },
+                            activeColor: colorScheme.primary,
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 12),
+                ValueListenableBuilder(
+                    valueListenable: canAddSubsNotifier,
+                    builder: (context, canAdd, _) {
+                      return SizedBox(
+                        width: 250,
+                        child: Row(
+                          children: [
+                            Text(
+                              'يمكنه إضافة اشتراكات:',
+                              style: textTheme.bodyLarge
+                                  ?.copyWith(color: colorScheme.onBackground),
+                            ),
+                            const Spacer(),
+                            Switch(
+                              value: canAdd,
+                              onChanged: (value) {
+                                canAddSubsNotifier.value = value;
+                              },
+                              activeColor: colorScheme.primary,
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
                 const SizedBox(height: 30),
                 Align(
                   alignment: Alignment.centerLeft,
@@ -508,13 +577,21 @@ class _AddUpdateAdminDialogState extends State<_AddUpdateAdminDialog> {
                                   name: nameController.text,
                                   username: usernameController.text,
                                   password: passwordController.text,
-                                  adminId: widget.adminId!,
+                                  adminId: widget.admin!.id,
+                                  canAddQuestionFromExcel:
+                                      canAddExcelNotifier.value ? 1 : 0,
+                                  canAddSubscription:
+                                      canAddSubsNotifier.value ? 1 : 0,
                                 )))
                               : widget.adminBloc.add(AdminAdded(
                                   addAdminsParams: AddAdminParams(
                                   name: nameController.text,
                                   username: usernameController.text,
                                   password: passwordController.text,
+                                  canAddQuestionFromExcel:
+                                      canAddExcelNotifier.value ? 1 : 0,
+                                  canAddSubscription:
+                                      canAddSubsNotifier.value ? 1 : 0,
                                 )));
                           context.pop();
                         },

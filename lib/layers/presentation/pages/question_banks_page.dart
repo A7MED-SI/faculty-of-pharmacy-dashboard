@@ -14,6 +14,7 @@ import 'package:pharmacy_dashboard/layers/presentation/blocs/question_bank/quest
 import 'package:pharmacy_dashboard/layers/presentation/blocs/question_bank_card/question_bank_card_bloc.dart';
 import 'package:pharmacy_dashboard/layers/presentation/pages/questions_page.dart';
 import 'package:pharmacy_dashboard/layers/presentation/pages/subjects_page.dart';
+import 'package:pharmacy_dashboard/layers/presentation/widgets/app_error_widget.dart';
 import 'package:pharmacy_dashboard/layers/presentation/widgets/app_text_button.dart';
 import 'package:pharmacy_dashboard/layers/presentation/widgets/loading_widget.dart';
 
@@ -93,7 +94,7 @@ class _QuestionBanksPageState extends State<QuestionBanksPage> {
                   QuestionBankDeletingStatus.failed) {
                 AppWidgetsDisplayer.dispalyErrorSnackBar(
                   context: context,
-                  message:
+                  message: state.errorMessage ??
                       'فشل الحذف يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى',
                 );
               }
@@ -107,61 +108,73 @@ class _QuestionBanksPageState extends State<QuestionBanksPage> {
             },
             builder: (context, state) {
               return state.subjectFetchingStatus ==
-                      SubjectFetchingStatus.initial
+                          SubjectFetchingStatus.initial ||
+                      state.subjectFetchingStatus ==
+                          SubjectFetchingStatus.loading
                   ? const LoadingWidget()
-                  : Column(
-                      children: [
-                        const SizedBox(height: 12),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                state.subject!.title,
-                                style: textTheme.bodyLarge?.copyWith(
-                                  color: colorScheme.onBackground,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              AppTextButton(
-                                onPressed: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return _AddUpdateQuestionBankDialog(
-                                        questionBankBloc: _questionBankBloc,
-                                        subjectId: state.subject!.id,
+                  : state.subjectFetchingStatus == SubjectFetchingStatus.failed
+                      ? AppErrorWidget(
+                          onRefreshPressed: () {
+                            _questionBankBloc.add(SubjectFetched(
+                                ShowSubjectParams(
+                                    subjectId: widget.subjectId)));
+                          },
+                        )
+                      : Column(
+                          children: [
+                            const SizedBox(height: 12),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 12),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    state.subject!.title,
+                                    style: textTheme.bodyLarge?.copyWith(
+                                      color: colorScheme.onBackground,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  AppTextButton(
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return _AddUpdateQuestionBankDialog(
+                                            questionBankBloc: _questionBankBloc,
+                                            subjectId: state.subject!.id,
+                                          );
+                                        },
                                       );
                                     },
-                                  );
-                                },
-                                text: 'إضافة امتحان',
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Expanded(
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: _FirstScrollViewList(
-                                  subject: state.subject!,
-                                  addSecondList: !isDesktop,
-                                ),
-                              ),
-                              if (isDesktop)
-                                Expanded(
-                                  child: _SecondScrollViewList(
-                                    subject: state.subject!,
+                                    text: 'إضافة امتحان',
                                   ),
-                                ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    );
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: _FirstScrollViewList(
+                                      subject: state.subject!,
+                                      addSecondList: !isDesktop,
+                                    ),
+                                  ),
+                                  if (isDesktop)
+                                    Expanded(
+                                      child: _SecondScrollViewList(
+                                        subject: state.subject!,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
             },
           ),
         ),
@@ -455,6 +468,7 @@ class _AddUpdateQuestionBankDialogState
   final semesters = [
     (text: 'الأول', value: 1),
     (text: 'الثاني', value: 2),
+    (text: 'التكميلي', value: 3),
   ];
 
   late final TextEditingController titleController;

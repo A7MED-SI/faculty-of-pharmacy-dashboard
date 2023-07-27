@@ -72,7 +72,10 @@ class QuestionDataSource extends Printing with HandlingResponse {
     if (response.statusCode == 200) {
       return Question.fromJson(jsonDecode(response.body)['data']['question']);
     }
-    Exception exception = getException(statusCode: response.statusCode);
+    Exception exception = getException(
+      statusCode: response.statusCode,
+      errorMessage: jsonDecode(response.body)['message'],
+    );
     throw (exception);
   }
 
@@ -104,7 +107,10 @@ class QuestionDataSource extends Printing with HandlingResponse {
     if (response.statusCode == 200) {
       return Question.fromJson(jsonDecode(response.body)['data']['question']);
     }
-    Exception exception = getException(statusCode: response.statusCode);
+    Exception exception = getException(
+      statusCode: response.statusCode,
+      errorMessage: jsonDecode(response.body)['message'],
+    );
     throw (exception);
   }
 
@@ -142,7 +148,10 @@ class QuestionDataSource extends Printing with HandlingResponse {
     if (response.statusCode == 200) {
       return true;
     }
-    Exception exception = getException(statusCode: response.statusCode);
+    Exception exception = getException(
+      statusCode: response.statusCode,
+      errorMessage: jsonDecode(bodyString)['message'],
+    );
     throw (exception);
   }
 }

@@ -15,6 +15,7 @@ class QuestionBankState {
   final QuestionBankUpdatingStatus questionBankUpdatingStatus;
   final QuestionBankDeletingStatus questionBankDeletingStatus;
   final Subject? subject;
+  final String? errorMessage;
 
   const QuestionBankState({
     this.subjectFetchingStatus = SubjectFetchingStatus.initial,
@@ -22,6 +23,7 @@ class QuestionBankState {
     this.questionBankUpdatingStatus = QuestionBankUpdatingStatus.initial,
     this.questionBankDeletingStatus = QuestionBankDeletingStatus.initial,
     this.subject,
+    this.errorMessage,
   });
 
   QuestionBankState copyWith({
@@ -30,6 +32,7 @@ class QuestionBankState {
     QuestionBankUpdatingStatus? questionBankUpdatingStatus,
     QuestionBankDeletingStatus? questionBankDeletingStatus,
     Subject? subject,
+    String? errorMessage,
   }) {
     return QuestionBankState(
       subject: subject ?? this.subject,
@@ -41,6 +44,7 @@ class QuestionBankState {
           questionBankUpdatingStatus ?? this.questionBankUpdatingStatus,
       questionBankDeletingStatus:
           questionBankDeletingStatus ?? this.questionBankDeletingStatus,
+      errorMessage: errorMessage ?? this.errorMessage,
     );
   }
 }

@@ -71,7 +71,10 @@ class AdDataSource extends Printing with HandlingResponse {
     if (response.statusCode == 200) {
       return Ad.fromJson(jsonDecode(bodyString)['data']['ad']);
     }
-    Exception exception = getException(statusCode: response.statusCode);
+    Exception exception = getException(
+      statusCode: response.statusCode,
+      errorMessage: jsonDecode(bodyString)['message'],
+    );
     throw (exception);
   }
 
@@ -106,7 +109,10 @@ class AdDataSource extends Printing with HandlingResponse {
     if (response.statusCode == 200) {
       return Ad.fromJson(jsonDecode(bodyString)['data']['ad']);
     }
-    Exception exception = getException(statusCode: response.statusCode);
+    Exception exception = getException(
+      statusCode: response.statusCode,
+      errorMessage: jsonDecode(bodyString)['message'],
+    );
     throw (exception);
   }
 

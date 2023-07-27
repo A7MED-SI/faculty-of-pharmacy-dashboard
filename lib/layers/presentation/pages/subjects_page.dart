@@ -8,6 +8,7 @@ import 'package:pharmacy_dashboard/layers/domain/use_cases/subject/get_subjects.
 import 'package:pharmacy_dashboard/layers/domain/use_cases/subject/update_subject.dart';
 import 'package:pharmacy_dashboard/layers/presentation/blocs/subject/subject_bloc.dart';
 import 'package:pharmacy_dashboard/layers/presentation/pages/question_banks_page.dart';
+import 'package:pharmacy_dashboard/layers/presentation/widgets/app_error_widget.dart';
 import 'package:pharmacy_dashboard/layers/presentation/widgets/app_text_button.dart';
 import 'package:pharmacy_dashboard/layers/presentation/widgets/loading_widget.dart';
 
@@ -86,7 +87,7 @@ class _SubjectsPageState extends State<SubjectsPage> {
             if (state.subjectDeletingStatus == SubjectDeletingStatus.failed) {
               AppWidgetsDisplayer.dispalySuccessSnackBar(
                 context: context,
-                message:
+                message: state.errorMessage ??
                     'فشل الحذف يرجى التحقق من الإتصال من الإنترنت والمحاولة مرة أخرى',
               );
             }
@@ -108,85 +109,120 @@ class _SubjectsPageState extends State<SubjectsPage> {
                     state.semestersFetchingStatus ==
                         SemestersFetchingStatus.initial
                 ? const LoadingWidget()
-                : Container(
-                    margin: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
+                : state.subjectsFetchingStatus == SubjectsFetchingStatus.failed
+                    ? AppErrorWidget(
+                        onRefreshPressed: () {
+                          _subjectBloc.add(SubjectsFetched(
+                              getSubjectsParams: GetSubjectsParams(
+                            yearSemesterId: state.mainSemesterId != -1
+                                ? state.mainSemesterId
+                                : null,
+                          )));
+                        },
+                      )
+                    : Container(
+                        margin: const EdgeInsets.all(20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            SizedBox(
-                              width: 320,
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    'الفصل:',
-                                    style: textTheme.bodyLarge?.copyWith(
-                                        color: colorScheme.onBackground),
-                                  ),
-                                  SizedBox(
-                                    width: 260,
-                                    child: DropdownButtonFormField2<int>(
-                                      decoration: InputDecoration(
-                                        isDense: true,
-                                        contentPadding: EdgeInsets.zero,
-                                        border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                        ),
+                            Row(
+                              children: [
+                                SizedBox(
+                                  width: 320,
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        'الفصل:',
+                                        style: textTheme.bodyLarge?.copyWith(
+                                            color: colorScheme.onBackground),
                                       ),
-                                      style: textTheme.bodyLarge,
-                                      value: state.mainSemesterId,
-                                      items: [
-                                        for (var sem in List.of(state.semesters)
-                                          ..insert(
-                                              0, (text: 'الكل', value: -1)))
-                                          DropdownMenuItem(
-                                            value: sem.value,
-                                            child: Text(sem.text),
+                                      SizedBox(
+                                        width: 260,
+                                        child: DropdownButtonFormField2<int>(
+                                          decoration: InputDecoration(
+                                            isDense: true,
+                                            contentPadding: EdgeInsets.zero,
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
                                           ),
-                                      ],
-                                      onChanged: (value) {
-                                        if (value != null) {
-                                          _subjectBloc.add(
-                                              MainSemesterValueChanged(value));
-                                          _subjectBloc.add(SubjectsFetched(
-                                              getSubjectsParams:
-                                                  GetSubjectsParams(
-                                            yearSemesterId:
-                                                value != -1 ? value : null,
-                                          )));
-                                        }
-                                      },
-                                      buttonStyleData: const ButtonStyleData(
-                                        height: 40,
-                                        padding: EdgeInsets.only(
-                                            left: 10, right: 10),
-                                        overlayColor: MaterialStatePropertyAll(
-                                            Colors.transparent),
-                                      ),
-                                      iconStyleData: const IconStyleData(
-                                        icon: Icon(
-                                          Icons.arrow_drop_down,
-                                          color: Colors.black45,
+                                          style: textTheme.bodyLarge,
+                                          value: state.mainSemesterId,
+                                          items: [
+                                            for (var sem in List.of(
+                                                state.semesters)
+                                              ..insert(
+                                                  0, (text: 'الكل', value: -1)))
+                                              DropdownMenuItem(
+                                                value: sem.value,
+                                                child: Text(sem.text),
+                                              ),
+                                          ],
+                                          onChanged: (value) {
+                                            if (value != null) {
+                                              _subjectBloc.add(
+                                                  MainSemesterValueChanged(
+                                                      value));
+                                              _subjectBloc.add(SubjectsFetched(
+                                                  getSubjectsParams:
+                                                      GetSubjectsParams(
+                                                yearSemesterId:
+                                                    value != -1 ? value : null,
+                                              )));
+                                            }
+                                          },
+                                          buttonStyleData:
+                                              const ButtonStyleData(
+                                            height: 40,
+                                            padding: EdgeInsets.only(
+                                                left: 10, right: 10),
+                                            overlayColor:
+                                                MaterialStatePropertyAll(
+                                                    Colors.transparent),
+                                          ),
+                                          iconStyleData: const IconStyleData(
+                                            icon: Icon(
+                                              Icons.arrow_drop_down,
+                                              color: Colors.black45,
+                                            ),
+                                            iconSize: 30,
+                                          ),
+                                          dropdownStyleData: DropdownStyleData(
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                          ),
                                         ),
-                                        iconSize: 30,
                                       ),
-                                      dropdownStyleData: DropdownStyleData(
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                        ),
-                                      ),
-                                    ),
+                                    ],
                                   ),
-                                ],
-                              ),
+                                ),
+                                const Spacer(),
+                                if (isDesktop)
+                                  AppTextButton(
+                                    onPressed: () {
+                                      showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return _AddUpdateSubjectDialog(
+                                              subjectBloc: _subjectBloc,
+                                              semesterId:
+                                                  state.mainSemesterId == -1
+                                                      ? null
+                                                      : state.mainSemesterId,
+                                            );
+                                          });
+                                    },
+                                    text: 'إضافة مادة',
+                                  ),
+                              ],
                             ),
-                            const Spacer(),
-                            if (isDesktop)
+                            if (!isDesktop) const SizedBox(height: 8),
+                            if (!isDesktop)
                               AppTextButton(
                                 onPressed: () {
                                   showDialog(
@@ -202,151 +238,135 @@ class _SubjectsPageState extends State<SubjectsPage> {
                                 },
                                 text: 'إضافة مادة',
                               ),
+                            const SizedBox(height: 20),
+                            Expanded(
+                              child: DataTable2(
+                                empty: Center(
+                                  child: Container(
+                                    padding: const EdgeInsets.all(20),
+                                    color: Colors.grey[200],
+                                    child: const Text('لا يوجد مواد مضافة بعد'),
+                                  ),
+                                ),
+                                decoration: BoxDecoration(
+                                  color: colorScheme.background,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                headingTextStyle: textTheme.bodyLarge?.copyWith(
+                                  color: colorScheme.onBackground,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                dataTextStyle: textTheme.bodyMedium?.copyWith(
+                                  color: colorScheme.onBackground,
+                                ),
+                                isHorizontalScrollBarVisible: true,
+                                columns: const [
+                                  DataColumn(
+                                    label: Text('اسم المادة'),
+                                  ),
+                                  DataColumn(
+                                    label: Text('السنة'),
+                                  ),
+                                  DataColumn(
+                                    label: Text('الفصل'),
+                                  ),
+                                  DataColumn(
+                                    label: Text('التفعيل'),
+                                  ),
+                                  DataColumn(label: Text('')),
+                                ],
+                                rows: [
+                                  for (var subject in state.subjects)
+                                    DataRow2(
+                                      onTap: () {
+                                        context.go(
+                                            '/${SubjectsPage.routeName}/${subject.id}/${QuestionBanksPage.routeName}');
+                                      },
+                                      cells: [
+                                        DataCell(Text(subject.title)),
+                                        DataCell(Text(
+                                            subject.semester.yearArabicName)),
+                                        DataCell(
+                                          Text(subject
+                                              .semester.semesterArabicName),
+                                        ),
+                                        DataCell(
+                                          Switch(
+                                            value: subject.isActive == 1,
+                                            onChanged: (newValue) {
+                                              _subjectBloc.add(
+                                                  SubjectActiveStatusToggled(
+                                                      subjectId: subject.id));
+                                            },
+                                            activeColor: colorScheme.primary,
+                                          ),
+                                        ),
+                                        DataCell(
+                                          PopupMenuButton<String>(
+                                            padding: EdgeInsets.zero,
+                                            tooltip: 'خيارات',
+                                            onSelected: (value) async {
+                                              if (value == 'edit') {
+                                                showDialog(
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return _AddUpdateSubjectDialog(
+                                                      subjectBloc: _subjectBloc,
+                                                      isUpdate: true,
+                                                      semesterId:
+                                                          subject.semester.id,
+                                                      title: subject.title,
+                                                      subjectId: subject.id,
+                                                    );
+                                                  },
+                                                );
+                                              } else {
+                                                final result =
+                                                    await showDialog<bool?>(
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return const DeleteConfirmationDialog(
+                                                      text:
+                                                          'هل أنت متأكد أنك تريد حذف هذه المادة؟',
+                                                    );
+                                                  },
+                                                );
+                                                if (result != null && result) {
+                                                  _subjectBloc.add(
+                                                      SubjectDeleted(
+                                                          subjectId:
+                                                              subject.id));
+                                                }
+                                              }
+                                            },
+                                            splashRadius: 30,
+                                            itemBuilder: (context) =>
+                                                <PopupMenuItem<String>>[
+                                              const PopupMenuItem<String>(
+                                                value: 'edit',
+                                                child: Text(
+                                                  'تعديل',
+                                                ),
+                                              ),
+                                              const PopupMenuItem<String>(
+                                                value: 'delete',
+                                                child: Text(
+                                                  'حذف',
+                                                ),
+                                              ),
+                                            ],
+                                            child: const Icon(
+                                                Icons.more_vert_outlined),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                ],
+                              ),
+                            ),
                           ],
                         ),
-                        if (!isDesktop) const SizedBox(height: 8),
-                        if (!isDesktop)
-                          AppTextButton(
-                            onPressed: () {
-                              showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return _AddUpdateSubjectDialog(
-                                      subjectBloc: _subjectBloc,
-                                      semesterId: state.mainSemesterId == -1
-                                          ? null
-                                          : state.mainSemesterId,
-                                    );
-                                  });
-                            },
-                            text: 'إضافة مادة',
-                          ),
-                        const SizedBox(height: 20),
-                        Expanded(
-                          child: DataTable2(
-                            empty: Center(
-                              child: Container(
-                                padding: const EdgeInsets.all(20),
-                                color: Colors.grey[200],
-                                child: const Text('لا يوجد مواد'),
-                              ),
-                            ),
-                            decoration: BoxDecoration(
-                              color: colorScheme.background,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            headingTextStyle: textTheme.bodyLarge?.copyWith(
-                              color: colorScheme.onBackground,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            dataTextStyle: textTheme.bodyMedium?.copyWith(
-                              color: colorScheme.onBackground,
-                            ),
-                            isHorizontalScrollBarVisible: true,
-                            columns: const [
-                              DataColumn(
-                                label: Text('اسم المادة'),
-                              ),
-                              DataColumn(
-                                label: Text('السنة'),
-                              ),
-                              DataColumn(
-                                label: Text('الفصل'),
-                              ),
-                              DataColumn(
-                                label: Text('التفعيل'),
-                              ),
-                              DataColumn(label: Text('')),
-                            ],
-                            rows: [
-                              for (var subject in state.subjects)
-                                DataRow2(
-                                  onTap: () {
-                                    context.go(
-                                        '/${SubjectsPage.routeName}/${subject.id}/${QuestionBanksPage.routeName}');
-                                  },
-                                  cells: [
-                                    DataCell(Text(subject.title)),
-                                    DataCell(
-                                        Text(subject.semester.yearArabicName)),
-                                    DataCell(
-                                      Text(subject.semester.semesterArabicName),
-                                    ),
-                                    DataCell(
-                                      Switch(
-                                        value: subject.isActive == 1,
-                                        onChanged: (newValue) {
-                                          _subjectBloc.add(
-                                              SubjectActiveStatusToggled(
-                                                  subjectId: subject.id));
-                                        },
-                                        activeColor: colorScheme.primary,
-                                      ),
-                                    ),
-                                    DataCell(
-                                      PopupMenuButton<String>(
-                                        padding: EdgeInsets.zero,
-                                        tooltip: 'خيارات',
-                                        onSelected: (value) async {
-                                          if (value == 'edit') {
-                                            showDialog(
-                                              context: context,
-                                              builder: (context) {
-                                                return _AddUpdateSubjectDialog(
-                                                  subjectBloc: _subjectBloc,
-                                                  isUpdate: true,
-                                                  semesterId:
-                                                      subject.semester.id,
-                                                  title: subject.title,
-                                                  subjectId: subject.id,
-                                                );
-                                              },
-                                            );
-                                          } else {
-                                            final result =
-                                                await showDialog<bool?>(
-                                              context: context,
-                                              builder: (context) {
-                                                return const DeleteConfirmationDialog(
-                                                  text:
-                                                      'هل أنت متأكد أنك تريد حذف هذه المادة؟',
-                                                );
-                                              },
-                                            );
-                                            if (result != null && result) {
-                                              _subjectBloc.add(SubjectDeleted(
-                                                  subjectId: subject.id));
-                                            }
-                                          }
-                                        },
-                                        splashRadius: 30,
-                                        itemBuilder: (context) =>
-                                            <PopupMenuItem<String>>[
-                                          const PopupMenuItem<String>(
-                                            value: 'edit',
-                                            child: Text(
-                                              'تعديل',
-                                            ),
-                                          ),
-                                          const PopupMenuItem<String>(
-                                            value: 'delete',
-                                            child: Text(
-                                              'حذف',
-                                            ),
-                                          ),
-                                        ],
-                                        child: const Icon(
-                                            Icons.more_vert_outlined),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
+                      );
           },
         ),
       ),
@@ -379,7 +399,8 @@ class _AddUpdateSubjectDialogState extends State<_AddUpdateSubjectDialog> {
   void initState() {
     super.initState();
     titleController = TextEditingController(text: widget.title);
-    widget.subjectBloc.add(DialogSemesterValueChanged(widget.semesterId));
+
+    widget.subjectBloc.add(DialogSemesterValueChanged(widget.semesterId ?? -1));
   }
 
   @override
@@ -483,7 +504,9 @@ class _AddUpdateSubjectDialogState extends State<_AddUpdateSubjectDialog> {
                                 ),
                               ),
                               style: textTheme.bodyLarge,
-                              value: state.dialogSemesterId,
+                              value: state.dialogSemesterId == -1
+                                  ? null
+                                  : state.dialogSemesterId,
                               items: [
                                 for (var sem in state.semesters)
                                   DropdownMenuItem(
@@ -547,13 +570,13 @@ class _AddUpdateSubjectDialogState extends State<_AddUpdateSubjectDialog> {
                               widget.isUpdate
                                   ? widget.subjectBloc.add(SubjectUpdated(
                                       updateSubjectParams: UpdateSubjectParams(
-                                      yearSemesterId: state.dialogSemesterId!,
+                                      yearSemesterId: state.dialogSemesterId,
                                       title: titleController.text,
                                       subjectId: widget.subjectId!,
                                     )))
                                   : widget.subjectBloc.add(SubjectAdded(
                                       addSubjectParams: AddSubjectParams(
-                                      yearSemesterId: state.dialogSemesterId!,
+                                      yearSemesterId: state.dialogSemesterId,
                                       title: titleController.text,
                                     )));
                               context.pop();

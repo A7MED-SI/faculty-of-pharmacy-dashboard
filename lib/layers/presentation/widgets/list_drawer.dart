@@ -10,9 +10,11 @@ import 'package:pharmacy_dashboard/layers/presentation/pages/semesters_page.dart
 import 'package:pharmacy_dashboard/layers/presentation/pages/subjects_page.dart';
 import 'package:pharmacy_dashboard/layers/presentation/pages/subscriptions_page.dart';
 import 'package:pharmacy_dashboard/layers/presentation/widgets/home_navigator.dart';
+import 'package:pharmacy_dashboard/layers/presentation/widgets/logout_confirmation_dialog.dart';
 import 'package:pharmacy_dashboard/layers/presentation/widgets/svg_image.dart';
 
 import '../../../core/constants/images/svg_images.dart';
+import '../blocs/auth/auth_bloc.dart';
 import '../blocs/home/home_bloc.dart';
 
 class ListDrawer extends StatefulWidget {
@@ -26,12 +28,24 @@ class _ListDrawerState extends State<ListDrawer> {
   final isUserSuperAdmin = GlobalPurposeFunctions.getAdminModel()!.isSuperAdmin;
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
     return BlocBuilder<HomeBloc, HomeState>(
       builder: (context, state) {
         return Drawer(
           child: SafeArea(
             child: ListView(
               children: [
+                const SizedBox(height: 12),
+                Text(
+                  'DO IT RIGHT',
+                  style: textTheme.bodyLarge?.copyWith(
+                    color: colorScheme.secondary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 14),
                 if (isUserSuperAdmin)
                   DrawerTile(
                     icon: const SvgImage(
@@ -46,6 +60,7 @@ class _ListDrawerState extends State<ListDrawer> {
                       context.read<HomeBloc>().add(PageIndexChanged(
                           selectedPageIndex(TabsNumber.dashboardPage)));
                       context.goNamed(DashboardPage.routeName);
+                      Scaffold.of(context).closeDrawer();
                     },
                   ),
                 DrawerTile(
@@ -61,6 +76,7 @@ class _ListDrawerState extends State<ListDrawer> {
                     context.read<HomeBloc>().add(PageIndexChanged(
                         selectedPageIndex(TabsNumber.subscriptionPage)));
                     context.goNamed(SubscriptionsPage.routeName);
+                    Scaffold.of(context).closeDrawer();
                   },
                 ),
                 if (isUserSuperAdmin)
@@ -77,6 +93,7 @@ class _ListDrawerState extends State<ListDrawer> {
                       context.read<HomeBloc>().add(PageIndexChanged(
                           selectedPageIndex(TabsNumber.adminsPage)));
                       context.goNamed(AdminsPage.routeName);
+                      Scaffold.of(context).closeDrawer();
                     },
                   ),
                 DrawerTile(
@@ -92,6 +109,7 @@ class _ListDrawerState extends State<ListDrawer> {
                     context.read<HomeBloc>().add(PageIndexChanged(
                         selectedPageIndex(TabsNumber.semestersPage)));
                     context.goNamed(SemestersPage.routeName);
+                    Scaffold.of(context).closeDrawer();
                   },
                 ),
                 DrawerTile(
@@ -107,6 +125,7 @@ class _ListDrawerState extends State<ListDrawer> {
                     context.read<HomeBloc>().add(PageIndexChanged(
                         selectedPageIndex(TabsNumber.subjectsPage)));
                     context.goNamed(SubjectsPage.routeName);
+                    Scaffold.of(context).closeDrawer();
                   },
                 ),
                 DrawerTile(
@@ -122,6 +141,7 @@ class _ListDrawerState extends State<ListDrawer> {
                     context.read<HomeBloc>().add(PageIndexChanged(
                         selectedPageIndex(TabsNumber.notificationPage)));
                     context.goNamed(NotificationsPage.routeName);
+                    Scaffold.of(context).closeDrawer();
                   },
                 ),
                 DrawerTile(
@@ -137,6 +157,28 @@ class _ListDrawerState extends State<ListDrawer> {
                     context.read<HomeBloc>().add(PageIndexChanged(
                         selectedPageIndex(TabsNumber.adsPage)));
                     context.goNamed(AdsPage.routeName);
+                    Scaffold.of(context).closeDrawer();
+                  },
+                ),
+                DrawerTile(
+                  icon: const SvgImage(
+                    SvgImages.logout,
+                    height: 20,
+                  ),
+                  isLast: true,
+                  title: 'تسجيل الخروج',
+                  selected: false,
+                  onTap: () async {
+                    final authBloc = context.read<AuthBloc>();
+                    final result = await showDialog<bool?>(
+                      context: context,
+                      builder: (context) {
+                        return const LogoutConfirmationDialog();
+                      },
+                    );
+                    if (result != null && result) {
+                      authBloc.add(LogoutSubmitted());
+                    }
                   },
                 ),
               ],
@@ -176,31 +218,42 @@ class DrawerTile extends StatelessWidget {
     required this.selected,
     required this.title,
     required this.icon,
+    this.isLast = false,
   });
   final bool selected;
   final String title;
   final VoidCallback onTap;
   final Widget icon;
+  final bool isLast;
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    return ListTile(
-      enabled: true,
-      selected: selected,
-      leading: icon,
-      title: Text(
-        title,
-        style: textTheme.bodyMedium?.copyWith(
-          color: selected
-              ? colorScheme.onPrimaryContainer
-              : colorScheme.onBackground,
-          fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+    return Column(
+      children: [
+        ListTile(
+          enabled: true,
+          selected: selected,
+          leading: icon,
+          title: Text(
+            title,
+            style: textTheme.bodyMedium?.copyWith(
+              color: selected
+                  ? colorScheme.onPrimaryContainer
+                  : colorScheme.onBackground,
+              fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+          selectedColor: colorScheme.primary,
+          selectedTileColor: colorScheme.primaryContainer,
+          onTap: onTap,
         ),
-      ),
-      selectedColor: colorScheme.primary,
-      selectedTileColor: colorScheme.primaryContainer,
-      onTap: onTap,
+        if (!isLast)
+          const Divider(
+            endIndent: 10,
+            indent: 10,
+          ),
+      ],
     );
   }
 }

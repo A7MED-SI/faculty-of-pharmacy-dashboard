@@ -33,6 +33,7 @@ class QuestionBankBloc extends Bloc<QuestionBankEvent, QuestionBankState> {
 
   FutureOr<void> _mapSubjectFetched(
       SubjectFetched event, Emitter<QuestionBankState> emit) async {
+    emit(state.copyWith(subjectFetchingStatus: SubjectFetchingStatus.loading));
     final result = await _showSubjectUseCase(event.params);
 
     await result.fold(
@@ -101,7 +102,9 @@ class QuestionBankBloc extends Bloc<QuestionBankEvent, QuestionBankState> {
     await result.fold(
       (l) async {
         emit(state.copyWith(
-            questionBankDeletingStatus: QuestionBankDeletingStatus.failed));
+          questionBankDeletingStatus: QuestionBankDeletingStatus.failed,
+          errorMessage: l.message,
+        ));
       },
       (r) async {
         emit(state.copyWith(

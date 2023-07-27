@@ -30,6 +30,8 @@ class Admin {
   final int? isActive;
   @JsonKey(fromJson: _roleFromJson, toJson: _roleToJson)
   final List<int> role;
+  @JsonKey(fromJson: _permissionsFromJson, toJson: _permissionsToJson)
+  final List<int> permissions;
 
   Admin({
     required this.id,
@@ -37,6 +39,7 @@ class Admin {
     required this.username,
     this.isActive = 1,
     required this.role,
+    required this.permissions,
   });
 
   factory Admin.fromJson(Map<String, dynamic> json) {
@@ -63,7 +66,31 @@ class Admin {
     ).toList();
   }
 
+  static List<int> _permissionsFromJson(List<dynamic> permissions) {
+    return permissions.map<int>(
+      (e) {
+        return int.parse(e as String);
+      },
+    ).toList();
+  }
+
+  static List<String> _permissionsToJson(List<int> permissions) {
+    return permissions.map<String>(
+      (e) {
+        return e.toString();
+      },
+    ).toList();
+  }
+
   bool get isSuperAdmin {
     return role.contains(AdminRole.superAdmin.value);
+  }
+
+  bool get canAddQuestionFromExcel {
+    return permissions.contains(AdminPermission.canAddExcel.value);
+  }
+
+  bool get canAddSubscriptions {
+    return permissions.contains(AdminPermission.canAddSubs.value);
   }
 }

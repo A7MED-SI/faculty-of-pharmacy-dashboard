@@ -162,8 +162,10 @@ class SubjectBloc extends Bloc<SubjectEvent, SubjectState> {
     await result.fold(
       (l) async {
         emit(state.copyWith(
-            subjectsFetchingStatus: SubjectsFetchingStatus.success,
-            subjectDeletingStatus: SubjectDeletingStatus.failed));
+          subjectsFetchingStatus: SubjectsFetchingStatus.success,
+          subjectDeletingStatus: SubjectDeletingStatus.failed,
+          errorMessage: l.message,
+        ));
         emit(state.copyWith(
             subjectDeletingStatus: SubjectDeletingStatus.initial));
       },

@@ -62,6 +62,7 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
       username: oldAdmin.username,
       isActive: (oldAdmin.isActive! + 1) % 2,
       role: oldAdmin.role,
+      permissions: oldAdmin.permissions,
     );
     log("New Admin Activity ${newAdmin.isActive}");
     final admins = List.of(state.admins);

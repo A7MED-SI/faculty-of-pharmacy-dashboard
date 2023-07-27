@@ -15,4 +15,5 @@ class SvgImages {
   static const String emptyCircle = '${_svgPath}empty_circle.svg';
   static const String cancel = '${_svgPath}cancel.svg';
   static const String check = '${_svgPath}check.svg';
+  static const String logout = '${_svgPath}logout.svg';
 }

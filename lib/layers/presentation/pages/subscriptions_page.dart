@@ -6,17 +6,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:pharmacy_dashboard/core/apis/qr_pdf_api.dart';
 import 'package:pharmacy_dashboard/core/layout/adaptive.dart';
 import 'package:pharmacy_dashboard/layers/data/models/subscription/subscription.dart';
 import 'package:pharmacy_dashboard/layers/domain/use_cases/subscriptions/add_subscription_group.dart';
 import 'package:pharmacy_dashboard/layers/presentation/widgets/app_elevated_button.dart';
+import 'package:pharmacy_dashboard/layers/presentation/widgets/app_error_widget.dart';
 import 'package:pharmacy_dashboard/layers/presentation/widgets/loading_widget.dart';
 import 'package:pharmacy_dashboard/layers/domain/use_cases/subscriptions/get_subscriptions.dart';
 import 'package:pharmacy_dashboard/layers/presentation/blocs/subscription/subscription_bloc.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../../core/constants/api_enums/api_enums.dart';
+import '../../../core/global_functions/global_purpose_functions.dart';
 import '../AppWidgetsDisplayer.dart';
 import '../widgets/app_text_button.dart';
 
@@ -95,96 +98,154 @@ class _SubscriptionsPageState extends State<SubscriptionsPage> {
             return state.subsFetchingStatus == SubsFetchingStatus.initial ||
                     state.subsFetchingStatus == SubsFetchingStatus.loading
                 ? const LoadingWidget()
-                : Container(
-                    margin: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
+                : state.subsFetchingStatus == SubsFetchingStatus.failed
+                    ? AppErrorWidget(
+                        onRefreshPressed: () {
+                          _subscriptionBloc.add(SubscriptionsFetched(
+                              params: GetSubscriptoinsParams(
+                            page: currentPage,
+                            perPage: currentPerPageNotifier.value,
+                          )));
+                        },
+                      )
+                    : Container(
+                        margin: const EdgeInsets.all(20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            SizedBox(
-                              width: 220,
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    'نوع الاشتراك:',
-                                    style: textTheme.bodyLarge?.copyWith(
-                                        color: colorScheme.onBackground),
-                                  ),
-                                  SizedBox(
-                                    width: 140,
-                                    child: ValueListenableBuilder<int>(
-                                        valueListenable: subTypeNotifier,
-                                        builder: (context, value, _) {
-                                          return DropdownButtonFormField2<int>(
-                                            decoration: InputDecoration(
-                                              isDense: true,
-                                              contentPadding: EdgeInsets.zero,
-                                              border: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                              ),
-                                            ),
-                                            style: textTheme.bodyLarge,
-                                            value: value,
-                                            items: [
-                                              for (var subType in subsTypes)
-                                                DropdownMenuItem(
-                                                  value: subType.type.value,
-                                                  child: Text(subType.text),
+                            Row(
+                              children: [
+                                SizedBox(
+                                  width: 220,
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        'نوع الاشتراك:',
+                                        style: textTheme.bodyLarge?.copyWith(
+                                            color: colorScheme.onBackground),
+                                      ),
+                                      SizedBox(
+                                        width: 140,
+                                        child: ValueListenableBuilder<int>(
+                                            valueListenable: subTypeNotifier,
+                                            builder: (context, value, _) {
+                                              return DropdownButtonFormField2<
+                                                  int>(
+                                                decoration: InputDecoration(
+                                                  isDense: true,
+                                                  contentPadding:
+                                                      EdgeInsets.zero,
+                                                  border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            12),
+                                                  ),
                                                 ),
-                                            ],
-                                            onChanged: (value) {
-                                              if (value != null) {
-                                                subTypeNotifier.value = value;
-                                                _subscriptionBloc.add(
-                                                    SubscriptionsFetched(
-                                                        params:
-                                                            GetSubscriptoinsParams(
-                                                  subscriptionableType: value ==
-                                                          -1
-                                                      ? null
-                                                      : subTypeNotifier.value
-                                                          .toString(),
-                                                )));
-                                              }
-                                            },
-                                            buttonStyleData:
-                                                const ButtonStyleData(
-                                              height: 40,
-                                              padding: EdgeInsets.only(
-                                                  left: 10, right: 10),
-                                              overlayColor:
-                                                  MaterialStatePropertyAll(
-                                                      Colors.transparent),
-                                            ),
-                                            iconStyleData: const IconStyleData(
-                                              icon: Icon(
-                                                Icons.arrow_drop_down,
-                                                color: Colors.black45,
-                                              ),
-                                              iconSize: 30,
-                                            ),
-                                            dropdownStyleData:
-                                                DropdownStyleData(
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                              ),
-                                            ),
-                                          );
-                                        }),
+                                                style: textTheme.bodyLarge,
+                                                value: value,
+                                                items: [
+                                                  for (var subType in subsTypes)
+                                                    DropdownMenuItem(
+                                                      value: subType.type.value,
+                                                      child: Text(subType.text),
+                                                    ),
+                                                ],
+                                                onChanged: (value) {
+                                                  if (value != null) {
+                                                    subTypeNotifier.value =
+                                                        value;
+                                                    _subscriptionBloc.add(
+                                                        SubscriptionsFetched(
+                                                            params:
+                                                                GetSubscriptoinsParams(
+                                                      subscriptionableType:
+                                                          value == -1
+                                                              ? null
+                                                              : subTypeNotifier
+                                                                  .value
+                                                                  .toString(),
+                                                    )));
+                                                  }
+                                                },
+                                                buttonStyleData:
+                                                    const ButtonStyleData(
+                                                  height: 40,
+                                                  padding: EdgeInsets.only(
+                                                      left: 10, right: 10),
+                                                  overlayColor:
+                                                      MaterialStatePropertyAll(
+                                                          Colors.transparent),
+                                                ),
+                                                iconStyleData:
+                                                    const IconStyleData(
+                                                  icon: Icon(
+                                                    Icons.arrow_drop_down,
+                                                    color: Colors.black45,
+                                                  ),
+                                                  iconSize: 30,
+                                                ),
+                                                dropdownStyleData:
+                                                    DropdownStyleData(
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            12),
+                                                  ),
+                                                ),
+                                              );
+                                            }),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
+                                ),
+                                const Spacer(),
+                                if (isDesktop)
+                                  AppTextButton(
+                                    text: 'إضافة اشتراكات',
+                                    onPressed: () {
+                                      showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return _AddSubsDialog(
+                                              subscriptionBloc:
+                                                  _subscriptionBloc,
+                                            );
+                                          });
+                                    },
+                                  ),
+                                const SizedBox(width: 10),
+                                if (state.selection.reduce(
+                                        (value, element) => value | element) &&
+                                    isDesktop)
+                                  AppTextButton(
+                                    onPressed: () async {
+                                      await downloadQrPdf(
+                                        subscriptions: state.subscriptions,
+                                        selection: state.selection,
+                                      );
+                                    },
+                                    text: 'توليد ملف رموز',
+                                  ),
+                              ],
                             ),
-                            const Spacer(),
-                            if (isDesktop)
+                            if (!isDesktop) const SizedBox(height: 8),
+                            if (!isDesktop)
                               AppTextButton(
                                 text: 'إضافة اشتراكات',
                                 onPressed: () {
+                                  final currentAdmin =
+                                      GlobalPurposeFunctions.getAdminModel()!;
+                                  if (!currentAdmin.isSuperAdmin &&
+                                      !currentAdmin.canAddQuestionFromExcel) {
+                                    showToast(
+                                      'ليس لديك الصلاحية لتوليد اشتراكات جديدة',
+                                      position: const ToastPosition(
+                                          align: Alignment.bottomCenter),
+                                    );
+                                    return;
+                                  }
                                   showDialog(
                                       context: context,
                                       builder: (context) {
@@ -194,10 +255,10 @@ class _SubscriptionsPageState extends State<SubscriptionsPage> {
                                       });
                                 },
                               ),
-                            const SizedBox(width: 10),
+                            const SizedBox(height: 8),
                             if (state.selection.reduce(
                                     (value, element) => value | element) &&
-                                isDesktop)
+                                !isDesktop)
                               AppTextButton(
                                 onPressed: () async {
                                   await downloadQrPdf(
@@ -207,114 +268,90 @@ class _SubscriptionsPageState extends State<SubscriptionsPage> {
                                 },
                                 text: 'توليد ملف رموز',
                               ),
+                            const SizedBox(height: 12),
+                            Expanded(
+                              child: ValueListenableBuilder<int>(
+                                  valueListenable: currentPerPageNotifier,
+                                  builder: (context, currentValue, _) {
+                                    return PaginatedDataTable2(
+                                      renderEmptyRowsInTheEnd: false,
+                                      columns: [
+                                        DataColumn(
+                                          label: Text(
+                                            'نوع الاشتراك',
+                                            style:
+                                                textTheme.bodyLarge?.copyWith(
+                                              color: colorScheme.onBackground,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                        DataColumn(
+                                          label: Text(
+                                            'الكود',
+                                            style:
+                                                textTheme.bodyLarge?.copyWith(
+                                              color: colorScheme.onBackground,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                      onSelectAll: (value) {
+                                        if (value != null) {
+                                          _subscriptionBloc
+                                              .add(AllSelectedChanged(value));
+                                        }
+                                      },
+                                      source: SubscriptionsTableDataSource(
+                                        subscriptions: state.subscriptions,
+                                        subscriptionBloc: _subscriptionBloc,
+                                        selection: state.selection,
+                                        colorScheme: colorScheme,
+                                        textTheme: textTheme,
+                                        perPageNumber: currentValue,
+                                        totalRowCount: 72,
+                                      ),
+                                      rowsPerPage: currentValue,
+                                      onPageChanged: (value) {
+                                        currentPage = value ~/ currentValue + 1;
+
+                                        _subscriptionBloc
+                                            .add(SubscriptionsFetched(
+                                                params: GetSubscriptoinsParams(
+                                          page: currentPage,
+                                          perPage: currentValue,
+                                        )));
+                                      },
+                                      onRowsPerPageChanged: (value) async {
+                                        if (value != null) {
+                                          _subscriptionBloc.add(
+                                              SubscriptionsFetched(
+                                                  params:
+                                                      GetSubscriptoinsParams(
+                                            page: currentPage,
+                                            perPage: value,
+                                          )));
+                                          await Future.delayed(
+                                              const Duration(seconds: 2));
+                                          currentPerPageNotifier.value = value;
+                                        }
+                                      },
+                                      availableRowsPerPage: perPageNumbers,
+                                      empty: Center(
+                                        child: Container(
+                                          padding: const EdgeInsets.all(20),
+                                          color: Colors.grey[200],
+                                          child: const Text(
+                                              'لا يوجد اشتراكات مضافة'),
+                                        ),
+                                      ),
+                                    );
+                                  }),
+                            ),
                           ],
                         ),
-                        if (!isDesktop) const SizedBox(height: 8),
-                        if (!isDesktop)
-                          AppTextButton(
-                            text: 'إضافة اشتراكات',
-                            onPressed: () {
-                              showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return _AddSubsDialog(
-                                      subscriptionBloc: _subscriptionBloc,
-                                    );
-                                  });
-                            },
-                          ),
-                        const SizedBox(height: 8),
-                        if (state.selection
-                                .reduce((value, element) => value | element) &&
-                            !isDesktop)
-                          AppTextButton(
-                            onPressed: () async {
-                              await downloadQrPdf(
-                                subscriptions: state.subscriptions,
-                                selection: state.selection,
-                              );
-                            },
-                            text: 'توليد ملف رموز',
-                          ),
-                        const SizedBox(height: 12),
-                        Expanded(
-                          child: ValueListenableBuilder<int>(
-                              valueListenable: currentPerPageNotifier,
-                              builder: (context, currentValue, _) {
-                                return PaginatedDataTable2(
-                                  renderEmptyRowsInTheEnd: false,
-                                  columns: [
-                                    DataColumn(
-                                      label: Text(
-                                        'نوع الاشتراك',
-                                        style: textTheme.bodyLarge?.copyWith(
-                                          color: colorScheme.onBackground,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                    DataColumn(
-                                      label: Text(
-                                        'الكود',
-                                        style: textTheme.bodyLarge?.copyWith(
-                                          color: colorScheme.onBackground,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                  onSelectAll: (value) {
-                                    if (value != null) {
-                                      _subscriptionBloc
-                                          .add(AllSelectedChanged(value));
-                                    }
-                                  },
-                                  source: SubscriptionsTableDataSource(
-                                    subscriptions: state.subscriptions,
-                                    subscriptionBloc: _subscriptionBloc,
-                                    selection: state.selection,
-                                    colorScheme: colorScheme,
-                                    textTheme: textTheme,
-                                    perPageNumber: currentValue,
-                                    totalRowCount: 72,
-                                  ),
-                                  rowsPerPage: currentValue,
-                                  onPageChanged: (value) {
-                                    currentPage = value ~/ currentValue + 1;
-
-                                    _subscriptionBloc.add(SubscriptionsFetched(
-                                        params: GetSubscriptoinsParams(
-                                      page: currentPage,
-                                      perPage: currentValue,
-                                    )));
-                                  },
-                                  onRowsPerPageChanged: (value) async {
-                                    if (value != null) {
-                                      _subscriptionBloc
-                                          .add(SubscriptionsFetched(
-                                              params: GetSubscriptoinsParams(
-                                        page: currentPage,
-                                        perPage: value,
-                                      )));
-                                      await Future.delayed(
-                                          const Duration(seconds: 2));
-                                      currentPerPageNotifier.value = value;
-                                    }
-                                  },
-                                  availableRowsPerPage: perPageNumbers,
-                                  empty: Center(
-                                    child: Container(
-                                      padding: const EdgeInsets.all(20),
-                                      color: Colors.grey[200],
-                                      child: const Text('No data'),
-                                    ),
-                                  ),
-                                );
-                              }),
-                        ),
-                      ],
-                    ),
-                  );
+                      );
           },
         ),
       ),

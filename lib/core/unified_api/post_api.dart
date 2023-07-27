@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'printing.dart';
 
@@ -40,7 +41,10 @@ class PostApi<T> extends InitialApi<T> {
     if (response.statusCode == 200) {
       return fromJson(response.body);
     }
-    Exception exception = getException(statusCode: response.statusCode);
+    Exception exception = getException(
+      statusCode: response.statusCode,
+      errorMessage: jsonDecode(response.body)['message'],
+    );
     throw (exception);
   }
 }

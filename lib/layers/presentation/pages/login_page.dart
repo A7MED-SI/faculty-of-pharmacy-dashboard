@@ -55,7 +55,8 @@ class _LoginPageState extends State<LoginPage> {
         if (state.status == AuthStatus.error) {
           AppWidgetsDisplayer.dispalyErrorSnackBar(
             context: context,
-            message: 'يرجي التأكد من المعلومات والمحاولة مرة أخرى',
+            message: state.errorMessage ??
+                'يرجي التأكد من المعلومات والمحاولة مرة أخرى',
           );
         }
       },

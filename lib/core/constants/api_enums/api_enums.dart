@@ -6,6 +6,14 @@ enum AdminRole {
   const AdminRole(this.value);
 }
 
+enum AdminPermission {
+  canAddExcel(1),
+  canAddSubs(2);
+
+  final int value;
+  const AdminPermission(this.value);
+}
+
 enum SubscriptionableType {
   all(-1),
   yearSemester(3),

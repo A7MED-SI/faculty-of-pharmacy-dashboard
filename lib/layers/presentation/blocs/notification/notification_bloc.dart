@@ -22,8 +22,6 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
       notificationRepository: NotificationRepositoryImplementation());
   FutureOr<void> _mapNotificationsFetched(
       NotificationsFetched event, Emitter<NotificationState> emit) async {
-    // emit(state.copyWith(
-    //     notificationsFetchingStatus: NotificationsFetchingStatus.loading));
     final result = await _getNotificationsUseCase(event.getNotificationsParams);
 
     await result.fold(

@@ -1,11 +1,11 @@
 import '../error/exception.dart';
 
 mixin HandlingResponse {
-  Exception getException({required int statusCode}) {
+  Exception getException({required int statusCode, String? errorMessage}) {
     if (statusCode >= 400 && statusCode < 500) {
-      return ApiException();
+      return ApiException(message: errorMessage);
     } else {
-      return ServerException();
+      return ServerException(message: errorMessage);
     }
   }
 }

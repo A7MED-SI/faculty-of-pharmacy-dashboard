@@ -4,12 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pharmacy_dashboard/core/constants/images/svg_images.dart';
 import 'package:pharmacy_dashboard/core/global_functions/global_purpose_functions.dart';
+import 'package:pharmacy_dashboard/layers/presentation/blocs/auth/auth_bloc.dart';
 import 'package:pharmacy_dashboard/layers/presentation/widgets/svg_image.dart';
 
 import 'dart:math' show pi;
 
 import '../../../core/constants/images/app_images.dart';
 import '../blocs/home/home_bloc.dart';
+import 'logout_confirmation_dialog.dart';
 
 class DesktopLayout extends StatefulWidget {
   const DesktopLayout({
@@ -62,14 +64,14 @@ class _DesktopLayoutState extends State<DesktopLayout> {
                           const NavigationRailDestination(
                             icon: SvgImage(
                               SvgImages.statistics,
-                              height: 30,
+                              height: 25,
                             ),
                             label: Text('الإحصائيات'),
                           ),
                         const NavigationRailDestination(
                           icon: SvgImage(
                             SvgImages.qr,
-                            height: 30,
+                            height: 25,
                           ),
                           label: Text('الاشتراكات'),
                         ),
@@ -77,35 +79,35 @@ class _DesktopLayoutState extends State<DesktopLayout> {
                           const NavigationRailDestination(
                             icon: SvgImage(
                               SvgImages.admin,
-                              height: 30,
+                              height: 25,
                             ),
                             label: Text('المسؤولين'),
                           ),
                         const NavigationRailDestination(
                           icon: SvgImage(
                             SvgImages.graduationHat,
-                            height: 30,
+                            height: 25,
                           ),
                           label: Text('الفصول'),
                         ),
                         const NavigationRailDestination(
                           icon: SvgImage(
                             SvgImages.books,
-                            height: 30,
+                            height: 25,
                           ),
                           label: Text('المواد'),
                         ),
                         const NavigationRailDestination(
                           icon: SvgImage(
                             SvgImages.notificationBell,
-                            height: 30,
+                            height: 25,
                           ),
                           label: Text('الإشعارات'),
                         ),
                         const NavigationRailDestination(
                           icon: SvgImage(
                             SvgImages.ads,
-                            height: 30,
+                            height: 25,
                           ),
                           label: Text('الإعلانات'),
                         ),
@@ -128,6 +130,25 @@ class _DesktopLayoutState extends State<DesktopLayout> {
                       selectedIconTheme: IconThemeData(
                           color: widget.colorScheme.onPrimaryContainer),
                       leading: const _NavigationRailHeader(),
+                      trailing: IconButton(
+                        icon: const SvgImage(
+                          SvgImages.logout,
+                          height: 25,
+                        ),
+                        tooltip: 'تسجيل الخروج',
+                        onPressed: () async {
+                          final authBloc = context.read<AuthBloc>();
+                          final result = await showDialog<bool?>(
+                            context: context,
+                            builder: (context) {
+                              return const LogoutConfirmationDialog();
+                            },
+                          );
+                          if (result != null && result) {
+                            authBloc.add(LogoutSubmitted());
+                          }
+                        },
+                      ),
                       useIndicator: true,
                       onDestinationSelected: (newIndex) {
                         log('Current Destination Index $newIndex');
@@ -202,7 +223,7 @@ class _NavigationRailHeader extends StatelessWidget {
                               child: Icon(
                                 Icons.arrow_right,
                                 color: colorScheme.onBackground,
-                                size: 30,
+                                size: 25,
                               ),
                             ),
                             SizedBox(
@@ -212,7 +233,7 @@ class _NavigationRailHeader extends StatelessWidget {
                                 color: colorScheme.onBackground,
                               ),
                             ),
-                            const SizedBox(width: 30),
+                            const SizedBox(width: 25),
                             Align(
                               alignment: AlignmentDirectional.centerStart,
                               widthFactor: animation.value,

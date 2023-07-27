@@ -12,6 +12,7 @@ part 'auth_state.dart';
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc() : super(const AuthState()) {
     on<LoginSubmitted>(_mapLoginSubmitted);
+    on<LogoutSubmitted>(_mapLogoutSubmitted);
   }
   final _loginUseCase =
       LoginUseCase(authRepository: AuthRepositoryImplementation());
@@ -22,7 +23,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         LoginParams(username: event.username, password: event.password));
     await result.fold(
       (l) async {
-        emit(state.copyWith(status: AuthStatus.error));
+        emit(state.copyWith(
+          status: AuthStatus.error,
+          errorMessage: l.message,
+        ));
       },
       (r) async {
         await GlobalPurposeFunctions.setAccesToken(r.token);
@@ -30,5 +34,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(state.copyWith(status: AuthStatus.initial));
       },
     );
+  }
+
+  FutureOr<void> _mapLogoutSubmitted(
+      LogoutSubmitted event, Emitter<AuthState> emit) async {
+    await GlobalPurposeFunctions.removeAccesToken();
+    emit(const AuthState());
   }
 }

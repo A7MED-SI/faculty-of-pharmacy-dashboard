@@ -7,12 +7,15 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:pharmacy_dashboard/layers/domain/use_cases/notification/get_notifications.dart';
 import 'package:pharmacy_dashboard/layers/presentation/AppWidgetsDisplayer.dart';
 import 'package:pharmacy_dashboard/layers/presentation/blocs/notification/notification_bloc.dart';
 import 'package:pharmacy_dashboard/layers/data/models/notification/notification.dart';
+import 'package:pharmacy_dashboard/layers/presentation/widgets/app_error_widget.dart';
 import 'package:pharmacy_dashboard/layers/presentation/widgets/loading_widget.dart';
 
+import '../../../core/global_functions/global_purpose_functions.dart';
 import '../../../core/layout/adaptive.dart';
 import '../../domain/use_cases/notification/add_notification.dart';
 import '../widgets/app_elevated_button.dart';
@@ -86,103 +89,129 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     state.notificationsFetchingStatus ==
                         NotificationsFetchingStatus.loading
                 ? const LoadingWidget()
-                : Container(
-                    margin: const EdgeInsets.all(20),
-                    child: Column(
-                      children: [
-                        Row(
+                : state.notificationsFetchingStatus ==
+                        NotificationsFetchingStatus.failed
+                    ? AppErrorWidget(
+                        onRefreshPressed: () {
+                          _notificationBloc.add(NotificationsFetched(
+                              getNotificationsParams: GetNotificationsParams(
+                            page: currentPage,
+                            perPage: currentPerPageNotifier.value,
+                          )));
+                        },
+                      )
+                    : Container(
+                        margin: const EdgeInsets.all(20),
+                        child: Column(
                           children: [
-                            const Spacer(),
-                            AppTextButton(
-                              text: 'إرسال إشعار',
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return _SendNotificationDialog(
-                                      notificationBloc: _notificationBloc,
+                            Row(
+                              children: [
+                                const Spacer(),
+                                AppTextButton(
+                                  text: 'إرسال إشعار',
+                                  onPressed: () {
+                                    final currentAdmin =
+                                        GlobalPurposeFunctions.getAdminModel()!;
+                                    if (!currentAdmin.isSuperAdmin &&
+                                        !currentAdmin.canAddQuestionFromExcel) {
+                                      showToast(
+                                        'ليس لديك الصلاحية لإرسال إشعار',
+                                        position: const ToastPosition(
+                                            align: Alignment.bottomCenter),
+                                      );
+                                      return;
+                                    }
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return _SendNotificationDialog(
+                                          notificationBloc: _notificationBloc,
+                                        );
+                                      },
                                     );
                                   },
-                                );
-                              },
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 20),
+                            Expanded(
+                              child: ValueListenableBuilder<int>(
+                                  valueListenable: currentPerPageNotifier,
+                                  builder: (context, currentValue, _) {
+                                    return PaginatedDataTable2(
+                                      columns: [
+                                        DataColumn(
+                                          label: Text(
+                                            'العنوان',
+                                            style:
+                                                textTheme.bodyLarge?.copyWith(
+                                              color: colorScheme.onBackground,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                        DataColumn(
+                                          label: Text(
+                                            'النص',
+                                            style:
+                                                textTheme.bodyLarge?.copyWith(
+                                              color: colorScheme.onBackground,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                        const DataColumn(label: Text('')),
+                                        const DataColumn(label: Text('')),
+                                      ],
+                                      source: NotificationTableDataSource(
+                                        notifications: state.notifications,
+                                        notificationBloc: _notificationBloc,
+                                        colorScheme: colorScheme,
+                                        textTheme: textTheme,
+                                        context: context,
+                                        totalRowCount: 62,
+                                        perPageNumber: currentValue,
+                                      ),
+                                      rowsPerPage: currentValue,
+                                      onPageChanged: (value) {
+                                        currentPage = value ~/ currentValue + 1;
+                                        _notificationBloc.add(
+                                            NotificationsFetched(
+                                                getNotificationsParams:
+                                                    GetNotificationsParams(
+                                          page: currentPage,
+                                          perPage: currentValue,
+                                        )));
+                                      },
+                                      onRowsPerPageChanged: (value) async {
+                                        if (value != null) {
+                                          _notificationBloc.add(
+                                              NotificationsFetched(
+                                                  getNotificationsParams:
+                                                      GetNotificationsParams(
+                                            page: currentPage,
+                                            perPage: value,
+                                          )));
+                                          await Future.delayed(
+                                              const Duration(seconds: 2));
+                                          currentPerPageNotifier.value = value;
+                                        }
+                                      },
+                                      availableRowsPerPage: perPageNumbers,
+                                      empty: Center(
+                                        child: Container(
+                                          padding: const EdgeInsets.all(20),
+                                          color: Colors.grey[200],
+                                          child: const Text(
+                                              'لا يوجد أي إشعارات مرسلة'),
+                                        ),
+                                      ),
+                                    );
+                                  }),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 20),
-                        Expanded(
-                          child: ValueListenableBuilder<int>(
-                              valueListenable: currentPerPageNotifier,
-                              builder: (context, currentValue, _) {
-                                return PaginatedDataTable2(
-                                  columns: [
-                                    DataColumn(
-                                      label: Text(
-                                        'العنوان',
-                                        style: textTheme.bodyLarge?.copyWith(
-                                          color: colorScheme.onBackground,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                    DataColumn(
-                                      label: Text(
-                                        'النص',
-                                        style: textTheme.bodyLarge?.copyWith(
-                                          color: colorScheme.onBackground,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                    const DataColumn(label: Text('')),
-                                    const DataColumn(label: Text('')),
-                                  ],
-                                  source: NotificationTableDataSource(
-                                    notifications: state.notifications,
-                                    notificationBloc: _notificationBloc,
-                                    colorScheme: colorScheme,
-                                    textTheme: textTheme,
-                                    context: context,
-                                    totalRowCount: 62,
-                                    perPageNumber: currentValue,
-                                  ),
-                                  rowsPerPage: currentValue,
-                                  onPageChanged: (value) {
-                                    currentPage = value ~/ currentValue + 1;
-                                    _notificationBloc.add(NotificationsFetched(
-                                        getNotificationsParams:
-                                            GetNotificationsParams(
-                                      page: currentPage,
-                                      perPage: currentValue,
-                                    )));
-                                  },
-                                  onRowsPerPageChanged: (value) async {
-                                    if (value != null) {
-                                      _notificationBloc.add(
-                                          NotificationsFetched(
-                                              getNotificationsParams:
-                                                  GetNotificationsParams(
-                                        page: currentPage,
-                                        perPage: value,
-                                      )));
-                                      await Future.delayed(
-                                          const Duration(seconds: 2));
-                                      currentPerPageNotifier.value = value;
-                                    }
-                                  },
-                                  availableRowsPerPage: perPageNumbers,
-                                  empty: Center(
-                                    child: Container(
-                                      padding: const EdgeInsets.all(20),
-                                      color: Colors.grey[200],
-                                      child: const Text('لا يوجد إشعارات'),
-                                    ),
-                                  ),
-                                );
-                              }),
-                        ),
-                      ],
-                    ),
-                  );
+                      );
           },
         ),
       ),

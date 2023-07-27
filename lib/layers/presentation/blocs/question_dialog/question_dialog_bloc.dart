@@ -56,12 +56,6 @@ class QuestionDialogBloc
   FutureOr<void> _mapAnswerValidityChanged(
       AnswerValidityToggled event, Emitter<QuestionDialogState> emit) async {
     var answersValidity = List.of(state.answersValidity);
-    answersValidity.removeAt(event.index);
-    if (state.answersValidity[event.index] &&
-        !answersValidity.reduce((value, element) => value | element)) {
-      return;
-    }
-    answersValidity = List.of(state.answersValidity);
     answersValidity[event.index] ^= true;
     emit(state.copyWith(answersValidity: answersValidity));
   }

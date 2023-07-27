@@ -18,6 +18,7 @@ class QuestionState {
   final DeletingQuestionStatus deletingQuestionStatus;
   final AddingQuestionsFromExcelStatus addingQuestionsFromExcelStatus;
   final QuestionBank? questionBank;
+  final String? errorMessage;
 
   const QuestionState({
     this.questionBankFetchingStatus = QuestionBankFetchingStatus.initial,
@@ -27,6 +28,7 @@ class QuestionState {
     this.addingQuestionsFromExcelStatus =
         AddingQuestionsFromExcelStatus.initial,
     this.questionBank,
+    this.errorMessage,
   });
 
   QuestionState copyWith({
@@ -36,6 +38,7 @@ class QuestionState {
     UpdatingQuestionStatus? updatingQuestionStatus,
     DeletingQuestionStatus? deletingQuestionStatus,
     AddingQuestionsFromExcelStatus? addingQuestionsFromExcelStatus,
+    String? errorMessage,
   }) {
     return QuestionState(
       questionBank: questionBank ?? this.questionBank,
@@ -48,6 +51,7 @@ class QuestionState {
           deletingQuestionStatus ?? this.deletingQuestionStatus,
       addingQuestionsFromExcelStatus:
           addingQuestionsFromExcelStatus ?? this.addingQuestionsFromExcelStatus,
+      errorMessage: errorMessage ?? this.errorMessage,
     );
   }
 }

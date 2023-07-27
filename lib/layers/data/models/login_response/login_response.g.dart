@@ -24,6 +24,7 @@ Admin _$AdminFromJson(Map<String, dynamic> json) => Admin(
       username: json['username'] as String,
       isActive: json['is_active'] as int? ?? 1,
       role: Admin._roleFromJson(json['role'] as List),
+      permissions: Admin._permissionsFromJson(json['permissions'] as List),
     );
 
 Map<String, dynamic> _$AdminToJson(Admin instance) => <String, dynamic>{
@@ -32,4 +33,5 @@ Map<String, dynamic> _$AdminToJson(Admin instance) => <String, dynamic>{
       'username': instance.username,
       'is_active': instance.isActive,
       'role': Admin._roleToJson(instance.role),
+      'permissions': Admin._permissionsToJson(instance.permissions),
     };

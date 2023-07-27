@@ -23,7 +23,8 @@ class SubjectState {
   final List<Subject> subjects;
   final List<({String text, int value})> semesters;
   final int? mainSemesterId;
-  final int? dialogSemesterId;
+  final int dialogSemesterId;
+  final String? errorMessage;
 
   const SubjectState({
     this.subjectsFetchingStatus = SubjectsFetchingStatus.initial,
@@ -35,7 +36,8 @@ class SubjectState {
     this.subjects = const [],
     this.semesters = const [],
     this.mainSemesterId,
-    this.dialogSemesterId,
+    this.dialogSemesterId = -1,
+    this.errorMessage,
   });
 
   SubjectState copyWith({
@@ -49,6 +51,7 @@ class SubjectState {
     List<({String text, int value})>? semesters,
     int? mainSemesterId,
     int? dialogSemesterId,
+    String? errorMessage,
   }) {
     return SubjectState(
       subjects: subjects ?? this.subjects,
@@ -66,6 +69,7 @@ class SubjectState {
       subjectTogglingActiveStatus:
           subjectTogglingActiveStatus ?? this.subjectTogglingActiveStatus,
       dialogSemesterId: dialogSemesterId ?? this.dialogSemesterId,
+      errorMessage: errorMessage ?? this.errorMessage,
     );
   }
 }
