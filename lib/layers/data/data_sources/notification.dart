@@ -15,18 +15,12 @@ import '../models/notification/notification.dart';
 
 class NotificationDataSource extends Printing with HandlingResponse {
   NotificationDataSource() : super(requestName: 'Adding Notification');
-  Future<List<NotificationModel>> getNotifications(
+  Future<NotificationsResponse> getNotifications(
       {Map<String, dynamic>? queryParams}) async {
-    final getApi = GetApi<List<NotificationModel>>(
+    final getApi = GetApi<NotificationsResponse>(
       uri: ApiUris.getNotificationsUri(queryParams: queryParams),
       fromJson: (json) {
-        final List<dynamic> notificationsJson =
-            jsonDecode(json)['data']['notifications'] as List<dynamic>;
-
-        return notificationsJson
-            .map<NotificationModel>(
-                (subJson) => NotificationModel.fromJson(subJson))
-            .toList();
+        return NotificationsResponse.fromJson(jsonDecode(json)['data']);
       },
       requestName: "Get All Notifications",
     );

@@ -37,9 +37,9 @@ class NotificationRepositoryImplementation implements NotificationRepository {
   }
 
   @override
-  Future<Either<Failure, List<NotificationModel>>> getNotifications(
+  Future<Either<Failure, NotificationsResponse>> getNotifications(
       {Map<String, dynamic>? params}) async {
-    return await HandlingExceptionManager.wrapHandling<List<NotificationModel>>(
+    return await HandlingExceptionManager.wrapHandling<NotificationsResponse>(
       tryCall: () async {
         final response =
             await _notificationDataSource.getNotifications(queryParams: params);

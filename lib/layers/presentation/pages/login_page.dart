@@ -31,8 +31,8 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    _usernameController = TextEditingController(text: 'super_admin');
-    _passwordController = TextEditingController(text: '12345678');
+    _usernameController = TextEditingController();
+    _passwordController = TextEditingController();
     passWordShowNotifier = ValueNotifier(false);
   }
 
@@ -72,116 +72,126 @@ class _LoginPageState extends State<LoginPage> {
                       width: isDesktop ? 450 : 300,
                       child: Form(
                         key: _formKey,
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SizedBox(
-                              height: 140,
-                              child: Image(
-                                image: const AssetImage(AppImages.logoImage),
-                                color: colorScheme.onBackground,
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            Text(
-                              'DO IT RIGHT',
-                              style: textTheme.headlineLarge?.copyWith(
-                                color: colorScheme.onBackground,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              textDirection: TextDirection.ltr,
-                            ),
-                            const SizedBox(height: 40),
-                            TextFormField(
-                              controller: _usernameController,
-                              autofocus: true,
-                              textInputAction: TextInputAction.next,
-                              cursorColor: colorScheme.onBackground,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'يجب إدخال اسم المستخدم';
-                                }
-                                return null;
-                              },
-                              decoration: InputDecoration(
-                                labelText: 'اسم المستخدم',
-                                labelStyle: textTheme.bodyLarge?.copyWith(
-                                  color: colorScheme.onBackground,
+                        child: ScrollConfiguration(
+                          behavior: ScrollConfiguration.of(context)
+                              .copyWith(scrollbars: false),
+                          child: SingleChildScrollView(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SizedBox(
+                                  height: 140,
+                                  child: Image(
+                                    image:
+                                        const AssetImage(AppImages.logoImage),
+                                    color: colorScheme.onBackground,
+                                  ),
                                 ),
-                              ),
-                            ),
-                            const SizedBox(height: 15),
-                            ValueListenableBuilder(
-                                valueListenable: passWordShowNotifier,
-                                builder: (context, showText, _) {
-                                  return TextFormField(
-                                    controller: _passwordController,
-                                    cursorColor: colorScheme.onBackground,
-                                    obscureText: !showText,
-                                    validator: (value) {
-                                      if (value == null ||
-                                          !Validations.passwordValidation(
-                                              password: value)) {
-                                        return 'كلمة المرور يجب أن تتألف من 6 محارف على الأقل';
-                                      }
-                                      return null;
-                                    },
-                                    decoration: InputDecoration(
-                                        labelText: 'كلمة المرور',
-                                        labelStyle:
-                                            textTheme.bodyLarge?.copyWith(
-                                          color: colorScheme.onBackground,
-                                        ),
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                          vertical: 15,
-                                        ),
-                                        suffix: TextButton(
-                                          onPressed: () {
-                                            passWordShowNotifier.value =
-                                                !passWordShowNotifier.value;
-                                          },
-                                          child: Text(
-                                            showText ? 'Hide' : 'Show',
-                                            style:
+                                const SizedBox(height: 10),
+                                Text(
+                                  'DO IT RIGHT',
+                                  style: textTheme.headlineLarge?.copyWith(
+                                    color: colorScheme.onBackground,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  textDirection: TextDirection.ltr,
+                                ),
+                                const SizedBox(height: 40),
+                                TextFormField(
+                                  controller: _usernameController,
+                                  autovalidateMode:
+                                      AutovalidateMode.onUserInteraction,
+                                  autofocus: true,
+                                  textInputAction: TextInputAction.next,
+                                  cursorColor: colorScheme.onBackground,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'يجب إدخال اسم المستخدم';
+                                    }
+                                    return null;
+                                  },
+                                  decoration: InputDecoration(
+                                    labelText: 'اسم المستخدم',
+                                    labelStyle: textTheme.bodyLarge?.copyWith(
+                                      color: colorScheme.onBackground,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 15),
+                                ValueListenableBuilder(
+                                    valueListenable: passWordShowNotifier,
+                                    builder: (context, showText, _) {
+                                      return TextFormField(
+                                        controller: _passwordController,
+                                        autovalidateMode:
+                                            AutovalidateMode.onUserInteraction,
+                                        cursorColor: colorScheme.onBackground,
+                                        obscureText: !showText,
+                                        validator: (value) {
+                                          if (value == null ||
+                                              !Validations.passwordValidation(
+                                                  password: value)) {
+                                            return 'كلمة المرور يجب أن تتألف من 6 محارف على الأقل';
+                                          }
+                                          return null;
+                                        },
+                                        decoration: InputDecoration(
+                                            labelText: 'كلمة المرور',
+                                            labelStyle:
                                                 textTheme.bodyLarge?.copyWith(
-                                              color: colorScheme.primary,
-                                              fontWeight: FontWeight.bold,
+                                              color: colorScheme.onBackground,
                                             ),
-                                          ),
-                                        )),
-                                  );
-                                }),
-                            const SizedBox(height: 40),
-                            ElevatedButton(
-                              onPressed: () {
-                                if (!_formKey.currentState!.validate()) {
-                                  return;
-                                }
-                                context.read<AuthBloc>().add(LoginSubmitted(
-                                      password: _passwordController.text,
-                                      username: _usernameController.text,
-                                    ));
-                              },
-                              style: ElevatedButton.styleFrom(
-                                elevation: 8,
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 12, horizontal: 20),
-                                backgroundColor: colorScheme.primary,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                                            contentPadding:
+                                                const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 15,
+                                            ),
+                                            suffix: TextButton(
+                                              onPressed: () {
+                                                passWordShowNotifier.value =
+                                                    !passWordShowNotifier.value;
+                                              },
+                                              child: Text(
+                                                showText ? 'Hide' : 'Show',
+                                                style: textTheme.bodyLarge
+                                                    ?.copyWith(
+                                                  color: colorScheme.primary,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            )),
+                                      );
+                                    }),
+                                const SizedBox(height: 40),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    if (!_formKey.currentState!.validate()) {
+                                      return;
+                                    }
+                                    context.read<AuthBloc>().add(LoginSubmitted(
+                                          password: _passwordController.text,
+                                          username: _usernameController.text,
+                                        ));
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    elevation: 8,
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 12, horizontal: 20),
+                                    backgroundColor: colorScheme.primary,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'تسجيل الدخول',
+                                    style: textTheme.headlineSmall?.copyWith(
+                                      color: colorScheme.onPrimary,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                              child: Text(
-                                'تسجيل الدخول',
-                                style: textTheme.headlineSmall?.copyWith(
-                                  color: colorScheme.onPrimary,
-                                ),
-                              ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
                       ),
                     ),

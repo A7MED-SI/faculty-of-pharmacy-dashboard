@@ -282,7 +282,7 @@ class _AdAddDialogState extends State<_AdAddDialog> {
         borderRadius: BorderRadius.circular(15),
       ),
       insetPadding: isDesktop
-          ? const EdgeInsets.symmetric(horizontal: 300)
+          ? const EdgeInsets.symmetric(horizontal: 350)
           : const EdgeInsets.symmetric(horizontal: 60),
       backgroundColor: colorScheme.background,
       child: Directionality(

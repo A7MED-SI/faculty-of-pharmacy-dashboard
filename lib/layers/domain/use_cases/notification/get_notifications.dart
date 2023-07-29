@@ -5,12 +5,12 @@ import '../../../data/models/notification/notification.dart';
 import '../../repositories/notification_repository.dart';
 
 class GetNotificationsUseCase
-    implements UseCase<List<NotificationModel>, GetNotificationsParams> {
+    implements UseCase<NotificationsResponse, GetNotificationsParams> {
   final NotificationRepository notificationsRepository;
 
   GetNotificationsUseCase({required this.notificationsRepository});
   @override
-  Future<Either<Failure, List<NotificationModel>>> call(
+  Future<Either<Failure, NotificationsResponse>> call(
       GetNotificationsParams params) async {
     return await notificationsRepository.getNotifications(
         params: params.toMap());

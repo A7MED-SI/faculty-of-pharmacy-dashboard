@@ -1056,8 +1056,8 @@ class _AddExcelFileDialogState extends State<_AddExcelFileDialog> {
         borderRadius: BorderRadius.circular(15),
       ),
       insetPadding: isDesktop
-          ? const EdgeInsets.symmetric(horizontal: 300)
-          : const EdgeInsets.symmetric(horizontal: 60),
+          ? const EdgeInsets.symmetric(horizontal: 330)
+          : const EdgeInsets.symmetric(horizontal: 20),
       backgroundColor: colorScheme.background,
       child: Directionality(
         textDirection: TextDirection.rtl,
@@ -1077,45 +1077,43 @@ class _AddExcelFileDialogState extends State<_AddExcelFileDialog> {
                 ),
               ),
               const SizedBox(height: 40),
-              SizedBox(
-                width: 340,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
                       'اسم الملف:',
                       style: textTheme.bodyLarge
                           ?.copyWith(color: colorScheme.onBackground),
                     ),
-                    SizedBox(
-                      width: 250,
-                      child: TextField(
-                        onTap: () async {
-                          final FilePickerResult? result =
-                              await FilePickerWeb.platform.pickFiles(
-                            type: FileType.custom,
-                            allowedExtensions: ['xlsx'],
-                          );
-                          if (result != null) {
-                            titleController.text = result.files.first.name;
-                            excelFile = result.files.first.bytes!;
-                          }
-                        },
-                        controller: titleController,
-                        style: textTheme.bodyLarge,
-                        readOnly: true,
-                        showCursor: false,
-                        mouseCursor: SystemMouseCursors.click,
-                        canRequestFocus: false,
-                        decoration: const InputDecoration(
-                          isCollapsed: true,
-                          contentPadding: EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 11),
-                        ),
+                  ),
+                  Expanded(
+                    flex: 3,
+                    child: TextField(
+                      onTap: () async {
+                        final FilePickerResult? result =
+                            await FilePickerWeb.platform.pickFiles(
+                          type: FileType.custom,
+                          allowedExtensions: ['xlsx'],
+                        );
+                        if (result != null) {
+                          titleController.text = result.files.first.name;
+                          excelFile = result.files.first.bytes!;
+                        }
+                      },
+                      controller: titleController,
+                      style: textTheme.bodyLarge,
+                      readOnly: true,
+                      showCursor: false,
+                      mouseCursor: SystemMouseCursors.click,
+                      canRequestFocus: false,
+                      decoration: const InputDecoration(
+                        isCollapsed: true,
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 10, vertical: 11),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
               const SizedBox(height: 30),
               Align(

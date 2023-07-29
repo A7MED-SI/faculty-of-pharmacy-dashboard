@@ -32,9 +32,9 @@ class SubscriptionsRepositoryImplementation implements SubscriptionRepository {
   }
 
   @override
-  Future<Either<Failure, List<Subscription>>> getSubscriptions(
+  Future<Either<Failure, SubscriptionsResponse>> getSubscriptions(
       {Map<String, dynamic>? params}) async {
-    return await HandlingExceptionManager.wrapHandling<List<Subscription>>(
+    return await HandlingExceptionManager.wrapHandling<SubscriptionsResponse>(
       tryCall: () async {
         final response = await _subscriptionsDataSource.getSubscriptions(
             queryParams: params);

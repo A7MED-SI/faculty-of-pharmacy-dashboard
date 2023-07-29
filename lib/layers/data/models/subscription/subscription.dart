@@ -1,6 +1,25 @@
 import 'package:json_annotation/json_annotation.dart';
 part 'subscription.g.dart';
 
+@JsonSerializable(explicitToJson: true)
+class SubscriptionsResponse {
+  final List<Subscription> subscriptions;
+  final int total;
+
+  SubscriptionsResponse({
+    required this.subscriptions,
+    required this.total,
+  });
+
+  factory SubscriptionsResponse.fromJson(Map<String, dynamic> json) {
+    return _$SubscriptionsResponseFromJson(json);
+  }
+
+  Map<String, dynamic> toJson() {
+    return _$SubscriptionsResponseToJson(this);
+  }
+}
+
 @JsonSerializable()
 class Subscription {
   final int id;

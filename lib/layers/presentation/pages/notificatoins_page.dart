@@ -169,7 +169,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                         colorScheme: colorScheme,
                                         textTheme: textTheme,
                                         context: context,
-                                        totalRowCount: 62,
+                                        totalRowCount:
+                                            state.totalNotificationsNumber,
                                         perPageNumber: currentValue,
                                       ),
                                       rowsPerPage: currentValue,
@@ -354,7 +355,7 @@ class _SendNotificationDialogState extends State<_SendNotificationDialog> {
       ),
       insetPadding: isDesktop
           ? const EdgeInsets.symmetric(horizontal: 300)
-          : const EdgeInsets.symmetric(horizontal: 60),
+          : const EdgeInsets.symmetric(horizontal: 20),
       backgroundColor: colorScheme.background,
       child: Directionality(
           textDirection: TextDirection.rtl,
@@ -379,73 +380,69 @@ class _SendNotificationDialogState extends State<_SendNotificationDialog> {
                           ),
                         ),
                         const SizedBox(height: 40),
-                        SizedBox(
-                          width: 340,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
                                 'العنوان:',
                                 style: textTheme.bodyLarge
                                     ?.copyWith(color: colorScheme.onBackground),
                               ),
-                              SizedBox(
-                                width: 250,
-                                child: TextFormField(
-                                  controller: titleController,
-                                  style: textTheme.bodyLarge,
-                                  autovalidateMode:
-                                      AutovalidateMode.onUserInteraction,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'يجب ادخال العنوان';
-                                    }
-                                    return null;
-                                  },
-                                  decoration: const InputDecoration(
-                                    isCollapsed: true,
-                                    contentPadding: EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 11),
-                                  ),
+                            ),
+                            Expanded(
+                              flex: 3,
+                              child: TextFormField(
+                                controller: titleController,
+                                style: textTheme.bodyLarge,
+                                autovalidateMode:
+                                    AutovalidateMode.onUserInteraction,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'يجب ادخال العنوان';
+                                  }
+                                  return null;
+                                },
+                                decoration: const InputDecoration(
+                                  isCollapsed: true,
+                                  contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 11),
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 12),
-                        SizedBox(
-                          width: 340,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
                                 'النص:',
                                 style: textTheme.bodyLarge
                                     ?.copyWith(color: colorScheme.onBackground),
                               ),
-                              SizedBox(
-                                width: 250,
-                                child: TextFormField(
-                                  controller: bodyController,
-                                  autovalidateMode:
-                                      AutovalidateMode.onUserInteraction,
-                                  maxLines: null,
-                                  style: textTheme.bodyLarge,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'يجب ادخال نص الإشعار';
-                                    }
-                                    return null;
-                                  },
-                                  decoration: const InputDecoration(
-                                    isCollapsed: true,
-                                    contentPadding: EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 11),
-                                  ),
+                            ),
+                            Expanded(
+                              flex: 3,
+                              child: TextFormField(
+                                controller: bodyController,
+                                autovalidateMode:
+                                    AutovalidateMode.onUserInteraction,
+                                maxLines: null,
+                                style: textTheme.bodyLarge,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'يجب ادخال نص الإشعار';
+                                  }
+                                  return null;
+                                },
+                                decoration: const InputDecoration(
+                                  isCollapsed: true,
+                                  contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 11),
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 12),
                         if (image == null)

@@ -413,8 +413,8 @@ class _AddUpdateSubjectDialogState extends State<_AddUpdateSubjectDialog> {
         borderRadius: BorderRadius.circular(15),
       ),
       insetPadding: isDesktop
-          ? const EdgeInsets.symmetric(horizontal: 300)
-          : const EdgeInsets.symmetric(horizontal: 60),
+          ? const EdgeInsets.symmetric(horizontal: 330)
+          : const EdgeInsets.symmetric(horizontal: 20),
       backgroundColor: colorScheme.background,
       child: Directionality(
         textDirection: TextDirection.rtl,
@@ -439,109 +439,106 @@ class _AddUpdateSubjectDialogState extends State<_AddUpdateSubjectDialog> {
                       ),
                     ),
                     const SizedBox(height: 40),
-                    SizedBox(
-                      width: 340,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
                             'اسم المادة:',
                             style: textTheme.bodyLarge
                                 ?.copyWith(color: colorScheme.onBackground),
                           ),
-                          SizedBox(
-                            width: 250,
-                            child: TextFormField(
-                              controller: titleController,
-                              style: textTheme.bodyLarge,
-                              validator: (value) {
-                                if (value == null || value.length < 3) {
-                                  return 'الاسم يجب أن يتكون من 3 حروف على الأقل';
-                                }
-                                return null;
-                              },
-                              decoration: const InputDecoration(
-                                isCollapsed: true,
-                                contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 11),
-                              ),
+                        ),
+                        Expanded(
+                          flex: 3,
+                          child: TextFormField(
+                            controller: titleController,
+                            style: textTheme.bodyLarge,
+                            validator: (value) {
+                              if (value == null || value.length < 3) {
+                                return 'الاسم يجب أن يتكون من 3 حروف على الأقل';
+                              }
+                              return null;
+                            },
+                            decoration: const InputDecoration(
+                              isCollapsed: true,
+                              contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 11),
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 12),
-                    SizedBox(
-                      width: 340,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
                             'الفصل:',
                             style: textTheme.bodyLarge
                                 ?.copyWith(color: colorScheme.onBackground),
                           ),
-                          SizedBox(
-                            width: 250,
-                            child: DropdownButtonFormField2<int>(
-                              decoration: InputDecoration(
-                                isDense: true,
-                                contentPadding: EdgeInsets.zero,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
+                        ),
+                        Expanded(
+                          flex: 3,
+                          child: DropdownButtonFormField2<int>(
+                            decoration: InputDecoration(
+                              isDense: true,
+                              contentPadding: EdgeInsets.zero,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
                               ),
-                              validator: (value) {
-                                if (value == null) {
-                                  return 'يجب اختيار الفصل';
-                                }
-                                return null;
-                              },
-                              hint: Text(
-                                'اختر الفصل و السنة',
-                                style: textTheme.bodyLarge?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
+                            ),
+                            validator: (value) {
+                              if (value == null) {
+                                return 'يجب اختيار الفصل';
+                              }
+                              return null;
+                            },
+                            hint: Text(
+                              'اختر الفصل و السنة',
+                              style: textTheme.bodyLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
                               ),
-                              style: textTheme.bodyLarge,
-                              value: state.dialogSemesterId == -1
-                                  ? null
-                                  : state.dialogSemesterId,
-                              items: [
-                                for (var sem in state.semesters)
-                                  DropdownMenuItem(
-                                    value: sem.value,
-                                    child: Text(sem.text),
-                                  ),
-                              ],
-                              onChanged: (value) {
-                                if (value != null) {
-                                  widget.subjectBloc
-                                      .add(DialogSemesterValueChanged(value));
-                                }
-                              },
-                              buttonStyleData: const ButtonStyleData(
-                                height: 40,
-                                padding: EdgeInsets.only(left: 10, right: 10),
-                                overlayColor: MaterialStatePropertyAll(
-                                    Colors.transparent),
-                              ),
-                              iconStyleData: const IconStyleData(
-                                icon: Icon(
-                                  Icons.arrow_drop_down,
-                                  color: Colors.black45,
+                            ),
+                            style: textTheme.bodyLarge,
+                            value: state.dialogSemesterId == -1
+                                ? null
+                                : state.dialogSemesterId,
+                            items: [
+                              for (var sem in state.semesters)
+                                DropdownMenuItem(
+                                  value: sem.value,
+                                  child: Text(sem.text),
                                 ),
-                                iconSize: 30,
+                            ],
+                            onChanged: (value) {
+                              if (value != null) {
+                                widget.subjectBloc
+                                    .add(DialogSemesterValueChanged(value));
+                              }
+                            },
+                            buttonStyleData: const ButtonStyleData(
+                              height: 40,
+                              padding: EdgeInsets.only(left: 10, right: 10),
+                              overlayColor:
+                                  MaterialStatePropertyAll(Colors.transparent),
+                            ),
+                            iconStyleData: const IconStyleData(
+                              icon: Icon(
+                                Icons.arrow_drop_down,
+                                color: Colors.black45,
                               ),
-                              dropdownStyleData: DropdownStyleData(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
+                              iconSize: 30,
+                            ),
+                            dropdownStyleData: DropdownStyleData(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
                               ),
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 30),
                     Align(

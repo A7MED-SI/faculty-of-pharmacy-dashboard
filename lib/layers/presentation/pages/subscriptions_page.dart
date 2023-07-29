@@ -64,6 +64,8 @@ class _SubscriptionsPageState extends State<SubscriptionsPage> {
         params: GetSubscriptoinsParams(
       page: 1,
       perPage: currentPerPageNotifier.value,
+      subscriptionableType:
+          subTypeNotifier.value == -1 ? null : subTypeNotifier.value.toString(),
     )));
   }
 
@@ -105,6 +107,9 @@ class _SubscriptionsPageState extends State<SubscriptionsPage> {
                               params: GetSubscriptoinsParams(
                             page: currentPage,
                             perPage: currentPerPageNotifier.value,
+                            subscriptionableType: subTypeNotifier.value == -1
+                                ? null
+                                : subTypeNotifier.value.toString(),
                           )));
                         },
                       )
@@ -166,6 +171,10 @@ class _SubscriptionsPageState extends State<SubscriptionsPage> {
                                                               : subTypeNotifier
                                                                   .value
                                                                   .toString(),
+                                                      page: 1,
+                                                      perPage:
+                                                          currentPerPageNotifier
+                                                              .value,
                                                     )));
                                                   }
                                                 },
@@ -310,7 +319,8 @@ class _SubscriptionsPageState extends State<SubscriptionsPage> {
                                         colorScheme: colorScheme,
                                         textTheme: textTheme,
                                         perPageNumber: currentValue,
-                                        totalRowCount: 72,
+                                        totalRowCount:
+                                            state.totalSubscriptionsNumber,
                                       ),
                                       rowsPerPage: currentValue,
                                       onPageChanged: (value) {
@@ -321,6 +331,11 @@ class _SubscriptionsPageState extends State<SubscriptionsPage> {
                                                 params: GetSubscriptoinsParams(
                                           page: currentPage,
                                           perPage: currentValue,
+                                          subscriptionableType:
+                                              subTypeNotifier.value == -1
+                                                  ? null
+                                                  : subTypeNotifier.value
+                                                      .toString(),
                                         )));
                                       },
                                       onRowsPerPageChanged: (value) async {
@@ -331,6 +346,11 @@ class _SubscriptionsPageState extends State<SubscriptionsPage> {
                                                       GetSubscriptoinsParams(
                                             page: currentPage,
                                             perPage: value,
+                                            subscriptionableType:
+                                                subTypeNotifier.value == -1
+                                                    ? null
+                                                    : subTypeNotifier.value
+                                                        .toString(),
                                           )));
                                           await Future.delayed(
                                               const Duration(seconds: 2));

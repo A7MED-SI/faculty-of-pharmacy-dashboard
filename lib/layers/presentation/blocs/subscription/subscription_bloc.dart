@@ -32,11 +32,12 @@ class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
       (l) async {
         emit(state.copyWith(subsFetchingStatus: SubsFetchingStatus.failed));
       },
-      (subs) async {
+      (response) async {
         emit(state.copyWith(
           subsFetchingStatus: SubsFetchingStatus.success,
-          subscriptions: subs,
-          selection: List.filled(subs.length, false),
+          subscriptions: response.subscriptions,
+          selection: List.filled(response.subscriptions.length, false),
+          totalSubscriptionsNumber: response.total,
         ));
       },
     );

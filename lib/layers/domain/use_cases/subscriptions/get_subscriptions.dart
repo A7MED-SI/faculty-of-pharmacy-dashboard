@@ -6,12 +6,12 @@ import '../../repositories/subscription_repository.dart';
 import '../../../data/models/subscription/subscription.dart';
 
 class GetSubscriptionsUseCase
-    implements UseCase<List<Subscription>, GetSubscriptoinsParams> {
+    implements UseCase<SubscriptionsResponse, GetSubscriptoinsParams> {
   final SubscriptionRepository subscriptionsRepository;
 
   GetSubscriptionsUseCase({required this.subscriptionsRepository});
   @override
-  Future<Either<Failure, List<Subscription>>> call(
+  Future<Either<Failure, SubscriptionsResponse>> call(
       GetSubscriptoinsParams params) async {
     return await subscriptionsRepository.getSubscriptions(
         params: params.toMap());

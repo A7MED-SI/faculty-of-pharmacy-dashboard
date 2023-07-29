@@ -6,6 +6,22 @@ part of 'subscription.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
+SubscriptionsResponse _$SubscriptionsResponseFromJson(
+        Map<String, dynamic> json) =>
+    SubscriptionsResponse(
+      subscriptions: (json['subscriptions'] as List<dynamic>)
+          .map((e) => Subscription.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      total: json['total'] as int,
+    );
+
+Map<String, dynamic> _$SubscriptionsResponseToJson(
+        SubscriptionsResponse instance) =>
+    <String, dynamic>{
+      'subscriptions': instance.subscriptions.map((e) => e.toJson()).toList(),
+      'total': instance.total,
+    };
+
 Subscription _$SubscriptionFromJson(Map<String, dynamic> json) => Subscription(
       id: json['id'] as int,
       subCode: json['sub_code'] as String,

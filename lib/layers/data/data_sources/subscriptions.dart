@@ -7,17 +7,12 @@ import 'package:pharmacy_dashboard/core/unified_api/post_api.dart';
 import 'package:pharmacy_dashboard/layers/data/models/subscription/subscription.dart';
 
 class SubscriptionsDataSource {
-  Future<List<Subscription>> getSubscriptions(
+  Future<SubscriptionsResponse> getSubscriptions(
       {Map<String, dynamic>? queryParams}) async {
-    final getApi = GetApi<List<Subscription>>(
+    final getApi = GetApi<SubscriptionsResponse>(
       uri: ApiUris.getSubscriptionsUri(queryParams: queryParams),
       fromJson: (json) {
-        final List<dynamic> subscriptionsJson =
-            jsonDecode(json)['data']['subscriptions'] as List<dynamic>;
-
-        return subscriptionsJson
-            .map<Subscription>((subJson) => Subscription.fromJson(subJson))
-            .toList();
+        return SubscriptionsResponse.fromJson(jsonDecode(json)['data']);
       },
       requestName: "Get All Subscrioptions",
     );

@@ -29,10 +29,11 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
         emit(state.copyWith(
             notificationsFetchingStatus: NotificationsFetchingStatus.failed));
       },
-      (notifications) async {
+      (response) async {
         emit(state.copyWith(
           notificationsFetchingStatus: NotificationsFetchingStatus.success,
-          notifications: notifications,
+          notifications: response.notifications,
+          totalNotificationsNumber: response.total,
         ));
       },
     );

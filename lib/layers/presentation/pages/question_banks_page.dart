@@ -502,8 +502,8 @@ class _AddUpdateQuestionBankDialogState
         borderRadius: BorderRadius.circular(15),
       ),
       insetPadding: isDesktop
-          ? const EdgeInsets.symmetric(horizontal: 300)
-          : const EdgeInsets.symmetric(horizontal: 60),
+          ? const EdgeInsets.symmetric(horizontal: 330)
+          : const EdgeInsets.symmetric(horizontal: 20),
       backgroundColor: colorScheme.background,
       child: Directionality(
         textDirection: TextDirection.rtl,
@@ -528,29 +528,184 @@ class _AddUpdateQuestionBankDialogState
                         ),
                       ),
                       const SizedBox(height: 40),
-                      SizedBox(
-                        width: 400,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
                               'العنوان:',
                               style: textTheme.bodyLarge
                                   ?.copyWith(color: colorScheme.onBackground),
                             ),
-                            SizedBox(
-                              width: 250,
+                          ),
+                          Expanded(
+                            flex: 3,
+                            child: TextFormField(
+                              controller: titleController,
+                              autovalidateMode:
+                                  AutovalidateMode.onUserInteraction,
+                              style: textTheme.bodyLarge,
+                              validator: (value) {
+                                if (value == null || value.length < 3) {
+                                  return 'يجب أن يتكون العنوان من 3 أحرف على الأقل';
+                                }
+                                return null;
+                              },
+                              decoration: const InputDecoration(
+                                isCollapsed: true,
+                                contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 11),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'نوع الامتحان:',
+                              style: textTheme.bodyLarge
+                                  ?.copyWith(color: colorScheme.onBackground),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 3,
+                            child: DropdownButtonFormField2<int>(
+                              autovalidateMode:
+                                  AutovalidateMode.onUserInteraction,
+                              decoration: InputDecoration(
+                                isDense: true,
+                                contentPadding: EdgeInsets.zero,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              validator: (value) {
+                                if (value == null) {
+                                  return 'يجب اختيار نوع الامتحان';
+                                }
+                                return null;
+                              },
+                              hint: Text(
+                                'اختر نوع الامتحان',
+                                style: textTheme.bodyLarge?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              style: textTheme.bodyLarge,
+                              value: currentBankType,
+                              items: [
+                                for (var bt in bankTypes)
+                                  DropdownMenuItem(
+                                    value: bt.value,
+                                    child: Text(bt.text),
+                                  ),
+                              ],
+                              onChanged: (value) {
+                                if (value != null) {
+                                  bankTypeNotifier.value = value;
+                                }
+                              },
+                              buttonStyleData: const ButtonStyleData(
+                                height: 40,
+                                padding: EdgeInsets.only(left: 10, right: 10),
+                                overlayColor: MaterialStatePropertyAll(
+                                    Colors.transparent),
+                              ),
+                              iconStyleData: const IconStyleData(
+                                icon: Icon(
+                                  Icons.arrow_drop_down,
+                                  color: Colors.black45,
+                                ),
+                                iconSize: 30,
+                              ),
+                              dropdownStyleData: DropdownStyleData(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      if (currentBankType == QuestionBankType.chapterBank.value)
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                'ترتيب الفصل في المادة:',
+                                style: textTheme.bodyLarge
+                                    ?.copyWith(color: colorScheme.onBackground),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 3,
                               child: TextFormField(
-                                controller: titleController,
+                                controller: chapterOrderController,
                                 autovalidateMode:
                                     AutovalidateMode.onUserInteraction,
+                                maxLength: 2,
                                 style: textTheme.bodyLarge,
                                 validator: (value) {
-                                  if (value == null || value.length < 3) {
-                                    return 'يجب أن يتكون العنوان من 3 أحرف على الأقل';
+                                  if (currentBankType ==
+                                          QuestionBankType.chapterBank.value &&
+                                      (value == null || value.isEmpty)) {
+                                    return 'يجب إدخال رقم الفصل في المادة';
                                   }
                                   return null;
                                 },
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly
+                                ],
+                                decoration: const InputDecoration(
+                                  isCollapsed: true,
+                                  counterText: '',
+                                  contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 11),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      if (currentBankType ==
+                          QuestionBankType.previousExam.value)
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                'سنة الدورة:',
+                                style: textTheme.bodyLarge
+                                    ?.copyWith(color: colorScheme.onBackground),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 3,
+                              child: TextField(
+                                controller: yearOfExamController,
+                                readOnly: true,
+                                showCursor: false,
+                                mouseCursor: SystemMouseCursors.click,
+                                canRequestFocus: false,
+                                onTap: () async {
+                                  final dateTime = await showDialog<DateTime?>(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return YearPickingDialog(
+                                        selectedYear: DateTime(
+                                            int.parse(
+                                                yearOfExamController.text),
+                                            1),
+                                      );
+                                    },
+                                  );
+                                  if (dateTime != null) {
+                                    yearOfExamController.text =
+                                        dateTime.year.toString();
+                                  }
+                                },
+                                style: textTheme.bodyLarge,
                                 decoration: const InputDecoration(
                                   isCollapsed: true,
                                   contentPadding: EdgeInsets.symmetric(
@@ -560,257 +715,89 @@ class _AddUpdateQuestionBankDialogState
                             ),
                           ],
                         ),
-                      ),
-                      const SizedBox(height: 12),
-                      SizedBox(
-                        width: 400,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'نوع الامتحان:',
-                              style: textTheme.bodyLarge
-                                  ?.copyWith(color: colorScheme.onBackground),
-                            ),
-                            SizedBox(
-                              width: 250,
-                              child: DropdownButtonFormField2<int>(
-                                autovalidateMode:
-                                    AutovalidateMode.onUserInteraction,
-                                decoration: InputDecoration(
-                                  isDense: true,
-                                  contentPadding: EdgeInsets.zero,
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                                validator: (value) {
-                                  if (value == null) {
-                                    return 'يجب اختيار نوع الامتحان';
-                                  }
-                                  return null;
-                                },
-                                hint: Text(
-                                  'اختر نوع الامتحان',
-                                  style: textTheme.bodyLarge?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                style: textTheme.bodyLarge,
-                                value: currentBankType,
-                                items: [
-                                  for (var bt in bankTypes)
-                                    DropdownMenuItem(
-                                      value: bt.value,
-                                      child: Text(bt.text),
-                                    ),
-                                ],
-                                onChanged: (value) {
-                                  if (value != null) {
-                                    bankTypeNotifier.value = value;
-                                  }
-                                },
-                                buttonStyleData: const ButtonStyleData(
-                                  height: 40,
-                                  padding: EdgeInsets.only(left: 10, right: 10),
-                                  overlayColor: MaterialStatePropertyAll(
-                                      Colors.transparent),
-                                ),
-                                iconStyleData: const IconStyleData(
-                                  icon: Icon(
-                                    Icons.arrow_drop_down,
-                                    color: Colors.black45,
-                                  ),
-                                  iconSize: 30,
-                                ),
-                                dropdownStyleData: DropdownStyleData(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      if (currentBankType == QuestionBankType.chapterBank.value)
-                        SizedBox(
-                          width: 400,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'ترتيب الفصل في المادة:',
-                                style: textTheme.bodyLarge
-                                    ?.copyWith(color: colorScheme.onBackground),
-                              ),
-                              SizedBox(
-                                width: 250,
-                                child: TextFormField(
-                                  controller: chapterOrderController,
-                                  autovalidateMode:
-                                      AutovalidateMode.onUserInteraction,
-                                  maxLength: 2,
-                                  style: textTheme.bodyLarge,
-                                  validator: (value) {
-                                    if (currentBankType ==
-                                            QuestionBankType
-                                                .chapterBank.value &&
-                                        (value == null || value.isEmpty)) {
-                                      return 'يجب إدخال رقم الفصل في المادة';
-                                    }
-                                    return null;
-                                  },
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.digitsOnly
-                                  ],
-                                  decoration: const InputDecoration(
-                                    isCollapsed: true,
-                                    counterText: '',
-                                    contentPadding: EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 11),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      if (currentBankType ==
-                          QuestionBankType.previousExam.value)
-                        SizedBox(
-                          width: 400,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'سنة الدورة:',
-                                style: textTheme.bodyLarge
-                                    ?.copyWith(color: colorScheme.onBackground),
-                              ),
-                              SizedBox(
-                                width: 250,
-                                child: TextField(
-                                  controller: yearOfExamController,
-                                  readOnly: true,
-                                  showCursor: false,
-                                  mouseCursor: SystemMouseCursors.click,
-                                  canRequestFocus: false,
-                                  onTap: () async {
-                                    final dateTime =
-                                        await showDialog<DateTime?>(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return YearPickingDialog(
-                                          selectedYear: DateTime(
-                                              int.parse(
-                                                  yearOfExamController.text),
-                                              1),
-                                        );
-                                      },
-                                    );
-                                    if (dateTime != null) {
-                                      yearOfExamController.text =
-                                          dateTime.year.toString();
-                                    }
-                                  },
-                                  style: textTheme.bodyLarge,
-                                  decoration: const InputDecoration(
-                                    isCollapsed: true,
-                                    contentPadding: EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 11),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
                       if (currentBankType ==
                           QuestionBankType.previousExam.value)
                         const SizedBox(height: 12),
                       if (currentBankType ==
                           QuestionBankType.previousExam.value)
-                        SizedBox(
-                          width: 400,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
                                 'الفصل الدراسي:',
                                 style: textTheme.bodyLarge
                                     ?.copyWith(color: colorScheme.onBackground),
                               ),
-                              SizedBox(
-                                width: 250,
-                                child: ValueListenableBuilder<int?>(
-                                    valueListenable: semesterNotifier,
-                                    builder: (context, currentSemester, _) {
-                                      return DropdownButtonFormField2<int>(
-                                        autovalidateMode:
-                                            AutovalidateMode.onUserInteraction,
-                                        decoration: InputDecoration(
-                                          isDense: true,
-                                          contentPadding: EdgeInsets.zero,
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(12),
+                            ),
+                            Expanded(
+                              flex: 3,
+                              child: ValueListenableBuilder<int?>(
+                                  valueListenable: semesterNotifier,
+                                  builder: (context, currentSemester, _) {
+                                    return DropdownButtonFormField2<int>(
+                                      autovalidateMode:
+                                          AutovalidateMode.onUserInteraction,
+                                      decoration: InputDecoration(
+                                        isDense: true,
+                                        contentPadding: EdgeInsets.zero,
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                      ),
+                                      validator: (value) {
+                                        if (currentBankType ==
+                                                QuestionBankType
+                                                    .previousExam.value &&
+                                            value == null) {
+                                          return 'يجب اختيار الفصل';
+                                        }
+                                        return null;
+                                      },
+                                      hint: Text(
+                                        'اختر الفصل',
+                                        style: textTheme.bodyLarge?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      style: textTheme.bodyLarge,
+                                      value: currentSemester,
+                                      items: [
+                                        for (var sem in semesters)
+                                          DropdownMenuItem(
+                                            value: sem.value,
+                                            child: Text(sem.text),
                                           ),
+                                      ],
+                                      onChanged: (value) {
+                                        if (value != null) {
+                                          semesterNotifier.value = value;
+                                        }
+                                      },
+                                      buttonStyleData: const ButtonStyleData(
+                                        height: 40,
+                                        padding: EdgeInsets.only(
+                                            left: 10, right: 10),
+                                        overlayColor: MaterialStatePropertyAll(
+                                            Colors.transparent),
+                                      ),
+                                      iconStyleData: const IconStyleData(
+                                        icon: Icon(
+                                          Icons.arrow_drop_down,
+                                          color: Colors.black45,
                                         ),
-                                        validator: (value) {
-                                          if (currentBankType ==
-                                                  QuestionBankType
-                                                      .previousExam.value &&
-                                              value == null) {
-                                            return 'يجب اختيار الفصل';
-                                          }
-                                          return null;
-                                        },
-                                        hint: Text(
-                                          'اختر الفصل',
-                                          style: textTheme.bodyLarge?.copyWith(
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                        iconSize: 30,
+                                      ),
+                                      dropdownStyleData: DropdownStyleData(
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
                                         ),
-                                        style: textTheme.bodyLarge,
-                                        value: currentSemester,
-                                        items: [
-                                          for (var sem in semesters)
-                                            DropdownMenuItem(
-                                              value: sem.value,
-                                              child: Text(sem.text),
-                                            ),
-                                        ],
-                                        onChanged: (value) {
-                                          if (value != null) {
-                                            semesterNotifier.value = value;
-                                          }
-                                        },
-                                        buttonStyleData: const ButtonStyleData(
-                                          height: 40,
-                                          padding: EdgeInsets.only(
-                                              left: 10, right: 10),
-                                          overlayColor:
-                                              MaterialStatePropertyAll(
-                                                  Colors.transparent),
-                                        ),
-                                        iconStyleData: const IconStyleData(
-                                          icon: Icon(
-                                            Icons.arrow_drop_down,
-                                            color: Colors.black45,
-                                          ),
-                                          iconSize: 30,
-                                        ),
-                                        dropdownStyleData: DropdownStyleData(
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                          ),
-                                        ),
-                                      );
-                                    }),
-                              ),
-                            ],
-                          ),
+                                      ),
+                                    );
+                                  }),
+                            ),
+                          ],
                         ),
                       const SizedBox(height: 30),
                       Align(

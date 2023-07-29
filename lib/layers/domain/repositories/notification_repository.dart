@@ -6,7 +6,7 @@ import 'package:pharmacy_dashboard/layers/data/models/notification/notification.
 import '../../../core/error/failures.dart';
 
 abstract class NotificationRepository {
-  Future<Either<Failure, List<NotificationModel>>> getNotifications(
+  Future<Either<Failure, NotificationsResponse>> getNotifications(
       {Map<String, dynamic>? params});
 
   Future<Either<Failure, NotificationModel>> addNotification({
