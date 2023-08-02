@@ -59,7 +59,9 @@ class QuestionBankBloc extends Bloc<QuestionBankEvent, QuestionBankState> {
     await result.fold(
       (l) async {
         emit(state.copyWith(
-            questionBankAddingStatus: QuestionBankAddingStatus.failed));
+          questionBankAddingStatus: QuestionBankAddingStatus.failed,
+          errorMessage: l.message,
+        ));
       },
       (r) async {
         emit(state.copyWith(
@@ -81,7 +83,9 @@ class QuestionBankBloc extends Bloc<QuestionBankEvent, QuestionBankState> {
     await result.fold(
       (l) async {
         emit(state.copyWith(
-            questionBankUpdatingStatus: QuestionBankUpdatingStatus.failed));
+          questionBankUpdatingStatus: QuestionBankUpdatingStatus.failed,
+          errorMessage: l.message,
+        ));
       },
       (r) async {
         emit(state.copyWith(

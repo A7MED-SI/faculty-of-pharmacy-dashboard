@@ -64,7 +64,7 @@ class _QuestionBanksPageState extends State<QuestionBanksPage> {
                   QuestionBankAddingStatus.failed) {
                 AppWidgetsDisplayer.dispalyErrorSnackBar(
                   context: context,
-                  message:
+                  message: state.errorMessage ??
                       'فشل الإضافة يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى',
                 );
               }
@@ -79,7 +79,7 @@ class _QuestionBanksPageState extends State<QuestionBanksPage> {
                   QuestionBankUpdatingStatus.failed) {
                 AppWidgetsDisplayer.dispalyErrorSnackBar(
                   context: context,
-                  message:
+                  message: state.errorMessage ??
                       'فشل التعديل يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى',
                 );
               }
@@ -293,7 +293,8 @@ class _QuestionBankCardState extends State<_QuestionBankCard> {
         if (state.togglingStatus == TogglingStatus.failed) {
           AppWidgetsDisplayer.dispalyErrorSnackBar(
             context: context,
-            message: 'يرجى التحقق من الاتصال بالإنترنت والمحاولة مرة أخرى',
+            message: state.errorMessage ??
+                'يرجى التحقق من الاتصال بالإنترنت والمحاولة مرة أخرى',
           );
         }
       },

@@ -11,6 +11,7 @@ class SubscriptionState {
   final SubsAddingStatus subsAddingStatus;
   final List<bool> selection;
   final int totalSubscriptionsNumber;
+  final String? errorMessage;
 
   const SubscriptionState({
     this.subsFetchingStatus = SubsFetchingStatus.initial,
@@ -18,6 +19,7 @@ class SubscriptionState {
     this.subscriptions = const [],
     this.selection = const [],
     this.totalSubscriptionsNumber = 0,
+    this.errorMessage,
   });
 
   SubscriptionState copyWith({
@@ -26,13 +28,16 @@ class SubscriptionState {
     SubsAddingStatus? subsAddingStatus,
     List<bool>? selection,
     int? totalSubscriptionsNumber,
+    String? errorMessage,
   }) {
     return SubscriptionState(
       subsFetchingStatus: subsFetchingStatus ?? this.subsFetchingStatus,
       subscriptions: subscriptions ?? this.subscriptions,
       subsAddingStatus: subsAddingStatus ?? this.subsAddingStatus,
       selection: selection ?? this.selection,
-      totalSubscriptionsNumber: totalSubscriptionsNumber ?? this.totalSubscriptionsNumber,
+      totalSubscriptionsNumber:
+          totalSubscriptionsNumber ?? this.totalSubscriptionsNumber,
+      errorMessage: errorMessage ?? this.errorMessage,
     );
   }
 }

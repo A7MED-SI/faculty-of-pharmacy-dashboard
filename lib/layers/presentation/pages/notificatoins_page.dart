@@ -70,7 +70,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                 AddingNotificationStatus.failed) {
               AppWidgetsDisplayer.dispalyErrorSnackBar(
                 context: context,
-                message:
+                message: state.errorMessage ??
                     'فشل الإرسال يرجى التحقق من الإنترنت والمحاولة مرة أخرى',
               );
             }

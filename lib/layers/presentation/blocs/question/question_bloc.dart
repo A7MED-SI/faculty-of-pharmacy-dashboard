@@ -62,7 +62,10 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
 
     await result.fold(
       (l) async {
-        emit(state.copyWith(addingQuestionStatus: AddingQuestionStatus.failed));
+        emit(state.copyWith(
+          addingQuestionStatus: AddingQuestionStatus.failed,
+          errorMessage: l.message,
+        ));
       },
       (r) async {
         emit(
@@ -86,7 +89,9 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
     await result.fold(
       (l) async {
         emit(state.copyWith(
-            updatingQuestionStatus: UpdatingQuestionStatus.failed));
+          updatingQuestionStatus: UpdatingQuestionStatus.failed,
+          errorMessage: l.message,
+        ));
       },
       (r) async {
         emit(state.copyWith(
@@ -137,8 +142,9 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
     await result.fold(
       (l) async {
         emit(state.copyWith(
-            addingQuestionsFromExcelStatus:
-                AddingQuestionsFromExcelStatus.failed));
+          addingQuestionsFromExcelStatus: AddingQuestionsFromExcelStatus.failed,
+          errorMessage: l.message,
+        ));
       },
       (r) async {
         emit(state.copyWith(

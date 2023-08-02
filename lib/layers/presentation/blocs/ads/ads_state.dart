@@ -18,6 +18,7 @@ class AdsState {
   final TogglingAdStatus togglingAdStatus;
   final UpdatingAdStatus updatingAdStatus;
   final List<Ad> ads;
+  final String? errorMessage;
 
   const AdsState({
     this.adsFetchingStatus = AdsFetchingStatus.initial,
@@ -26,6 +27,7 @@ class AdsState {
     this.togglingAdStatus = TogglingAdStatus.initial,
     this.updatingAdStatus = UpdatingAdStatus.initial,
     this.ads = const [],
+    this.errorMessage,
   });
 
   AdsState copyWith({
@@ -35,6 +37,7 @@ class AdsState {
     DeletingAdStatus? deletingAdStatus,
     TogglingAdStatus? togglingAdStatus,
     UpdatingAdStatus? updatingAdStatus,
+    String? errorMessage,
   }) {
     return AdsState(
       ads: ads ?? this.ads,
@@ -43,6 +46,7 @@ class AdsState {
       deletingAdStatus: deletingAdStatus ?? this.deletingAdStatus,
       togglingAdStatus: togglingAdStatus ?? this.togglingAdStatus,
       updatingAdStatus: updatingAdStatus ?? this.updatingAdStatus,
+      errorMessage: errorMessage ?? this.errorMessage,
     );
   }
 }

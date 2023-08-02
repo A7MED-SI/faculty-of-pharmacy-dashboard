@@ -51,8 +51,10 @@ class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
     await result.fold(
       (l) async {
         emit(state.copyWith(
-            subsFetchingStatus: SubsFetchingStatus.success,
-            subsAddingStatus: SubsAddingStatus.failed));
+          subsFetchingStatus: SubsFetchingStatus.success,
+          subsAddingStatus: SubsAddingStatus.failed,
+          errorMessage: l.message,
+        ));
         emit(state.copyWith(subsAddingStatus: SubsAddingStatus.initial));
       },
       (result) async {

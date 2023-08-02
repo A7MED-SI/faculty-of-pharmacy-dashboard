@@ -52,7 +52,8 @@ class _AdsPageState extends State<AdsPage> {
             if (state.addingAdStatus == AddingAdStatus.failed) {
               AppWidgetsDisplayer.dispalyErrorSnackBar(
                 context: context,
-                message: 'فشل الإضافة يرجى التحقق من الإنترنت والمحاولة لاحقا',
+                message: state.errorMessage ??
+                    'فشل الإضافة يرجى التحقق من الإنترنت والمحاولة لاحقا',
               );
             }
             if (state.addingAdStatus == AddingAdStatus.success) {
@@ -64,7 +65,8 @@ class _AdsPageState extends State<AdsPage> {
             if (state.deletingAdStatus == DeletingAdStatus.failed) {
               AppWidgetsDisplayer.dispalyErrorSnackBar(
                 context: context,
-                message: 'فشل الحذف يرجى التحقق من الإنترنت والمحاولة لاحقا',
+                message: state.errorMessage ??
+                    'فشل الحذف يرجى التحقق من الإنترنت والمحاولة لاحقا',
               );
             }
             if (state.deletingAdStatus == DeletingAdStatus.success) {
@@ -76,13 +78,15 @@ class _AdsPageState extends State<AdsPage> {
             if (state.togglingAdStatus == TogglingAdStatus.failed) {
               AppWidgetsDisplayer.dispalyErrorSnackBar(
                 context: context,
-                message: 'يرجى التحقق من الإنترنت والمحاولة لاحقا',
+                message: state.errorMessage ??
+                    'يرجى التحقق من الإنترنت والمحاولة لاحقا',
               );
             }
             if (state.updatingAdStatus == UpdatingAdStatus.failed) {
               AppWidgetsDisplayer.dispalyErrorSnackBar(
                 context: context,
-                message: 'فشل التعديل يرجى التحقق من الإنترنت والمحاولة لاحقا',
+                message: state.errorMessage ??
+                    'فشل التعديل يرجى التحقق من الإنترنت والمحاولة لاحقا',
               );
             }
             if (state.updatingAdStatus == UpdatingAdStatus.success) {

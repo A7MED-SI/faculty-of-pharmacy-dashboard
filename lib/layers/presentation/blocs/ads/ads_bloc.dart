@@ -57,7 +57,10 @@ class AdsBloc extends Bloc<AdsEvent, AdsState> {
 
     await result.fold(
       (l) async {
-        emit(state.copyWith(addingAdStatus: AddingAdStatus.failed));
+        emit(state.copyWith(
+          addingAdStatus: AddingAdStatus.failed,
+          errorMessage: l.message,
+        ));
       },
       (ad) async {
         emit(state.copyWith(
@@ -79,7 +82,10 @@ class AdsBloc extends Bloc<AdsEvent, AdsState> {
 
     await result.fold(
       (l) async {
-        emit(state.copyWith(deletingAdStatus: DeletingAdStatus.failed));
+        emit(state.copyWith(
+          deletingAdStatus: DeletingAdStatus.failed,
+          errorMessage: l.message,
+        ));
       },
       (r) async {
         final ads = List.of(state.ads);
@@ -114,7 +120,10 @@ class AdsBloc extends Bloc<AdsEvent, AdsState> {
       (l) async {
         ads[adIndex] = oldad;
         emit(state.copyWith(
-            ads: ads, togglingAdStatus: TogglingAdStatus.failed));
+          ads: ads,
+          togglingAdStatus: TogglingAdStatus.failed,
+          errorMessage: l.message,
+        ));
         emit(state.copyWith(togglingAdStatus: TogglingAdStatus.initial));
       },
       (r) async {},
@@ -128,7 +137,10 @@ class AdsBloc extends Bloc<AdsEvent, AdsState> {
 
     await result.fold(
       (l) async {
-        emit(state.copyWith(updatingAdStatus: UpdatingAdStatus.failed));
+        emit(state.copyWith(
+          updatingAdStatus: UpdatingAdStatus.failed,
+          errorMessage: l.message,
+        ));
       },
       (ad) async {
         final ads = List.of(state.ads);

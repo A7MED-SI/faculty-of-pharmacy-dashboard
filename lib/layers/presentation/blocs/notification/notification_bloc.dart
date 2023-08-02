@@ -48,7 +48,9 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     await result.fold(
       (l) async {
         emit(state.copyWith(
-            addingNotificationStatus: AddingNotificationStatus.failed));
+          addingNotificationStatus: AddingNotificationStatus.failed,
+          errorMessage: l.message,
+        ));
       },
       (notification) async {
         final notifications = List.of(state.notifications)

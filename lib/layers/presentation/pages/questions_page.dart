@@ -68,7 +68,7 @@ class _QuestionsPageState extends State<QuestionsPage> {
               if (state.addingQuestionStatus == AddingQuestionStatus.failed) {
                 AppWidgetsDisplayer.dispalyErrorSnackBar(
                   context: context,
-                  message:
+                  message: state.errorMessage ??
                       'فشل الإضافة يرجى التحقق من اتصالك بالإنترنت والمحاولة لاحقا',
                 );
               }
@@ -82,7 +82,7 @@ class _QuestionsPageState extends State<QuestionsPage> {
                   UpdatingQuestionStatus.failed) {
                 AppWidgetsDisplayer.dispalyErrorSnackBar(
                   context: context,
-                  message:
+                  message: state.errorMessage ??
                       'فشل التعديل يرجى التحقق من اتصالك بالإنترنت والمحاولة لاحقا',
                 );
               }
@@ -112,7 +112,7 @@ class _QuestionsPageState extends State<QuestionsPage> {
                   AddingQuestionsFromExcelStatus.failed) {
                 AppWidgetsDisplayer.dispalyErrorSnackBar(
                   context: context,
-                  message:
+                  message: state.errorMessage ??
                       'فشل رفع الملف يرجى التحقق من اتصالك بالإنترنت والمحاولة لاحقا',
                 );
               }

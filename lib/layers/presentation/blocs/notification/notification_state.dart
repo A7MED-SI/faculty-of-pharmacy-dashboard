@@ -10,12 +10,14 @@ class NotificationState {
   final AddingNotificationStatus addingNotificationStatus;
   final List<NotificationModel> notifications;
   final int totalNotificationsNumber;
+  final String? errorMessage;
 
   const NotificationState({
     this.notificationsFetchingStatus = NotificationsFetchingStatus.initial,
     this.addingNotificationStatus = AddingNotificationStatus.initial,
     this.notifications = const [],
     this.totalNotificationsNumber = 0,
+    this.errorMessage,
   });
 
   NotificationState copyWith({
@@ -23,6 +25,7 @@ class NotificationState {
     AddingNotificationStatus? addingNotificationStatus,
     List<NotificationModel>? notifications,
     int? totalNotificationsNumber,
+    String? errorMessage,
   }) {
     return NotificationState(
       notifications: notifications ?? this.notifications,
@@ -32,6 +35,7 @@ class NotificationState {
           addingNotificationStatus ?? this.addingNotificationStatus,
       totalNotificationsNumber:
           totalNotificationsNumber ?? this.totalNotificationsNumber,
+      errorMessage: errorMessage ?? this.errorMessage,
     );
   }
 }

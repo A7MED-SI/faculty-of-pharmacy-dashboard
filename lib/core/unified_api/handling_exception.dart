@@ -20,7 +20,7 @@ class HandlingExceptionManager<T> {
     } on TimeoutException catch (_) {
       log("<< TimeoutException >> ");
       return Left(TimeOutFailure(
-          message: 'يرجي التحثث من الإنترنت والمحاولة مرة أخرى'));
+          message: 'يرجي التحقق من الإنترنت والمحاولة مرة أخرى'));
     } catch (e) {
       log("<< catch >> error is $e");
       return Left(

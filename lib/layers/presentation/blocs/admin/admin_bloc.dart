@@ -74,7 +74,10 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
       (l) async {
         admins[adminIndex] = oldAdmin;
         emit(state.copyWith(
-            admins: admins, togglingStatus: TogglingStatus.failed));
+          admins: admins,
+          togglingStatus: TogglingStatus.failed,
+          errorMessage: l.message,
+        ));
         emit(state.copyWith(togglingStatus: TogglingStatus.initial));
       },
       (r) async {},
@@ -89,8 +92,10 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
     await result.fold(
       (l) async {
         emit(state.copyWith(
-            adminsFetchingStatus: AdminsFetchingStatus.success,
-            addingStatus: AddingStatus.failed));
+          adminsFetchingStatus: AdminsFetchingStatus.success,
+          addingStatus: AddingStatus.failed,
+          errorMessage: l.message,
+        ));
         emit(state.copyWith(addingStatus: AddingStatus.initial));
       },
       (admin) async {
@@ -112,8 +117,10 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
     await result.fold(
       (l) async {
         emit(state.copyWith(
-            adminsFetchingStatus: AdminsFetchingStatus.success,
-            updatingStatus: UpdatingStatus.failed));
+          adminsFetchingStatus: AdminsFetchingStatus.success,
+          updatingStatus: UpdatingStatus.failed,
+          errorMessage: l.message,
+        ));
         emit(state.copyWith(updatingStatus: UpdatingStatus.initial));
       },
       (admin) async {
@@ -141,8 +148,10 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
     await result.fold(
       (l) async {
         emit(state.copyWith(
-            adminsFetchingStatus: AdminsFetchingStatus.success,
-            deletingStatus: DeletingStatus.failed));
+          adminsFetchingStatus: AdminsFetchingStatus.success,
+          deletingStatus: DeletingStatus.failed,
+          errorMessage: l.message,
+        ));
         emit(state.copyWith(addingStatus: AddingStatus.initial));
       },
       (admin) async {

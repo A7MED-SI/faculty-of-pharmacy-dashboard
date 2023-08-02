@@ -34,8 +34,10 @@ class QuestionBankCardBloc
     await result.fold(
       (l) async {
         emit(state.copyWith(
-            questionBank: originalQuestionBank,
-            togglingStatus: TogglingStatus.failed));
+          questionBank: originalQuestionBank,
+          togglingStatus: TogglingStatus.failed,
+          errorMessage: l.message,
+        ));
         emit(state.copyWith(togglingStatus: TogglingStatus.initial));
       },
       (r) async {},

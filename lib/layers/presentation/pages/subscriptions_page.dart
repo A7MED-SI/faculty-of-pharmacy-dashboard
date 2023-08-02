@@ -84,7 +84,7 @@ class _SubscriptionsPageState extends State<SubscriptionsPage> {
             if (state.subsAddingStatus == SubsAddingStatus.failed) {
               AppWidgetsDisplayer.dispalyErrorSnackBar(
                 context: context,
-                message:
+                message: state.errorMessage ??
                     'فشل الإضافة يرجى التحقق من الإتصال من الإنترنت والمحاولة مرة أخرى',
               );
             }

@@ -55,7 +55,7 @@ class _SubjectsPageState extends State<SubjectsPage> {
             if (state.subjectAddingStatus == SubjectAddingStatus.failed) {
               AppWidgetsDisplayer.dispalyErrorSnackBar(
                 context: context,
-                message:
+                message: state.errorMessage ??
                     'فشل الإضافة يرجى التحقق من الإتصال من الإنترنت والمحاولة مرة أخرى',
               );
             }
@@ -68,7 +68,7 @@ class _SubjectsPageState extends State<SubjectsPage> {
             if (state.subjectUpdatingStatus == SubjectUpdatingStatus.failed) {
               AppWidgetsDisplayer.dispalyErrorSnackBar(
                 context: context,
-                message:
+                message: state.errorMessage ??
                     'فشل التعديل يرجى التحقق من الإتصال من الإنترنت والمحاولة مرة أخرى',
               );
             }
@@ -95,7 +95,7 @@ class _SubjectsPageState extends State<SubjectsPage> {
                 SubjectTogglingActiveStatus.failed) {
               AppWidgetsDisplayer.dispalySuccessSnackBar(
                 context: context,
-                message:
+                message: state.errorMessage ??
                     'يرجى التحقق من الإتصال من الإنترنت والمحاولة مرة أخرى',
               );
             }
@@ -109,7 +109,10 @@ class _SubjectsPageState extends State<SubjectsPage> {
                     state.semestersFetchingStatus ==
                         SemestersFetchingStatus.initial
                 ? const LoadingWidget()
-                : state.subjectsFetchingStatus == SubjectsFetchingStatus.failed
+                : state.subjectsFetchingStatus ==
+                            SubjectsFetchingStatus.failed ||
+                        state.semestersFetchingStatus ==
+                            SemestersFetchingStatus.failed
                     ? AppErrorWidget(
                         onRefreshPressed: () {
                           _subjectBloc.add(SubjectsFetched(

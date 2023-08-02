@@ -53,14 +53,14 @@ class _AdminsPageState extends State<AdminsPage> {
             if (state.togglingStatus == TogglingStatus.failed) {
               AppWidgetsDisplayer.dispalyErrorSnackBar(
                 context: context,
-                message:
+                message: state.errorMessage ??
                     'فشل التغيير يرجى التحقق من الإتصال من الإنترنت والمحاولة مرة أخرى',
               );
             }
             if (state.addingStatus == AddingStatus.failed) {
               AppWidgetsDisplayer.dispalyErrorSnackBar(
                 context: context,
-                message:
+                message: state.errorMessage ??
                     'فشل الإضافة يرجى التحقق من الإتصال من الإنترنت والمحاولة مرة أخرى',
               );
             }
@@ -73,7 +73,7 @@ class _AdminsPageState extends State<AdminsPage> {
             if (state.updatingStatus == UpdatingStatus.failed) {
               AppWidgetsDisplayer.dispalyErrorSnackBar(
                 context: context,
-                message:
+                message: state.errorMessage ??
                     'فشل التعديل يرجى التحقق من الإتصال من الإنترنت والمحاولة مرة أخرى',
               );
             }
@@ -86,7 +86,7 @@ class _AdminsPageState extends State<AdminsPage> {
             if (state.deletingStatus == DeletingStatus.failed) {
               AppWidgetsDisplayer.dispalyErrorSnackBar(
                 context: context,
-                message:
+                message: state.errorMessage ??
                     'فشل الحذف يرجى التحقق من الإتصال من الإنترنت والمحاولة مرة أخرى',
               );
             }

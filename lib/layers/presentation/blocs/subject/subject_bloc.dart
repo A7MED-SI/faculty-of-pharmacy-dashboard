@@ -106,8 +106,10 @@ class SubjectBloc extends Bloc<SubjectEvent, SubjectState> {
     await result.fold(
       (l) async {
         emit(state.copyWith(
-            subjectsFetchingStatus: SubjectsFetchingStatus.success,
-            subjectAddingStatus: SubjectAddingStatus.failed));
+          subjectsFetchingStatus: SubjectsFetchingStatus.success,
+          subjectAddingStatus: SubjectAddingStatus.failed,
+          errorMessage: l.message,
+        ));
         emit(state.copyWith(subjectAddingStatus: SubjectAddingStatus.initial));
       },
       (subject) async {
@@ -130,8 +132,10 @@ class SubjectBloc extends Bloc<SubjectEvent, SubjectState> {
     await result.fold(
       (l) async {
         emit(state.copyWith(
-            subjectsFetchingStatus: SubjectsFetchingStatus.success,
-            subjectUpdatingStatus: SubjectUpdatingStatus.failed));
+          subjectsFetchingStatus: SubjectsFetchingStatus.success,
+          subjectUpdatingStatus: SubjectUpdatingStatus.failed,
+          errorMessage: l.message,
+        ));
         emit(state.copyWith(
             subjectUpdatingStatus: SubjectUpdatingStatus.initial));
       },
@@ -203,8 +207,10 @@ class SubjectBloc extends Bloc<SubjectEvent, SubjectState> {
       (l) async {
         subjects[subjectIndex] = oldSubject;
         emit(state.copyWith(
-            subjects: subjects,
-            subjectTogglingActiveStatus: SubjectTogglingActiveStatus.failed));
+          subjects: subjects,
+          subjectTogglingActiveStatus: SubjectTogglingActiveStatus.failed,
+          errorMessage: l.message,
+        ));
         emit(state.copyWith(
             subjectTogglingActiveStatus: SubjectTogglingActiveStatus.initial));
       },

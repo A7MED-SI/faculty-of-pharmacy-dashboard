@@ -18,6 +18,7 @@ class AdminState {
   final UpdatingStatus updatingStatus;
   final DeletingStatus deletingStatus;
   final List<Admin> admins;
+  final String? errorMessage;
 
   const AdminState({
     this.adminsFetchingStatus = AdminsFetchingStatus.initial,
@@ -26,6 +27,7 @@ class AdminState {
     this.updatingStatus = UpdatingStatus.initial,
     this.deletingStatus = DeletingStatus.initial,
     this.admins = const [],
+    this.errorMessage,
   });
 
   AdminState copyWith({
@@ -35,6 +37,7 @@ class AdminState {
     AddingStatus? addingStatus,
     UpdatingStatus? updatingStatus,
     DeletingStatus? deletingStatus,
+    String? errorMessage,
   }) {
     return AdminState(
       admins: admins ?? this.admins,
@@ -43,6 +46,7 @@ class AdminState {
       addingStatus: addingStatus ?? this.addingStatus,
       updatingStatus: updatingStatus ?? this.updatingStatus,
       deletingStatus: deletingStatus ?? this.deletingStatus,
+      errorMessage: errorMessage ?? this.errorMessage,
     );
   }
 }
