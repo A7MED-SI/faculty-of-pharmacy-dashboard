@@ -45,6 +45,28 @@ class _ListDrawerState extends State<ListDrawer> {
                   ),
                   textAlign: TextAlign.center,
                 ),
+                const SizedBox(height: 10),
+                Padding(
+                  padding: const EdgeInsets.only(right: 14),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SvgImage(
+                        SvgImages.user,
+                        height: 20,
+                        color: colorScheme.onBackground,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        GlobalPurposeFunctions.getAdminModel()!.username,
+                        style: textTheme.bodyLarge!.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.onBackground,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
                 const SizedBox(height: 14),
                 if (isUserSuperAdmin)
                   DrawerTile(
@@ -63,22 +85,23 @@ class _ListDrawerState extends State<ListDrawer> {
                       Scaffold.of(context).closeDrawer();
                     },
                   ),
-                DrawerTile(
-                  icon: const SvgImage(
-                    SvgImages.qr,
-                    height: 20,
+                if (isUserSuperAdmin)
+                  DrawerTile(
+                    icon: const SvgImage(
+                      SvgImages.qr,
+                      height: 20,
+                    ),
+                    title: 'الإشتراكات',
+                    selected: isTileSelected(
+                        selectedIndex: state.selectedIndex,
+                        tabsNumber: TabsNumber.subscriptionPage),
+                    onTap: () {
+                      context.read<HomeBloc>().add(PageIndexChanged(
+                          selectedPageIndex(TabsNumber.subscriptionPage)));
+                      context.goNamed(SubscriptionsPage.routeName);
+                      Scaffold.of(context).closeDrawer();
+                    },
                   ),
-                  title: 'الإشتراكات',
-                  selected: isTileSelected(
-                      selectedIndex: state.selectedIndex,
-                      tabsNumber: TabsNumber.subscriptionPage),
-                  onTap: () {
-                    context.read<HomeBloc>().add(PageIndexChanged(
-                        selectedPageIndex(TabsNumber.subscriptionPage)));
-                    context.goNamed(SubscriptionsPage.routeName);
-                    Scaffold.of(context).closeDrawer();
-                  },
-                ),
                 if (isUserSuperAdmin)
                   DrawerTile(
                     icon: const SvgImage(
@@ -194,20 +217,14 @@ class _ListDrawerState extends State<ListDrawer> {
     if (isUserSuperAdmin) {
       return selectedIndex == tabsNumber.order;
     }
-    if (tabsNumber == TabsNumber.subscriptionPage) {
-      return selectedIndex == tabsNumber.order - 1;
-    }
-    return selectedIndex == tabsNumber.order - 2;
+    return selectedIndex == tabsNumber.order - 3;
   }
 
   int selectedPageIndex(TabsNumber tabsNumber) {
     if (isUserSuperAdmin) {
       return tabsNumber.order;
     }
-    if (tabsNumber == TabsNumber.subscriptionPage) {
-      return tabsNumber.order - 1;
-    }
-    return tabsNumber.order - 2;
+    return tabsNumber.order - 3;
   }
 }
 

@@ -130,116 +130,137 @@ class _AdsPageState extends State<AdsPage> {
                               ],
                             ),
                           ),
-                          Expanded(
-                            child: CustomScrollView(
-                              slivers: [
-                                SliverPadding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 20),
-                                  sliver: SliverGrid.count(
-                                    crossAxisCount: isDesktop ? 6 : 2,
-                                    childAspectRatio: 1.6,
-                                    crossAxisSpacing: 2,
-                                    mainAxisSpacing: 2,
-                                    children: [
-                                      for (var ad in state.ads)
-                                        Stack(
+                          state.ads.isEmpty
+                              ? const Expanded(
+                                  child: Center(
+                                    child: Text('لا يوجد إعلانات مضافة حاليا'),
+                                  ),
+                                )
+                              : Expanded(
+                                  child: CustomScrollView(
+                                    slivers: [
+                                      SliverPadding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 12, vertical: 20),
+                                        sliver: SliverGrid.count(
+                                          crossAxisCount: isDesktop ? 6 : 2,
+                                          childAspectRatio: 1.6,
+                                          crossAxisSpacing: 2,
+                                          mainAxisSpacing: 2,
                                           children: [
-                                            ExtendedImage.network(
-                                              ad.image,
-                                              fit: BoxFit.fill,
-                                              width: double.infinity,
-                                              height: double.infinity,
-                                              cache: true,
-                                            ),
-                                            Positioned(
-                                              bottom: 6,
-                                              left: 8,
-                                              child: Switch(
-                                                onChanged: (value) {
-                                                  _adsBloc.add(AdActiveToggled(
-                                                      adId: ad.id));
-                                                },
-                                                value: ad.isActive == 1,
-                                                activeColor:
-                                                    colorScheme.primary,
-                                              ),
-                                            ),
-                                            Positioned(
-                                              top: 6,
-                                              right: 8,
-                                              child: PopupMenuButton<String>(
-                                                padding: EdgeInsets.zero,
-                                                tooltip: 'خيارات',
-                                                onSelected: (value) async {
-                                                  if (value == 'edit') {
-                                                    showDialog(
-                                                        context: context,
-                                                        builder: (context) {
-                                                          return _AdAddDialog(
-                                                            adsBloc: _adsBloc,
-                                                            isUpdate: true,
-                                                            adId: ad.id,
-                                                          );
-                                                        });
-                                                  } else {
-                                                    final result =
-                                                        await showDialog<bool?>(
-                                                      context: context,
-                                                      builder: (context) {
-                                                        return const DeleteConfirmationDialog(
-                                                          text:
-                                                              'هل أنت متأكد أنك تريد حذف هذا الإعلان؟',
-                                                        );
+                                            for (var ad in state.ads)
+                                              Stack(
+                                                children: [
+                                                  ExtendedImage.network(
+                                                    ad.image,
+                                                    fit: BoxFit.fill,
+                                                    width: double.infinity,
+                                                    height: double.infinity,
+                                                    cache: true,
+                                                  ),
+                                                  Positioned(
+                                                    bottom: 6,
+                                                    left: 8,
+                                                    child: Switch(
+                                                      onChanged: (value) {
+                                                        _adsBloc.add(
+                                                            AdActiveToggled(
+                                                                adId: ad.id));
                                                       },
-                                                    );
-                                                    if (result != null &&
-                                                        result) {
-                                                      _adsBloc.add(AdDeleted(
-                                                          adId: ad.id));
-                                                    }
-                                                  }
-                                                },
-                                                splashRadius: 30,
-                                                itemBuilder: (context) =>
-                                                    <PopupMenuItem<String>>[
-                                                  const PopupMenuItem<String>(
-                                                    value: 'edit',
-                                                    child: Text(
-                                                      'تعديل',
+                                                      value: ad.isActive == 1,
+                                                      activeColor:
+                                                          colorScheme.primary,
                                                     ),
                                                   ),
-                                                  const PopupMenuItem<String>(
-                                                    value: 'delete',
-                                                    child: Text(
-                                                      'حذف',
+                                                  Positioned(
+                                                    top: 6,
+                                                    right: 8,
+                                                    child:
+                                                        PopupMenuButton<String>(
+                                                      padding: EdgeInsets.zero,
+                                                      tooltip: 'خيارات',
+                                                      onSelected:
+                                                          (value) async {
+                                                        if (value == 'edit') {
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return _AdAddDialog(
+                                                                  adsBloc:
+                                                                      _adsBloc,
+                                                                  isUpdate:
+                                                                      true,
+                                                                  adId: ad.id,
+                                                                );
+                                                              });
+                                                        } else {
+                                                          final result =
+                                                              await showDialog<
+                                                                  bool?>(
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return const DeleteConfirmationDialog(
+                                                                text:
+                                                                    'هل أنت متأكد أنك تريد حذف هذا الإعلان؟',
+                                                              );
+                                                            },
+                                                          );
+                                                          if (result != null &&
+                                                              result) {
+                                                            _adsBloc.add(
+                                                                AdDeleted(
+                                                                    adId:
+                                                                        ad.id));
+                                                          }
+                                                        }
+                                                      },
+                                                      splashRadius: 30,
+                                                      itemBuilder: (context) =>
+                                                          <PopupMenuItem<
+                                                              String>>[
+                                                        const PopupMenuItem<
+                                                            String>(
+                                                          value: 'edit',
+                                                          child: Text(
+                                                            'تعديل',
+                                                          ),
+                                                        ),
+                                                        const PopupMenuItem<
+                                                            String>(
+                                                          value: 'delete',
+                                                          child: Text(
+                                                            'حذف',
+                                                          ),
+                                                        ),
+                                                      ],
+                                                      child: Container(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(2),
+                                                        decoration:
+                                                            const BoxDecoration(
+                                                          shape:
+                                                              BoxShape.circle,
+                                                          color: Colors.black38,
+                                                        ),
+                                                        child: const Icon(
+                                                          Icons
+                                                              .more_vert_outlined,
+                                                          color: Colors.white,
+                                                          size: 18,
+                                                        ),
+                                                      ),
                                                     ),
                                                   ),
                                                 ],
-                                                child: Container(
-                                                  padding:
-                                                      const EdgeInsets.all(2),
-                                                  decoration:
-                                                      const BoxDecoration(
-                                                    shape: BoxShape.circle,
-                                                    color: Colors.black38,
-                                                  ),
-                                                  child: const Icon(
-                                                    Icons.more_vert_outlined,
-                                                    color: Colors.white,
-                                                    size: 18,
-                                                  ),
-                                                ),
                                               ),
-                                            ),
                                           ],
                                         ),
+                                      )
                                     ],
                                   ),
-                                )
-                              ],
-                            ),
-                          ),
+                                ),
                         ],
                       );
           },

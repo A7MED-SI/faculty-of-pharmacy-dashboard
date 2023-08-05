@@ -16,4 +16,5 @@ class SvgImages {
   static const String cancel = '${_svgPath}cancel.svg';
   static const String check = '${_svgPath}check.svg';
   static const String logout = '${_svgPath}logout.svg';
+  static const String user = '${_svgPath}user.svg';
 }

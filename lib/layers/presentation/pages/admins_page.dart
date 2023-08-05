@@ -181,13 +181,22 @@ class _AdminsPageState extends State<AdminsPage> {
                                   color: colorScheme.background,
                                   borderRadius: BorderRadius.circular(20),
                                 ),
-                                headingTextStyle: textTheme.bodyLarge?.copyWith(
-                                  color: colorScheme.onBackground,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                dataTextStyle: textTheme.bodyMedium?.copyWith(
-                                  color: colorScheme.onBackground,
-                                ),
+                                headingTextStyle: isDesktop
+                                    ? textTheme.bodyLarge?.copyWith(
+                                        color: colorScheme.onBackground,
+                                        fontWeight: FontWeight.bold,
+                                      )
+                                    : textTheme.bodyMedium?.copyWith(
+                                        color: colorScheme.onBackground,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                dataTextStyle: isDesktop
+                                    ? textTheme.bodyMedium?.copyWith(
+                                        color: colorScheme.onBackground,
+                                      )
+                                    : textTheme.bodySmall?.copyWith(
+                                        color: colorScheme.onBackground,
+                                      ),
                                 isHorizontalScrollBarVisible: true,
                                 columns: const [
                                   DataColumn(

@@ -68,13 +68,14 @@ class _DesktopLayoutState extends State<DesktopLayout> {
                             ),
                             label: Text('الإحصائيات'),
                           ),
-                        const NavigationRailDestination(
-                          icon: SvgImage(
-                            SvgImages.qr,
-                            height: 25,
+                        if (isUserSuperAdmin)
+                          const NavigationRailDestination(
+                            icon: SvgImage(
+                              SvgImages.qr,
+                              height: 25,
+                            ),
+                            label: Text('الاشتراكات'),
                           ),
-                          label: Text('الاشتراكات'),
-                        ),
                         if (isUserSuperAdmin)
                           const NavigationRailDestination(
                             icon: SvgImage(
@@ -189,22 +190,20 @@ class _NavigationRailHeader extends StatelessWidget {
       builder: (context, child) {
         return Align(
           alignment: AlignmentDirectional.centerStart,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                height: 56,
-                decoration: BoxDecoration(
-                  color: colorScheme.background,
-                  boxShadow: [
-                    BoxShadow(
-                      blurRadius: 4,
-                      offset: const Offset(0, 4),
-                      color: colorScheme.surfaceVariant,
-                    ),
-                  ],
+          child: Container(
+            decoration: BoxDecoration(
+              color: colorScheme.background,
+              boxShadow: [
+                BoxShadow(
+                  blurRadius: 4,
+                  offset: const Offset(0, 4),
+                  color: colorScheme.surfaceVariant,
                 ),
-                child: Row(
+              ],
+            ),
+            child: Column(
+              children: [
+                Row(
                   children: [
                     const SizedBox(width: 6),
                     Material(
@@ -253,15 +252,36 @@ class _NavigationRailHeader extends StatelessWidget {
                         ),
                       ),
                     ),
-                    if (animation.value > 0)
-                      Opacity(
-                        opacity: animation.value,
-                        child: const SizedBox(width: 100),
-                      ),
                   ],
                 ),
-              ),
-            ],
+                if (animation.value > 0)
+                  Align(
+                    alignment: AlignmentDirectional.center,
+                    widthFactor: animation.value,
+                    child: Opacity(
+                      opacity: animation.value,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SvgImage(
+                            SvgImages.user,
+                            height: 20,
+                            color: colorScheme.onBackground,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            GlobalPurposeFunctions.getAdminModel()!.username,
+                            style: textTheme.bodyLarge!.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: colorScheme.onBackground,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         );
       },

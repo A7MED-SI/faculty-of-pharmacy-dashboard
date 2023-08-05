@@ -91,9 +91,9 @@ class Semester {
   String get semesterArabicName {
     switch (semester) {
       case 1:
-        return "الفصل الأول";
+        return "الأول";
       case 2:
-        return "الفصل الثاني";
+        return "الثاني";
       default:
         return "";
     }
@@ -102,15 +102,15 @@ class Semester {
   String get yearArabicName {
     switch (subjectYear) {
       case 1:
-        return "السنة الأولى";
+        return "الأولى";
       case 2:
-        return "السنة الثانية";
+        return "الثانية";
       case 3:
-        return "السنة الثالثة";
+        return "الثالثة";
       case 4:
-        return "السنة الرابعة";
+        return "الرابعة";
       case 5:
-        return "السنة الخامسة";
+        return "الخامسة";
       default:
         return "";
     }

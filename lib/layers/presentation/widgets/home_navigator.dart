@@ -48,11 +48,10 @@ Map<int, String> pageForIndexSuper = {
 };
 
 Map<int, String> pageForIndexAdmin = {
-  TabsNumber.subscriptionPage.order - 1: SubscriptionsPage.routeName,
-  TabsNumber.semestersPage.order - 2: SemestersPage.routeName,
-  TabsNumber.subjectsPage.order - 2: SubjectsPage.routeName,
-  TabsNumber.notificationPage.order - 2: NotificationsPage.routeName,
-  TabsNumber.adsPage.order - 2: AdsPage.routeName,
+  TabsNumber.semestersPage.order - 3: SemestersPage.routeName,
+  TabsNumber.subjectsPage.order - 3: SubjectsPage.routeName,
+  TabsNumber.notificationPage.order - 3: NotificationsPage.routeName,
+  TabsNumber.adsPage.order - 3: AdsPage.routeName,
 };
 
 Map<String, int> indexForPageSuper = {
@@ -65,11 +64,10 @@ Map<String, int> indexForPageSuper = {
   AdsPage.routeName: TabsNumber.adsPage.order,
 };
 Map<String, int> indexForPageAdmin = {
-  SubscriptionsPage.routeName: TabsNumber.subscriptionPage.order - 1,
-  SemestersPage.routeName: TabsNumber.semestersPage.order - 2,
-  SubjectsPage.routeName: TabsNumber.subjectsPage.order - 2,
-  NotificationsPage.routeName: TabsNumber.notificationPage.order - 2,
-  AdsPage.routeName: TabsNumber.adsPage.order - 2,
+  SemestersPage.routeName: TabsNumber.semestersPage.order - 3,
+  SubjectsPage.routeName: TabsNumber.subjectsPage.order - 3,
+  NotificationsPage.routeName: TabsNumber.notificationPage.order - 3,
+  AdsPage.routeName: TabsNumber.adsPage.order - 3,
 };
 
 class HomeNavigator extends StatefulWidget {
@@ -140,7 +138,6 @@ class _HomeNavigatorState extends State<HomeNavigator> {
 
   void _navigatorDelegate(int index) {
     int actualIndex = index;
-    log('The actual index is $actualIndex and the page for it is ${pageForIndexSuper[actualIndex]}');
     context.goNamed(isUserSuperAdmin
         ? pageForIndexSuper[actualIndex]!
         : pageForIndexAdmin[actualIndex]!);

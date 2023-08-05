@@ -157,6 +157,7 @@ class _QuestionBanksPageState extends State<QuestionBanksPage> {
                             const SizedBox(height: 12),
                             Expanded(
                               child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Expanded(
                                     child: _FirstScrollViewList(
@@ -192,39 +193,33 @@ class _FirstScrollViewList extends StatelessWidget {
   final bool addSecondList;
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
-      slivers: [
-        SliverPadding(
-          padding: const EdgeInsetsDirectional.only(end: 10, start: 5),
-          sliver: SliverList(
-            delegate: SliverChildListDelegate(
-              [
-                _ComponentGroupDecoration(
-                  label: 'أسئلة الدورات',
-                  children: [
-                    for (var qBank in subject.previousExams!)
-                      _QuestionBankCard(
-                        questionBank: qBank,
-                        subjectId: subject.id,
-                      ),
-                  ],
+    return SingleChildScrollView(
+      padding: const EdgeInsetsDirectional.only(end: 10, start: 5),
+      child: Column(
+        children: [
+          _ComponentGroupDecoration(
+            label: 'أسئلة الدورات',
+            children: [
+              for (var qBank in subject.previousExams!)
+                _QuestionBankCard(
+                  questionBank: qBank,
+                  subjectId: subject.id,
                 ),
-                if (addSecondList)
-                  _ComponentGroupDecoration(
-                    label: 'بنوك الفصول',
-                    children: [
-                      for (var qBank in subject.chapterBanks!)
-                        _QuestionBankCard(
-                          questionBank: qBank,
-                          subjectId: subject.id,
-                        ),
-                    ],
+            ],
+          ),
+          if (addSecondList)
+            _ComponentGroupDecoration(
+              label: 'بنوك الفصول',
+              children: [
+                for (var qBank in subject.chapterBanks!)
+                  _QuestionBankCard(
+                    questionBank: qBank,
+                    subjectId: subject.id,
                   ),
               ],
             ),
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -236,28 +231,22 @@ class _SecondScrollViewList extends StatelessWidget {
   final Subject subject;
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
-      slivers: [
-        SliverPadding(
-          padding: const EdgeInsetsDirectional.only(end: 10),
-          sliver: SliverList(
-            delegate: SliverChildListDelegate(
-              [
-                _ComponentGroupDecoration(
-                  label: 'بنوك الفصول',
-                  children: [
-                    for (var qBank in subject.chapterBanks!)
-                      _QuestionBankCard(
-                        questionBank: qBank,
-                        subjectId: subject.id,
-                      ),
-                  ],
+    return SingleChildScrollView(
+      padding: const EdgeInsetsDirectional.only(end: 10),
+      child: Column(
+        children: [
+          _ComponentGroupDecoration(
+            label: 'بنوك الفصول',
+            children: [
+              for (var qBank in subject.chapterBanks!)
+                _QuestionBankCard(
+                  questionBank: qBank,
+                  subjectId: subject.id,
                 ),
-              ],
-            ),
+            ],
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

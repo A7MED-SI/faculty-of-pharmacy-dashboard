@@ -101,7 +101,6 @@ class _LoginPageState extends State<LoginPage> {
                                   controller: _usernameController,
                                   autovalidateMode:
                                       AutovalidateMode.onUserInteraction,
-                                  autofocus: true,
                                   textInputAction: TextInputAction.next,
                                   cursorColor: colorScheme.onBackground,
                                   validator: (value) {
