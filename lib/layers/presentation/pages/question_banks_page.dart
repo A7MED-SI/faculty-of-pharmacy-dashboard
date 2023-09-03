@@ -193,33 +193,31 @@ class _FirstScrollViewList extends StatelessWidget {
   final bool addSecondList;
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    return ListView(
       padding: const EdgeInsetsDirectional.only(end: 10, start: 5),
-      child: Column(
-        children: [
+      children: [
+        _ComponentGroupDecoration(
+          label: 'أسئلة الدورات',
+          children: [
+            for (var qBank in subject.previousExams!)
+              _QuestionBankCard(
+                questionBank: qBank,
+                subjectId: subject.id,
+              ),
+          ],
+        ),
+        if (addSecondList)
           _ComponentGroupDecoration(
-            label: 'أسئلة الدورات',
+            label: 'بنوك الفصول',
             children: [
-              for (var qBank in subject.previousExams!)
+              for (var qBank in subject.chapterBanks!)
                 _QuestionBankCard(
                   questionBank: qBank,
                   subjectId: subject.id,
                 ),
             ],
           ),
-          if (addSecondList)
-            _ComponentGroupDecoration(
-              label: 'بنوك الفصول',
-              children: [
-                for (var qBank in subject.chapterBanks!)
-                  _QuestionBankCard(
-                    questionBank: qBank,
-                    subjectId: subject.id,
-                  ),
-              ],
-            ),
-        ],
-      ),
+      ],
     );
   }
 }
@@ -231,22 +229,20 @@ class _SecondScrollViewList extends StatelessWidget {
   final Subject subject;
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    return ListView(
       padding: const EdgeInsetsDirectional.only(end: 10),
-      child: Column(
-        children: [
-          _ComponentGroupDecoration(
-            label: 'بنوك الفصول',
-            children: [
-              for (var qBank in subject.chapterBanks!)
-                _QuestionBankCard(
-                  questionBank: qBank,
-                  subjectId: subject.id,
-                ),
-            ],
-          ),
-        ],
-      ),
+      children: [
+        _ComponentGroupDecoration(
+          label: 'بنوك الفصول',
+          children: [
+            for (var qBank in subject.chapterBanks!)
+              _QuestionBankCard(
+                questionBank: qBank,
+                subjectId: subject.id,
+              ),
+          ],
+        ),
+      ],
     );
   }
 }

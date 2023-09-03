@@ -504,6 +504,7 @@ class _AddUpdateQuestionDialogState extends State<_AddUpdateQuestionDialog> {
   late final TextEditingController hintController;
   late final QuestionDialogBloc _questionDialogBloc;
   final GlobalKey<FormState> _formKey = GlobalKey();
+  String? imageExtension;
   @override
   void initState() {
     super.initState();
@@ -869,6 +870,7 @@ class _AddUpdateQuestionDialogState extends State<_AddUpdateQuestionDialog> {
                             if (result != null) {
                               _questionDialogBloc.add(
                                   ImageAdded(image: result.files.first.bytes!));
+                              imageExtension = result.files.first.extension;
                             }
                           },
                           style: TextButton.styleFrom(
@@ -916,6 +918,7 @@ class _AddUpdateQuestionDialogState extends State<_AddUpdateQuestionDialog> {
                                   child: InkWell(
                                     onTap: () {
                                       _questionDialogBloc.add(ImageDeleted());
+                                      imageExtension = null;
                                     },
                                     child: Icon(
                                       Icons.cancel,
@@ -984,6 +987,8 @@ class _AddUpdateQuestionDialogState extends State<_AddUpdateQuestionDialog> {
                                                 hintController.text != ''
                                             ? hintController.text
                                             : null,
+                                        image: state.image,
+                                        imageName: 'image.$imageExtension',
                                       )))
                                     : widget.questionBloc.add(QuestionAdded(
                                         addQuestionParams: AddQuestionParams(
@@ -995,6 +1000,8 @@ class _AddUpdateQuestionDialogState extends State<_AddUpdateQuestionDialog> {
                                                 hintController.text != ''
                                             ? hintController.text
                                             : null,
+                                        image: state.image,
+                                        imageName: 'image.$imageExtension',
                                       )));
                                 context.pop();
                               },

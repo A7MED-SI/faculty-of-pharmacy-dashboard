@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:dartz/dartz.dart';
 import 'package:pharmacy_dashboard/layers/domain/repositories/question_repository.dart';
 import '../../../../core/error/failures.dart';
@@ -11,7 +13,11 @@ class UpdateQuestionUseCase implements UseCase<Question, UpdateQuestionParams> {
   @override
   Future<Either<Failure, Question>> call(UpdateQuestionParams params) async {
     return questionRepository.updateQuestion(
-        params: params.toMap(), questionId: params.questionId);
+      params: params.toMap(),
+      questionId: params.questionId,
+      image: params.image,
+      imageName: params.imageName,
+    );
   }
 }
 
@@ -21,6 +27,8 @@ class UpdateQuestionParams {
   final int questionBankId;
   final List<Answer> answers;
   final int questionId;
+  final Uint8List? image;
+  final String? imageName;
 
   UpdateQuestionParams({
     required this.questionBankId,
@@ -28,14 +36,19 @@ class UpdateQuestionParams {
     required this.answers,
     required this.questionId,
     this.hint,
+    this.image,
+    this.imageName,
   });
 
-  Map<String, dynamic> toMap() {
+  Map<String, String> toMap() {
     return {
       'question_text': questionText,
       'question_bank_id': questionBankId.toString(),
-      'answers': answers.map((e) => e.toRawJson()).toList(),
-      if (hint != null) 'hint': hint,
+      for (int i = 0; i < answers.length; i++)
+        'answers[$i][answer_text]': answers[i].answerText,
+      for (int i = 0; i < answers.length; i++)
+        'answers[$i][is_true]': answers[i].isTrue.toString(),
+      if (hint != null) 'hint': hint!,
     };
   }
 }

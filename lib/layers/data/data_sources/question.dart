@@ -45,71 +45,81 @@ class QuestionDataSource extends Printing with HandlingResponse {
     return await deleteApi.callRequest();
   }
 
-  Future<Question> addQuestion({required Map<String, dynamic> body}) async {
-    final uri = ApiUris.addQuestionUri();
-    printRequest(
-      requestType: RequestType.post,
-      uri: uri,
-      param: body,
+  Future<Question> addQuestion({
+    required Map<String, String> body,
+    Uint8List? image,
+    String? imageName,
+  }) async {
+    final request = http.MultipartRequest(
+      'POST',
+      ApiUris.addQuestionUri(),
     );
-    final http.Response response = await http
-        .post(
-          uri,
-          headers: {
-            HttpHeaders.authorizationHeader:
-                "Bearer ${GlobalPurposeFunctions.getAccessToken()}",
-            HttpHeaders.contentTypeHeader: "application/json",
-            HttpHeaders.acceptHeader: "application/json"
-          },
-          body: jsonEncode(body),
-        )
-        .timeout(
-          const Duration(seconds: 30),
-        );
+    request.headers.addAll({
+      HttpHeaders.authorizationHeader:
+          "Bearer ${GlobalPurposeFunctions.getAccessToken()}",
+      HttpHeaders.contentTypeHeader: "application/x-www-form-urlencoded",
+      HttpHeaders.acceptHeader: "application/json"
+    });
+    if (image != null) {
+      request.files.add(http.MultipartFile.fromBytes(
+        'image',
+        image,
+        filename: imageName,
+      ));
+    }
+    request.fields.addAll(body);
 
-    printResponse(response);
-
+    // ignore: unused_local_variable
+    final response = await request.send();
+    final bodyString = await response.stream.bytesToString();
+    print(
+        'the response from add Question is ${response.statusCode} \n the response body is \n $bodyString');
     if (response.statusCode == 200) {
-      return Question.fromJson(jsonDecode(response.body)['data']['question']);
+      return Question.fromJson(jsonDecode(bodyString)['data']['question']);
     }
     Exception exception = getException(
       statusCode: response.statusCode,
-      errorMessage: jsonDecode(response.body)['message'],
+      errorMessage: jsonDecode(bodyString)['message'],
     );
     throw (exception);
   }
 
-  Future<Question> updateQuestion(
-      {required int questionId, required Map<String, dynamic> body}) async {
-    final uri = ApiUris.updateQuestionUri(questionId: questionId);
-    printRequest(
-      requestType: RequestType.post,
-      uri: uri,
-      param: body,
+  Future<Question> updateQuestion({
+    required int questionId,
+    required Map<String, String> body,
+    Uint8List? image,
+    String? imageName,
+  }) async {
+    final request = http.MultipartRequest(
+      'POST',
+      ApiUris.updateQuestionUri(questionId: questionId),
     );
-    final http.Response response = await http
-        .post(
-          uri,
-          headers: {
-            HttpHeaders.authorizationHeader:
-                "Bearer ${GlobalPurposeFunctions.getAccessToken()}",
-            HttpHeaders.contentTypeHeader: "application/json",
-            HttpHeaders.acceptHeader: "application/json"
-          },
-          body: jsonEncode(body),
-        )
-        .timeout(
-          const Duration(seconds: 30),
-        );
+    request.headers.addAll({
+      HttpHeaders.authorizationHeader:
+          "Bearer ${GlobalPurposeFunctions.getAccessToken()}",
+      HttpHeaders.contentTypeHeader: "application/x-www-form-urlencoded",
+      HttpHeaders.acceptHeader: "application/json"
+    });
+    if (image != null) {
+      request.files.add(http.MultipartFile.fromBytes(
+        'image',
+        image,
+        filename: imageName,
+      ));
+    }
+    request.fields.addAll(body);
 
-    printResponse(response);
-
+    // ignore: unused_local_variable
+    final response = await request.send();
+    final bodyString = await response.stream.bytesToString();
+    print(
+        'the response from update Question is ${response.statusCode} \n the response body is \n $bodyString');
     if (response.statusCode == 200) {
-      return Question.fromJson(jsonDecode(response.body)['data']['question']);
+      return Question.fromJson(jsonDecode(bodyString)['data']['question']);
     }
     Exception exception = getException(
       statusCode: response.statusCode,
-      errorMessage: jsonDecode(response.body)['message'],
+      errorMessage: jsonDecode(bodyString)['message'],
     );
     throw (exception);
   }

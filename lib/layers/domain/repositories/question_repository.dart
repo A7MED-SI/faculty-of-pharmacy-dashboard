@@ -9,14 +9,21 @@ abstract class QuestionRepository {
   Future<Either<Failure, List<Question>>> getQuestions(
       {Map<String, dynamic>? params});
 
-  Future<Either<Failure, Question>> addQuestion(
-      {required Map<String, dynamic> params});
+  Future<Either<Failure, Question>> addQuestion({
+    required Map<String, String> params,
+    Uint8List? image,
+    String? imageName,
+  });
 
   Future<Either<Failure, Question>> showQuestion(
       {Map<String, dynamic>? params, required int questionId});
 
-  Future<Either<Failure, Question>> updateQuestion(
-      {required Map<String, dynamic> params, required int questionId});
+  Future<Either<Failure, Question>> updateQuestion({
+    required Map<String, String> params,
+    required int questionId,
+    Uint8List? image,
+    String? imageName,
+  });
 
   Future<Either<Failure, bool>> deleteQuestion({required int questionId});
 

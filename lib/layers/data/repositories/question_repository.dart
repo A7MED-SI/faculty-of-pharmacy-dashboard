@@ -10,11 +10,18 @@ import 'package:pharmacy_dashboard/layers/domain/repositories/question_repositor
 class QuestionRepositoryImplementation implements QuestionRepository {
   final _questionDataSource = QuestionDataSource();
   @override
-  Future<Either<Failure, Question>> addQuestion(
-      {required Map<String, dynamic> params}) async {
+  Future<Either<Failure, Question>> addQuestion({
+    required Map<String, String> params,
+    Uint8List? image,
+    String? imageName,
+  }) async {
     return await HandlingExceptionManager.wrapHandling<Question>(
         tryCall: () async {
-      final response = await _questionDataSource.addQuestion(body: params);
+      final response = await _questionDataSource.addQuestion(
+        body: params,
+        image: image,
+        imageName: imageName,
+      );
       return Right(response);
     });
   }
@@ -62,12 +69,20 @@ class QuestionRepositoryImplementation implements QuestionRepository {
   }
 
   @override
-  Future<Either<Failure, Question>> updateQuestion(
-      {required Map<String, dynamic> params, required int questionId}) async {
+  Future<Either<Failure, Question>> updateQuestion({
+    required Map<String, String> params,
+    required int questionId,
+    Uint8List? image,
+    String? imageName,
+  }) async {
     return await HandlingExceptionManager.wrapHandling<Question>(
         tryCall: () async {
       final response = await _questionDataSource.updateQuestion(
-          questionId: questionId, body: params);
+        questionId: questionId,
+        body: params,
+        image:image,
+        imageName: imageName,
+      );
       return Right(response);
     });
   }
