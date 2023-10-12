@@ -42,4 +42,16 @@ class SubscriptionsRepositoryImplementation implements SubscriptionRepository {
       },
     );
   }
+
+  @override
+  Future<Either<Failure, bool>> makeAsPrinted(
+      {required List<int> printedSubs}) async {
+    return await HandlingExceptionManager.wrapHandling<bool>(
+      tryCall: () async {
+        final response = await _subscriptionsDataSource.makeSubsAsPrinted(
+            subsIds: printedSubs);
+        return Right(response);
+      },
+    );
+  }
 }

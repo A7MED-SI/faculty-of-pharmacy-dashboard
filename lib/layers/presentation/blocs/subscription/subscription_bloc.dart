@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:pharmacy_dashboard/layers/data/repositories/subscriptions_repository.dart';
+import 'package:pharmacy_dashboard/layers/domain/use_cases/subscriptions/make_subs_printed_use_case.dart';
 
 import '../../../data/models/subscription/subscription.dart';
 import '../../../domain/use_cases/subscriptions/add_subscription_group.dart';
@@ -17,11 +18,15 @@ class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
     on<SubscriptionGroupAdded>(_mapSubscriptionGroupAdded);
     on<AllSelectedChanged>(_mapAllSelectedChanged);
     on<RowSelectionToggled>(_mapRowSelectionToggled);
+    on<SubscriptionsPrinted>(_mapSubscriptionsPrinted);
+    on<PrintingStatusChanged>(_mapPrintingStatusChanged);
   }
 
   final _getSubscriptionsUseCase = GetSubscriptionsUseCase(
       subscriptionsRepository: SubscriptionsRepositoryImplementation());
   final _addSubscriptionGroupUseCase = AddSubscriptionGroupUseCase(
+      subscriptionsRepository: SubscriptionsRepositoryImplementation());
+  final _makeSubsPrintedUseCase = MakeSubsPrintedUseCase(
       subscriptionsRepository: SubscriptionsRepositoryImplementation());
 
   FutureOr<void> _mapSubscriptionsFetched(
@@ -60,7 +65,9 @@ class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
       (result) async {
         emit(state.copyWith(subsAddingStatus: SubsAddingStatus.success));
         emit(state.copyWith(subsAddingStatus: SubsAddingStatus.initial));
-        add(SubscriptionsFetched(params: GetSubscriptoinsParams()));
+        add(SubscriptionsFetched(
+            params: GetSubscriptoinsParams(
+                isPrinted: state.subPrintingStatusIndex)));
       },
     );
   }
@@ -76,5 +83,29 @@ class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
     final selection = List.of(state.selection);
     selection[event.index] = !selection[event.index];
     emit(state.copyWith(selection: selection));
+  }
+
+  FutureOr<void> _mapSubscriptionsPrinted(
+      SubscriptionsPrinted event, Emitter<SubscriptionState> emit) async {
+    final result = await _makeSubsPrintedUseCase(event.subs);
+
+    await result.fold(
+      (l) async {
+        emit(state.copyWith(
+          makeAsPrintedStatus: MakeAsPrintedStatus.failed,
+          errorMessage: l.message,
+        ));
+        emit(state.copyWith(makeAsPrintedStatus: MakeAsPrintedStatus.initial));
+      },
+      (result) async {
+        emit(state.copyWith(makeAsPrintedStatus: MakeAsPrintedStatus.success));
+        emit(state.copyWith(makeAsPrintedStatus: MakeAsPrintedStatus.initial));
+      },
+    );
+  }
+
+  FutureOr<void> _mapPrintingStatusChanged(
+      PrintingStatusChanged event, Emitter<SubscriptionState> emit) {
+    emit(state.copyWith(subPrintingStatusIndex: event.newValue));
   }
 }

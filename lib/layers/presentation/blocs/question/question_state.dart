@@ -18,7 +18,10 @@ class QuestionState {
   final DeletingQuestionStatus deletingQuestionStatus;
   final AddingQuestionsFromExcelStatus addingQuestionsFromExcelStatus;
   final QuestionBank? questionBank;
+  final List<int> selectedQuestions;
+  final Map<int, bool> isQuestionSelected;
   final String? errorMessage;
+  final bool allQuestionsSelected;
 
   const QuestionState({
     this.questionBankFetchingStatus = QuestionBankFetchingStatus.initial,
@@ -27,6 +30,9 @@ class QuestionState {
     this.deletingQuestionStatus = DeletingQuestionStatus.initial,
     this.addingQuestionsFromExcelStatus =
         AddingQuestionsFromExcelStatus.initial,
+    this.selectedQuestions = const [],
+    this.isQuestionSelected = const {},
+    this.allQuestionsSelected = false,
     this.questionBank,
     this.errorMessage,
   });
@@ -38,7 +44,10 @@ class QuestionState {
     UpdatingQuestionStatus? updatingQuestionStatus,
     DeletingQuestionStatus? deletingQuestionStatus,
     AddingQuestionsFromExcelStatus? addingQuestionsFromExcelStatus,
+    Map<int, bool>? isQuestionSelected,
+    List<int>? selectedQuestions,
     String? errorMessage,
+    bool? allQuestionsSelected,
   }) {
     return QuestionState(
       questionBank: questionBank ?? this.questionBank,
@@ -52,6 +61,9 @@ class QuestionState {
       addingQuestionsFromExcelStatus:
           addingQuestionsFromExcelStatus ?? this.addingQuestionsFromExcelStatus,
       errorMessage: errorMessage ?? this.errorMessage,
+      selectedQuestions: selectedQuestions ?? this.selectedQuestions,
+      isQuestionSelected: isQuestionSelected ?? this.isQuestionSelected,
+      allQuestionsSelected: allQuestionsSelected ?? this.allQuestionsSelected,
     );
   }
 }

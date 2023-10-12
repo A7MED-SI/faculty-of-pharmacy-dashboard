@@ -13,10 +13,13 @@ class DeleteApi<T> extends InitialApi<T> {
     required Uri uri,
     required this.fromJson,
     required String requestName,
+    this.body,
     Map<String, String>? header,
   }) : super(requestName: requestName, uri: uri, header: header);
 
   FromJson<T> fromJson;
+
+  dynamic body;
 
   @override
   Future<T> callRequest() async {
@@ -25,6 +28,7 @@ class DeleteApi<T> extends InitialApi<T> {
         .delete(
           uri,
           headers: header,
+          body: body,
         )
         .timeout(
           const Duration(seconds: 30),

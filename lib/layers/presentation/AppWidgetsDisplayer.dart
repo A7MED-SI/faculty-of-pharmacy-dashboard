@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class AppWidgetsDisplayer {
   AppWidgetsDisplayer._();
 
-  static dispalyErrorSnackBar(
+  static displayErrorSnackBar(
       {required BuildContext context, required String message}) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
@@ -19,7 +19,7 @@ class AppWidgetsDisplayer {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  static dispalySuccessSnackBar(
+  static displaySuccessSnackBar(
       {required BuildContext context, required String message}) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;

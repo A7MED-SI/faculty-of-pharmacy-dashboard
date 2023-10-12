@@ -12,8 +12,8 @@ class NotificationRepositoryImplementation implements NotificationRepository {
   @override
   Future<Either<Failure, NotificationModel>> addNotification(
       {required Map<String, String> params,
-      required Uint8List image,
-      required String imageName}) async {
+      Uint8List? image,
+      String? imageName}) async {
     return await HandlingExceptionManager.wrapHandling<NotificationModel>(
       tryCall: () async {
         final response = await _notificationDataSource.addNotification(

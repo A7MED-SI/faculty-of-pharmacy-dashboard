@@ -1,11 +1,10 @@
 import 'dart:typed_data';
 import 'dart:ui';
 
-import 'package:pharmacy_dashboard/core/apis/pdf_api.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 
 class QrPdfApi {
-  static Future<void> generateThenDownload({
+  static Future<Uint8List> generate({
     required List<Uint8List> qrImages,
     required List<String> subTypes,
   }) async {
@@ -42,8 +41,6 @@ class QrPdfApi {
               alignment: PdfTextAlignment.center));
     }
     final bytes = await pdf.save();
-
-    PdfApi.download(
-        downloadName: 'qr_codes.pdf', bytes: Uint8List.fromList(bytes));
+    return Uint8List.fromList(bytes);
   }
 }

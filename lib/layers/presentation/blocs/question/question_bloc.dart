@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
@@ -8,6 +9,7 @@ import 'package:pharmacy_dashboard/layers/data/repositories/question_repository.
 import 'package:pharmacy_dashboard/layers/domain/use_cases/question/add_question.dart';
 import 'package:pharmacy_dashboard/layers/domain/use_cases/question/add_question_from_exel.dart';
 import 'package:pharmacy_dashboard/layers/domain/use_cases/question/delete_question.dart';
+import 'package:pharmacy_dashboard/layers/domain/use_cases/question/delete_question_list.dart';
 import 'package:pharmacy_dashboard/layers/domain/use_cases/question/update_question.dart';
 import 'package:pharmacy_dashboard/layers/domain/use_cases/question_bank/show_question_bank.dart';
 
@@ -21,6 +23,9 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
     on<QuestionUpdated>(_mapQuestionUpdated);
     on<QuestionDeleted>(_mapQuestionDeleted);
     on<QuestionsFromExcelAdded>(_mapQuestionsFromExcelAdded);
+    on<QuestionToggled>(_mapQuestionToggled);
+    on<AllQuestionSelectedPressed>(_mapAllQuestionSelectedPressed);
+    on<SelectedQuestionsDeleted>(_mapSelectedQuestionsDeleted);
   }
 
   final _showQuestionBankUseCase = ShowQuestionBankUseCase(
@@ -32,6 +37,8 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
   final _deleteQuestionUseCase = DeleteQuestionUseCase(
       questionRepository: QuestionRepositoryImplementation());
   final _addQuestionsFromExcelUseCase = AddQuestionFromExelUseCase(
+      questionRepository: QuestionRepositoryImplementation());
+  final _deleteQuestionListUseCase = DeleteQuestionListUseCase(
       questionRepository: QuestionRepositoryImplementation());
 
   FutureOr<void> _mapQuestionBankFetched(
@@ -157,6 +164,70 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
     add(QuestionBankFetched(
         showQuestionBankParams: ShowQuestionBankParams(
       questionBankId: event.addQuestionFromExelParams.questionBankId,
+    )));
+  }
+
+  FutureOr<void> _mapQuestionToggled(
+      QuestionToggled event, Emitter<QuestionState> emit) {
+    final Map<int, bool> isQuestionSelected =
+        Map.from(state.isQuestionSelected);
+    final List<int> selectedQuestion = List.from(state.selectedQuestions);
+    if (state.isQuestionSelected.containsKey(event.id) &&
+        state.isQuestionSelected[event.id]!) {
+      selectedQuestion.removeWhere((element) => element == event.id);
+      isQuestionSelected[event.id] = false;
+    } else {
+      selectedQuestion.add(event.id);
+      isQuestionSelected[event.id] = true;
+    }
+    emit(state.copyWith(
+      isQuestionSelected: isQuestionSelected,
+      selectedQuestions: selectedQuestion,
+    ));
+  }
+
+  FutureOr<void> _mapAllQuestionSelectedPressed(
+      AllQuestionSelectedPressed event, Emitter<QuestionState> emit) {
+    Map<int, bool> isQuestionSelected = {};
+    List<int> selectedQuestion = [];
+    if (event.selectionValue) {
+      for (var q in state.questionBank!.questions!) {
+        selectedQuestion.add(q.id);
+        isQuestionSelected[q.id] = true;
+      }
+    }
+    emit(state.copyWith(
+      isQuestionSelected: isQuestionSelected,
+      selectedQuestions: selectedQuestion,
+      allQuestionsSelected: event.selectionValue,
+    ));
+  }
+
+  FutureOr<void> _mapSelectedQuestionsDeleted(
+      SelectedQuestionsDeleted event, Emitter<QuestionState> emit) async {
+    log(state.selectedQuestions.toString());
+    emit(state.copyWith(
+        questionBankFetchingStatus: QuestionBankFetchingStatus.loading));
+    final result = await _deleteQuestionListUseCase(state.selectedQuestions);
+
+    await result.fold(
+      (l) async {
+        emit(state.copyWith(
+          deletingQuestionStatus: DeletingQuestionStatus.failed,
+          errorMessage: l.message,
+        ));
+      },
+      (r) async {
+        emit(state.copyWith(
+            deletingQuestionStatus: DeletingQuestionStatus.success));
+      },
+    );
+    final qBankId = state.questionBank!.id;
+    emit(const QuestionState());
+
+    add(QuestionBankFetched(
+        showQuestionBankParams: ShowQuestionBankParams(
+      questionBankId: qBankId,
     )));
   }
 }

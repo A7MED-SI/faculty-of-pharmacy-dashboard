@@ -51,47 +51,47 @@ class _AdminsPageState extends State<AdminsPage> {
         body: BlocConsumer<AdminBloc, AdminState>(
           listener: (context, state) {
             if (state.togglingStatus == TogglingStatus.failed) {
-              AppWidgetsDisplayer.dispalyErrorSnackBar(
+              AppWidgetsDisplayer.displayErrorSnackBar(
                 context: context,
                 message: state.errorMessage ??
                     'فشل التغيير يرجى التحقق من الإتصال من الإنترنت والمحاولة مرة أخرى',
               );
             }
             if (state.addingStatus == AddingStatus.failed) {
-              AppWidgetsDisplayer.dispalyErrorSnackBar(
+              AppWidgetsDisplayer.displayErrorSnackBar(
                 context: context,
                 message: state.errorMessage ??
                     'فشل الإضافة يرجى التحقق من الإتصال من الإنترنت والمحاولة مرة أخرى',
               );
             }
             if (state.addingStatus == AddingStatus.success) {
-              AppWidgetsDisplayer.dispalySuccessSnackBar(
+              AppWidgetsDisplayer.displaySuccessSnackBar(
                 context: context,
                 message: 'تمت إضافة المسؤول بنجاح',
               );
             }
             if (state.updatingStatus == UpdatingStatus.failed) {
-              AppWidgetsDisplayer.dispalyErrorSnackBar(
+              AppWidgetsDisplayer.displayErrorSnackBar(
                 context: context,
                 message: state.errorMessage ??
                     'فشل التعديل يرجى التحقق من الإتصال من الإنترنت والمحاولة مرة أخرى',
               );
             }
             if (state.updatingStatus == UpdatingStatus.success) {
-              AppWidgetsDisplayer.dispalySuccessSnackBar(
+              AppWidgetsDisplayer.displaySuccessSnackBar(
                 context: context,
                 message: 'تم تعديل المسؤول بنجاح',
               );
             }
             if (state.deletingStatus == DeletingStatus.failed) {
-              AppWidgetsDisplayer.dispalyErrorSnackBar(
+              AppWidgetsDisplayer.displayErrorSnackBar(
                 context: context,
                 message: state.errorMessage ??
                     'فشل الحذف يرجى التحقق من الإتصال من الإنترنت والمحاولة مرة أخرى',
               );
             }
             if (state.deletingStatus == DeletingStatus.success) {
-              AppWidgetsDisplayer.dispalySuccessSnackBar(
+              AppWidgetsDisplayer.displaySuccessSnackBar(
                 context: context,
                 message: 'تم حذف المسؤول بنجاح',
               );
@@ -177,6 +177,8 @@ class _AdminsPageState extends State<AdminsPage> {
                             )
                           : Expanded(
                               child: DataTable2(
+                                isHorizontalScrollBarVisible: true,
+                                minWidth: 550,
                                 decoration: BoxDecoration(
                                   color: colorScheme.background,
                                   borderRadius: BorderRadius.circular(20),
@@ -197,7 +199,6 @@ class _AdminsPageState extends State<AdminsPage> {
                                     : textTheme.bodySmall?.copyWith(
                                         color: colorScheme.onBackground,
                                       ),
-                                isHorizontalScrollBarVisible: true,
                                 columns: const [
                                   DataColumn(
                                     label: Text('الاسم'),
@@ -325,6 +326,8 @@ class _AddUpdateAdminDialogState extends State<_AddUpdateAdminDialog> {
   late final TextEditingController passwordConfirmationController;
   late final ValueNotifier<bool> canAddExcelNotifier;
   late final ValueNotifier<bool> canAddSubsNotifier;
+  late final ValueNotifier<bool> canAccessAdsNotifier;
+  late final ValueNotifier<bool> canAccessNotificationsNotifier;
   final GlobalKey<FormState> _formKey = GlobalKey();
   @override
   void initState() {
@@ -337,6 +340,9 @@ class _AddUpdateAdminDialogState extends State<_AddUpdateAdminDialog> {
         ValueNotifier(widget.admin?.canAddQuestionFromExcel ?? false);
     canAddSubsNotifier =
         ValueNotifier(widget.admin?.canAddSubscriptions ?? false);
+    canAccessAdsNotifier = ValueNotifier(widget.admin?.canAddAds ?? false);
+    canAccessNotificationsNotifier =
+        ValueNotifier(widget.admin?.canAddNotifications ?? false);
   }
 
   @override
@@ -387,6 +393,7 @@ class _AddUpdateAdminDialogState extends State<_AddUpdateAdminDialog> {
                         autofocus: true,
                         controller: nameController,
                         style: textTheme.bodyLarge,
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
                         validator: (value) {
                           if (value == null || value.length < 5) {
                             return 'الاسم يجب أن يتكون من 5 أحرف على الأقل';
@@ -416,9 +423,10 @@ class _AddUpdateAdminDialogState extends State<_AddUpdateAdminDialog> {
                       flex: 3,
                       child: TextFormField(
                         controller: usernameController,
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
                         style: textTheme.bodyLarge,
                         validator: (value) {
-                          if (value == null || value.length < 5) {
+                          if (value == null || value.length < 3) {
                             return 'اسم المستخدم يجب أن يتكون من 3 أحرف على الأقل';
                           }
                           return null;
@@ -445,6 +453,7 @@ class _AddUpdateAdminDialogState extends State<_AddUpdateAdminDialog> {
                     Expanded(
                       flex: 3,
                       child: TextFormField(
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
                         controller: passwordController,
                         style: textTheme.bodyLarge,
                         obscureText: true,
@@ -479,6 +488,7 @@ class _AddUpdateAdminDialogState extends State<_AddUpdateAdminDialog> {
                       flex: 3,
                       child: TextFormField(
                         controller: passwordConfirmationController,
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
                         style: textTheme.bodyLarge,
                         obscureText: true,
                         validator: (value) {
@@ -548,6 +558,56 @@ class _AddUpdateAdminDialogState extends State<_AddUpdateAdminDialog> {
                         ),
                       );
                     }),
+                const SizedBox(height: 12),
+                ValueListenableBuilder(
+                    valueListenable: canAccessAdsNotifier,
+                    builder: (context, canAdd, _) {
+                      return SizedBox(
+                        width: 250,
+                        child: Row(
+                          children: [
+                            Text(
+                              'يمكنه الوصول للإعلانات:',
+                              style: textTheme.bodyLarge
+                                  ?.copyWith(color: colorScheme.onBackground),
+                            ),
+                            const Spacer(),
+                            Switch(
+                              value: canAdd,
+                              onChanged: (value) {
+                                canAccessAdsNotifier.value = value;
+                              },
+                              activeColor: colorScheme.primary,
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+                const SizedBox(height: 12),
+                ValueListenableBuilder(
+                    valueListenable: canAccessNotificationsNotifier,
+                    builder: (context, canAdd, _) {
+                      return SizedBox(
+                        width: 250,
+                        child: Row(
+                          children: [
+                            Text(
+                              'يمكنه الوصول للإشعارات:',
+                              style: textTheme.bodyLarge
+                                  ?.copyWith(color: colorScheme.onBackground),
+                            ),
+                            const Spacer(),
+                            Switch(
+                              value: canAdd,
+                              onChanged: (value) {
+                                canAccessNotificationsNotifier.value = value;
+                              },
+                              activeColor: colorScheme.primary,
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
                 const SizedBox(height: 30),
                 Align(
                   alignment: Alignment.centerLeft,
@@ -583,6 +643,11 @@ class _AddUpdateAdminDialogState extends State<_AddUpdateAdminDialog> {
                                       canAddExcelNotifier.value ? 1 : 0,
                                   canAddSubscription:
                                       canAddSubsNotifier.value ? 1 : 0,
+                                  canAddAds: canAccessAdsNotifier.value ? 1 : 0,
+                                  canAddNotificatons:
+                                      canAccessNotificationsNotifier.value
+                                          ? 1
+                                          : 0,
                                 )))
                               : widget.adminBloc.add(AdminAdded(
                                   addAdminsParams: AddAdminParams(
@@ -593,6 +658,11 @@ class _AddUpdateAdminDialogState extends State<_AddUpdateAdminDialog> {
                                       canAddExcelNotifier.value ? 1 : 0,
                                   canAddSubscription:
                                       canAddSubsNotifier.value ? 1 : 0,
+                                  canAddAds: canAccessAdsNotifier.value ? 1 : 0,
+                                  canAddNotificatons:
+                                      canAccessNotificationsNotifier.value
+                                          ? 1
+                                          : 0,
                                 )));
                           context.pop();
                         },

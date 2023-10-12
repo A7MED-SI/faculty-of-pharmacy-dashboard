@@ -1,3 +1,4 @@
+import 'dart:html';
 import 'dart:typed_data';
 import 'dart:js' as js;
 
@@ -66,21 +67,21 @@ class _QuestionsPageState extends State<QuestionsPage> {
           body: BlocConsumer<QuestionBloc, QuestionState>(
             listener: (context, state) {
               if (state.addingQuestionStatus == AddingQuestionStatus.failed) {
-                AppWidgetsDisplayer.dispalyErrorSnackBar(
+                AppWidgetsDisplayer.displayErrorSnackBar(
                   context: context,
                   message: state.errorMessage ??
                       'فشل الإضافة يرجى التحقق من اتصالك بالإنترنت والمحاولة لاحقا',
                 );
               }
               if (state.addingQuestionStatus == AddingQuestionStatus.success) {
-                AppWidgetsDisplayer.dispalySuccessSnackBar(
+                AppWidgetsDisplayer.displaySuccessSnackBar(
                   context: context,
                   message: 'تم إضافة السؤال بنجاح',
                 );
               }
               if (state.updatingQuestionStatus ==
                   UpdatingQuestionStatus.failed) {
-                AppWidgetsDisplayer.dispalyErrorSnackBar(
+                AppWidgetsDisplayer.displayErrorSnackBar(
                   context: context,
                   message: state.errorMessage ??
                       'فشل التعديل يرجى التحقق من اتصالك بالإنترنت والمحاولة لاحقا',
@@ -88,14 +89,14 @@ class _QuestionsPageState extends State<QuestionsPage> {
               }
               if (state.updatingQuestionStatus ==
                   UpdatingQuestionStatus.success) {
-                AppWidgetsDisplayer.dispalySuccessSnackBar(
+                AppWidgetsDisplayer.displaySuccessSnackBar(
                   context: context,
                   message: 'تم تعديل السؤال بنجاح',
                 );
               }
               if (state.deletingQuestionStatus ==
                   DeletingQuestionStatus.failed) {
-                AppWidgetsDisplayer.dispalyErrorSnackBar(
+                AppWidgetsDisplayer.displayErrorSnackBar(
                   context: context,
                   message: state.errorMessage ??
                       'فشل الحذف يرجى التحقق من اتصالك بالإنترنت والمحاولة لاحقا',
@@ -103,14 +104,14 @@ class _QuestionsPageState extends State<QuestionsPage> {
               }
               if (state.deletingQuestionStatus ==
                   DeletingQuestionStatus.success) {
-                AppWidgetsDisplayer.dispalySuccessSnackBar(
+                AppWidgetsDisplayer.displaySuccessSnackBar(
                   context: context,
-                  message: 'تم حذف السؤال بنجاح',
+                  message: 'تم الحذف بنجاح',
                 );
               }
               if (state.addingQuestionsFromExcelStatus ==
                   AddingQuestionsFromExcelStatus.failed) {
-                AppWidgetsDisplayer.dispalyErrorSnackBar(
+                AppWidgetsDisplayer.displayErrorSnackBar(
                   context: context,
                   message: state.errorMessage ??
                       'فشل رفع الملف يرجى التحقق من اتصالك بالإنترنت والمحاولة لاحقا',
@@ -118,7 +119,7 @@ class _QuestionsPageState extends State<QuestionsPage> {
               }
               if (state.addingQuestionsFromExcelStatus ==
                   AddingQuestionsFromExcelStatus.success) {
-                AppWidgetsDisplayer.dispalySuccessSnackBar(
+                AppWidgetsDisplayer.displaySuccessSnackBar(
                   context: context,
                   message: 'تم رفع ملف الأسئلة بنجاح',
                 );
@@ -216,6 +217,14 @@ class _QuestionsPageState extends State<QuestionsPage> {
                                                 },
                                                 text: 'إضافة ملف اكسل',
                                               ),
+                                              const SizedBox(width: 10),
+                                              AppTextButton(
+                                                onPressed: () {
+                                                  downloadFile(
+                                                      '/assets/files/questions_table.xlsx');
+                                                },
+                                                text: 'تحميل الجدول',
+                                              ),
                                             ],
                                           )
                                       ],
@@ -243,6 +252,20 @@ class _QuestionsPageState extends State<QuestionsPage> {
                                           const SizedBox(width: 10),
                                           AppTextButton(
                                             onPressed: () {
+                                              final currentAdmin =
+                                                  GlobalPurposeFunctions
+                                                      .getAdminModel()!;
+                                              if (!currentAdmin.isSuperAdmin &&
+                                                  !currentAdmin
+                                                      .canAddQuestionFromExcel) {
+                                                showToast(
+                                                  'ليس لديك الصلاحية للإضافة بهذه الطريقة',
+                                                  position: const ToastPosition(
+                                                      align: Alignment
+                                                          .bottomCenter),
+                                                );
+                                                return;
+                                              }
                                               showDialog(
                                                 context: context,
                                                 builder: (context) {
@@ -256,9 +279,67 @@ class _QuestionsPageState extends State<QuestionsPage> {
                                             },
                                             text: 'إضافة ملف اكسل',
                                           ),
+                                          const SizedBox(width: 10),
+                                          AppTextButton(
+                                            onPressed: () {
+                                              downloadFile(
+                                                  '/assets/files/questions_template.xlsx');
+                                            },
+                                            text: 'تحميل الجدول',
+                                          ),
                                         ],
                                       ),
-                                    const SizedBox(height: 10),
+                                    if (state.selectedQuestions.isNotEmpty)
+                                      const SizedBox(height: 10),
+                                    if (state.selectedQuestions.isNotEmpty)
+                                      Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          AppTextButton(
+                                            onPressed: () async {
+                                              final result =
+                                                  await showDialog<bool?>(
+                                                context: context,
+                                                builder: (context) {
+                                                  return const DeleteConfirmationDialog(
+                                                    text:
+                                                        'هل أنت متأكد أنك تريد حذف هذه الأسئلة؟',
+                                                  );
+                                                },
+                                              );
+                                              if (result != null && result) {
+                                                _questionBloc.add(
+                                                    SelectedQuestionsDeleted());
+                                              }
+                                            },
+                                            text: 'حذف المحدد',
+                                          ),
+                                        ],
+                                      ),
+                                    if (state
+                                        .questionBank!.questions!.isNotEmpty)
+                                      const SizedBox(height: 10),
+                                    if (state
+                                        .questionBank!.questions!.isNotEmpty)
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                              flex: 11, child: Container()),
+                                          Expanded(
+                                            child: Checkbox(
+                                              value: state.allQuestionsSelected,
+                                              onChanged: (newValue) {
+                                                if (newValue == null) {
+                                                  return;
+                                                }
+                                                _questionBloc.add(
+                                                    AllQuestionSelectedPressed(
+                                                        newValue));
+                                              },
+                                            ),
+                                          )
+                                        ],
+                                      ),
                                     for (int i = 0;
                                         i <
                                             state.questionBank!.questions!
@@ -268,6 +349,10 @@ class _QuestionsPageState extends State<QuestionsPage> {
                                         question:
                                             state.questionBank!.questions![i],
                                         questionNumber: i + 1,
+                                        isSelected: state.isQuestionSelected[
+                                                state.questionBank!
+                                                    .questions![i].id] ??
+                                            false,
                                       ),
                                   ],
                                 ),
@@ -281,6 +366,12 @@ class _QuestionsPageState extends State<QuestionsPage> {
       ),
     );
   }
+
+  void downloadFile(String url) {
+    final anchorElement = AnchorElement(href: url);
+    anchorElement.download = 'questions_template';
+    anchorElement.click();
+  }
 }
 
 class QuestionCard extends StatelessWidget {
@@ -288,157 +379,177 @@ class QuestionCard extends StatelessWidget {
     super.key,
     required this.question,
     required this.questionNumber,
+    required this.isSelected,
   });
   final Question question;
   final int questionNumber;
+  final bool isSelected;
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 6),
-      child: ExpansionTile(
-        title: Text(
-          '$questionNumber. ${question.questionText}',
-          style: textTheme.headlineSmall?.copyWith(
-            color: colorScheme.onBackground,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        leading: PopupMenuButton<String>(
-          tooltip: 'خيارات',
-          padding: EdgeInsets.zero,
-          onSelected: (value) async {
-            final questionBloc = context.read<QuestionBloc>();
-            if (value == 'edit') {
-              showDialog(
-                context: context,
-                builder: (newContext) {
-                  return _AddUpdateQuestionDialog(
-                    questionBloc: questionBloc,
-                    isUpdate: true,
-                    question: question,
-                    questionBankId: question.questionBankId,
-                  );
-                },
-              );
-            } else {
-              final result = await showDialog<bool?>(
-                context: context,
-                builder: (context) {
-                  return const DeleteConfirmationDialog(
-                    text: 'هل أنت متأكد أنك تريد حذف هذا السؤال؟',
-                  );
-                },
-              );
-              if (result != null && result) {
-                questionBloc.add(
-                  QuestionDeleted(
-                      questionId: question.id,
-                      questionBankId: question.questionBankId),
-                );
-              }
-            }
-          },
-          splashRadius: 30,
-          itemBuilder: (context) => <PopupMenuItem<String>>[
-            const PopupMenuItem<String>(
-              value: 'edit',
-              child: Text(
-                'تعديل',
+    return Row(
+      children: [
+        Expanded(
+          flex: 11,
+          child: Container(
+            margin: const EdgeInsets.symmetric(vertical: 6),
+            child: ExpansionTile(
+              title: Text(
+                '$questionNumber. ${question.questionText}',
+                style: textTheme.headlineSmall?.copyWith(
+                  color: colorScheme.onBackground,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            const PopupMenuItem<String>(
-              value: 'delete',
-              child: Text(
-                'حذف',
+              leading: PopupMenuButton<String>(
+                tooltip: 'خيارات',
+                padding: EdgeInsets.zero,
+                onSelected: (value) async {
+                  final questionBloc = context.read<QuestionBloc>();
+                  if (value == 'edit') {
+                    showDialog(
+                      context: context,
+                      builder: (newContext) {
+                        return _AddUpdateQuestionDialog(
+                          questionBloc: questionBloc,
+                          isUpdate: true,
+                          question: question,
+                          questionBankId: question.questionBankId,
+                        );
+                      },
+                    );
+                  } else {
+                    final result = await showDialog<bool?>(
+                      context: context,
+                      builder: (context) {
+                        return const DeleteConfirmationDialog(
+                          text: 'هل أنت متأكد أنك تريد حذف هذا السؤال؟',
+                        );
+                      },
+                    );
+                    if (result != null && result) {
+                      questionBloc.add(
+                        QuestionDeleted(
+                            questionId: question.id,
+                            questionBankId: question.questionBankId),
+                      );
+                    }
+                  }
+                },
+                splashRadius: 30,
+                itemBuilder: (context) => <PopupMenuItem<String>>[
+                  const PopupMenuItem<String>(
+                    value: 'edit',
+                    child: Text(
+                      'تعديل',
+                    ),
+                  ),
+                  const PopupMenuItem<String>(
+                    value: 'delete',
+                    child: Text(
+                      'حذف',
+                    ),
+                  ),
+                ],
+                child: const Icon(Icons.more_vert_outlined),
               ),
-            ),
-          ],
-          child: const Icon(Icons.more_vert_outlined),
-        ),
-        backgroundColor: colorScheme.background,
-        collapsedBackgroundColor: colorScheme.background,
-        collapsedShape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        collapsedIconColor: colorScheme.onBackground,
-        tilePadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        iconColor: colorScheme.onBackground,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        childrenPadding: const EdgeInsets.symmetric(horizontal: 12),
-        children: [
-          Align(
-            alignment: Alignment.centerRight,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
+              backgroundColor: colorScheme.background,
+              collapsedBackgroundColor: colorScheme.background,
+              collapsedShape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              collapsedIconColor: colorScheme.onBackground,
+              tilePadding:
+                  const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              iconColor: colorScheme.onBackground,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              childrenPadding: const EdgeInsets.symmetric(horizontal: 12),
               children: [
-                if (question.hint != null || question.image != null)
-                  Row(
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (question.hint != null)
-                        Expanded(
-                          flex: 4,
-                          child: Text(
-                            'تلميح: ${question.hint}',
-                            style: textTheme.bodyLarge?.copyWith(
-                              color: colorScheme.secondary,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      const Spacer(),
-                      if (question.image != null)
-                        SizedBox(
-                          width: 100,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              js.context.callMethod('open', [question.image]);
-                            },
-                            style: ButtonStyle(
-                              backgroundColor:
-                                  MaterialStatePropertyAll(colorScheme.primary),
-                              shape: MaterialStatePropertyAll(
-                                  RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(15))),
-                            ),
-                            child: Text(
-                              'فتح الصورة',
-                              style: textTheme.bodyMedium?.copyWith(
-                                color: colorScheme.onPrimary,
+                      if (question.hint != null || question.image != null)
+                        Row(
+                          children: [
+                            if (question.hint != null)
+                              Expanded(
+                                flex: 4,
+                                child: Text(
+                                  'تلميح: ${question.hint}',
+                                  style: textTheme.bodyLarge?.copyWith(
+                                    color: colorScheme.secondary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
+                            const Spacer(),
+                            if (question.image != null)
+                              SizedBox(
+                                width: 100,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    js.context
+                                        .callMethod('open', [question.image]);
+                                  },
+                                  style: ButtonStyle(
+                                    backgroundColor: MaterialStatePropertyAll(
+                                        colorScheme.primary),
+                                    shape: MaterialStatePropertyAll(
+                                        RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(15))),
+                                  ),
+                                  child: Text(
+                                    'فتح الصورة',
+                                    style: textTheme.bodyMedium?.copyWith(
+                                      color: colorScheme.onPrimary,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      Text(
+                        '${question.answers.length} أجوبة:',
+                        style: textTheme.bodyLarge?.copyWith(
+                          color: colorScheme.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      for (var answer in question.answers)
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            AnswerRow(
+                              answer: answer.answerText,
+                              isCorrect: answer.isTrue == 1,
                             ),
-                          ),
+                            if (answer.id != question.answers.last.id)
+                              const Divider(indent: 20, endIndent: 20),
+                          ],
                         ),
                     ],
-                  ),
-                Text(
-                  '${question.answers.length} أجوبة:',
-                  style: textTheme.bodyLarge?.copyWith(
-                    color: colorScheme.primary,
-                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                for (var answer in question.answers)
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      AnswerRow(
-                        answer: answer.answerText,
-                        isCorrect: answer.isTrue == 1,
-                      ),
-                      if (answer.id != question.answers.last.id)
-                        const Divider(indent: 20, endIndent: 20),
-                    ],
-                  ),
               ],
             ),
           ),
-        ],
-      ),
+        ),
+        Expanded(
+          child: Checkbox(
+            value: isSelected,
+            onChanged: (newValue) {
+              context.read<QuestionBloc>().add(QuestionToggled(question.id));
+            },
+          ),
+        )
+      ],
     );
   }
 }

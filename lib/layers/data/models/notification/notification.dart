@@ -26,13 +26,13 @@ class NotificationModel {
   final int id;
   final String title;
   final String body;
-  final String image;
+  final String? image;
 
   NotificationModel({
     required this.id,
     required this.title,
     required this.body,
-    required this.image,
+    this.image,
   });
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) {

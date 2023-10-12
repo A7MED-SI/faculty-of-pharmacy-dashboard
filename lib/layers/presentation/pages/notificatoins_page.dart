@@ -68,7 +68,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
           listener: (context, state) {
             if (state.addingNotificationStatus ==
                 AddingNotificationStatus.failed) {
-              AppWidgetsDisplayer.dispalyErrorSnackBar(
+              AppWidgetsDisplayer.displayErrorSnackBar(
                 context: context,
                 message: state.errorMessage ??
                     'فشل الإرسال يرجى التحقق من الإنترنت والمحاولة مرة أخرى',
@@ -76,7 +76,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
             }
             if (state.addingNotificationStatus ==
                 AddingNotificationStatus.success) {
-              AppWidgetsDisplayer.dispalySuccessSnackBar(
+              AppWidgetsDisplayer.displaySuccessSnackBar(
                 context: context,
                 message: 'تم إرسال الإشعار بنجاح',
               );
@@ -139,6 +139,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                   valueListenable: currentPerPageNotifier,
                                   builder: (context, currentValue, _) {
                                     return PaginatedDataTable2(
+                                      minWidth: 650,
                                       columns: [
                                         DataColumn(
                                           label: Text(
@@ -261,7 +262,7 @@ class NotificationTableDataSource extends DataTableSource {
           ),
         )),
         DataCell(
-          ElevatedButton(
+          notifications[index % perPageNumber].image != null ?ElevatedButton(
             onPressed: () {
               js.context.callMethod(
                   'open', [notifications[index % perPageNumber].image]);
@@ -276,7 +277,7 @@ class NotificationTableDataSource extends DataTableSource {
                 color: colorScheme.onPrimary,
               ),
             ),
-          ),
+          ) : Container(),
         ),
         DataCell(
           TextButton(
@@ -446,40 +447,43 @@ class _SendNotificationDialogState extends State<_SendNotificationDialog> {
                         ),
                         const SizedBox(height: 12),
                         if (image == null)
-                          TextButton(
-                            onPressed: () async {
-                              final FilePickerResult? result =
-                                  await FilePickerWeb.platform.pickFiles(
-                                type: FileType.image,
-                              );
-                              if (result != null) {
-                                imageNotifier.value = result.files.first.bytes!;
-                                imageExtension = result.files.first.extension;
-                              }
-                            },
-                            style: TextButton.styleFrom(
-                              backgroundColor: colorScheme.primaryContainer,
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 10, horizontal: 14),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  'اختيار صورة',
-                                  style: textTheme.bodyLarge?.copyWith(
-                                    color: colorScheme.onPrimaryContainer,
-                                  ),
+                          Center(
+                            child: TextButton(
+                              onPressed: () async {
+                                final FilePickerResult? result =
+                                    await FilePickerWeb.platform.pickFiles(
+                                  type: FileType.image,
+                                );
+                                if (result != null) {
+                                  imageNotifier.value =
+                                      result.files.first.bytes!;
+                                  imageExtension = result.files.first.extension;
+                                }
+                              },
+                              style: TextButton.styleFrom(
+                                backgroundColor: colorScheme.primaryContainer,
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 10, horizontal: 14),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(6),
                                 ),
-                                const SizedBox(width: 4),
-                                Icon(
-                                  Icons.image,
-                                  color: colorScheme.onPrimaryContainer,
-                                )
-                              ],
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    'اختيار صورة',
+                                    style: textTheme.bodyLarge?.copyWith(
+                                      color: colorScheme.onPrimaryContainer,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Icon(
+                                    Icons.image,
+                                    color: colorScheme.onPrimaryContainer,
+                                  )
+                                ],
+                              ),
                             ),
                           ),
                         if (image != null)
@@ -542,7 +546,7 @@ class _SendNotificationDialogState extends State<_SendNotificationDialog> {
                                           AddNotificationParams(
                                     title: titleController.text,
                                     body: bodyController.text,
-                                    image: imageNotifier.value!,
+                                    image: imageNotifier.value,
                                     imageName: 'image.$imageExtension',
                                   )));
                                   context.pop();

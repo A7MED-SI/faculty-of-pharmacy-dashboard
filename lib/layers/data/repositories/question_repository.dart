@@ -80,9 +80,19 @@ class QuestionRepositoryImplementation implements QuestionRepository {
       final response = await _questionDataSource.updateQuestion(
         questionId: questionId,
         body: params,
-        image:image,
+        image: image,
         imageName: imageName,
       );
+      return Right(response);
+    });
+  }
+
+  @override
+  Future<Either<Failure, bool>> deleteQuestionList(
+      {required List<int> questionIds}) async {
+    return await HandlingExceptionManager.wrapHandling<bool>(tryCall: () async {
+      final response = await _questionDataSource.deleteQuestionList(
+          questionIds: questionIds);
       return Right(response);
     });
   }

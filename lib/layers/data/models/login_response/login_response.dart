@@ -93,4 +93,12 @@ class Admin {
   bool get canAddSubscriptions {
     return permissions.contains(AdminPermission.canAddSubs.value);
   }
+
+  bool get canAddNotifications {
+    return permissions.contains(AdminPermission.canAddNotifications.value);
+  }
+
+  bool get canAddAds {
+    return permissions.contains(AdminPermission.canAddAds.value);
+  }
 }

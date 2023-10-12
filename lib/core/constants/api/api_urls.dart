@@ -16,6 +16,7 @@ class ApiUris {
   static const String _questionApi = 'admin/question/';
   static const String _notificationApi = 'admin/notification/';
   static const String _adApi = 'admin/ad/';
+  static const String _imagesApi = 'admin/tempImage/';
   static const String _dashboardApi = 'admin/dashboard/';
   //Api endpoints
   static Uri _mainUri(
@@ -62,6 +63,13 @@ class ApiUris {
   static Uri deleteSubscription({required int subscriptionId}) {
     return _mainUri(path: '$_subscriptionApi$subscriptionId/destroy');
   }
+
+  static Uri makeAsPrintedUri() {
+    return _mainUri(
+      path: '${_subscriptionApi}makeAsPrinted',
+    );
+  }
+
 
   //Admins
   static Uri getAdminsUri({Map<String, dynamic>? queryParams}) {
@@ -221,6 +229,12 @@ class ApiUris {
     );
   }
 
+  static Uri deleteQuestionListUri() {
+    return _mainUri(
+      path: '${_questionApi}destroyList',
+    );
+  }
+
   //Notification
   static Uri getNotificationsUri({Map<String, dynamic>? queryParams}) {
     return _mainUri(
@@ -282,6 +296,32 @@ class ApiUris {
   static Uri deleteAdUri({required int adId}) {
     return _mainUri(
       path: '$_adApi$adId/destroy',
+    );
+  }
+
+  //Temp Images
+  static Uri getImagesUri({Map<String, dynamic>? queryParams}) {
+    return _mainUri(
+      path: '${_imagesApi}index',
+      queryParams: queryParams,
+    );
+  }
+
+  static Uri addImageUri() {
+    return _mainUri(
+      path: '${_imagesApi}store',
+    );
+  }
+
+  static Uri updateImageUri({required int imageId}) {
+    return _mainUri(
+      path: '$_imagesApi$imageId/update',
+    );
+  }
+
+  static Uri deleteImageListUri() {
+    return _mainUri(
+      path: '${_imagesApi}destroyList',
     );
   }
 }

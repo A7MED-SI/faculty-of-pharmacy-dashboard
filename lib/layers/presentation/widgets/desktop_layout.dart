@@ -33,11 +33,18 @@ class DesktopLayout extends StatefulWidget {
 
 class _DesktopLayoutState extends State<DesktopLayout> {
   late final bool isUserSuperAdmin;
+  late final bool userCanAddSubs;
+  late final bool userCanAccessNotifications;
+  late final bool userCanAccessAds;
 
   @override
   void initState() {
     super.initState();
-    isUserSuperAdmin = GlobalPurposeFunctions.getAdminModel()!.isSuperAdmin;
+    final adminModel = GlobalPurposeFunctions.getAdminModel()!;
+    isUserSuperAdmin = adminModel.isSuperAdmin;
+    userCanAddSubs = adminModel.canAddSubscriptions;
+    userCanAccessAds = adminModel.canAddAds;
+    userCanAccessNotifications = adminModel.canAddNotifications;
   }
 
   @override
@@ -68,7 +75,7 @@ class _DesktopLayoutState extends State<DesktopLayout> {
                             ),
                             label: Text('الإحصائيات'),
                           ),
-                        if (isUserSuperAdmin)
+                        if (isUserSuperAdmin || userCanAddSubs)
                           const NavigationRailDestination(
                             icon: SvgImage(
                               SvgImages.qr,
@@ -98,20 +105,22 @@ class _DesktopLayoutState extends State<DesktopLayout> {
                           ),
                           label: Text('المواد'),
                         ),
-                        const NavigationRailDestination(
-                          icon: SvgImage(
-                            SvgImages.notificationBell,
-                            height: 25,
+                        if (isUserSuperAdmin || userCanAccessNotifications)
+                          const NavigationRailDestination(
+                            icon: SvgImage(
+                              SvgImages.notificationBell,
+                              height: 25,
+                            ),
+                            label: Text('الإشعارات'),
                           ),
-                          label: Text('الإشعارات'),
-                        ),
-                        const NavigationRailDestination(
-                          icon: SvgImage(
-                            SvgImages.ads,
-                            height: 25,
+                        if (isUserSuperAdmin || userCanAccessAds)
+                          const NavigationRailDestination(
+                            icon: SvgImage(
+                              SvgImages.ads,
+                              height: 25,
+                            ),
+                            label: Text('الإعلانات'),
                           ),
-                          label: Text('الإعلانات'),
-                        ),
                       ],
                       selectedIndex: state.selectedIndex,
                       elevation: 4,
@@ -146,6 +155,7 @@ class _DesktopLayoutState extends State<DesktopLayout> {
                             },
                           );
                           if (result != null && result) {
+                            await GlobalPurposeFunctions.setCurrentPath('');
                             authBloc.add(LogoutSubmitted());
                           }
                         },
@@ -226,9 +236,9 @@ class _NavigationRailHeader extends StatelessWidget {
                               ),
                             ),
                             SizedBox(
-                              height: 40,
+                              height: 30,
                               child: Image(
-                                image: const AssetImage(AppImages.logoImage),
+                                image: const AssetImage(AppImages.logo),
                                 color: colorScheme.onBackground,
                               ),
                             ),
@@ -239,7 +249,7 @@ class _NavigationRailHeader extends StatelessWidget {
                               child: Opacity(
                                 opacity: animation.value,
                                 child: Text(
-                                  'DO IT RIGHT',
+                                  'OMEGA',
                                   style: textTheme.headlineMedium!.copyWith(
                                     color: colorScheme.secondary,
                                     fontWeight: FontWeight.bold,
@@ -260,23 +270,26 @@ class _NavigationRailHeader extends StatelessWidget {
                     widthFactor: animation.value,
                     child: Opacity(
                       opacity: animation.value,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          SvgImage(
-                            SvgImages.user,
-                            height: 20,
-                            color: colorScheme.onBackground,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            GlobalPurposeFunctions.getAdminModel()!.username,
-                            style: textTheme.bodyLarge!.copyWith(
-                              fontWeight: FontWeight.bold,
+                      child: Container(
+                        margin: const EdgeInsets.only(top: 6),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SvgImage(
+                              SvgImages.user,
+                              height: 20,
                               color: colorScheme.onBackground,
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 8),
+                            Text(
+                              GlobalPurposeFunctions.getAdminModel()!.username,
+                              style: textTheme.bodyLarge!.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: colorScheme.onBackground,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),

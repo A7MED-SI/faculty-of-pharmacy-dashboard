@@ -21,8 +21,6 @@ class SubscriptionDeleted extends SubscriptionEvent {
   SubscriptionDeleted({required this.subscriptionId});
 }
 
-
-
 class AllSelectedChanged extends SubscriptionEvent {
   final bool value;
 
@@ -33,4 +31,16 @@ class RowSelectionToggled extends SubscriptionEvent {
   final int index;
 
   RowSelectionToggled(this.index);
+}
+
+class SubscriptionsPrinted extends SubscriptionEvent {
+  final List<int> subs;
+
+  SubscriptionsPrinted({required this.subs});
+}
+
+class PrintingStatusChanged extends SubscriptionEvent {
+  final int newValue;
+
+  PrintingStatusChanged(this.newValue);
 }

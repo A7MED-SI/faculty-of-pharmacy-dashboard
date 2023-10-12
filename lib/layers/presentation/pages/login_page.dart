@@ -53,7 +53,7 @@ class _LoginPageState extends State<LoginPage> {
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state.status == AuthStatus.error) {
-          AppWidgetsDisplayer.dispalyErrorSnackBar(
+          AppWidgetsDisplayer.displayErrorSnackBar(
             context: context,
             message: state.errorMessage ??
                 'يرجي التأكد من المعلومات والمحاولة مرة أخرى',
@@ -79,23 +79,22 @@ class _LoginPageState extends State<LoginPage> {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                SizedBox(
+                                const SizedBox(
                                   height: 140,
                                   child: Image(
-                                    image:
-                                        const AssetImage(AppImages.logoImage),
-                                    color: colorScheme.onBackground,
+                                    image: AssetImage(AppImages.logoWithTitle),
+                                    // color: colorScheme.onBackground,
                                   ),
                                 ),
-                                const SizedBox(height: 10),
-                                Text(
-                                  'DO IT RIGHT',
-                                  style: textTheme.headlineLarge?.copyWith(
-                                    color: colorScheme.onBackground,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  textDirection: TextDirection.ltr,
-                                ),
+                                // const SizedBox(height: 10),
+                                // Text(
+                                //   'DO IT RIGHT',
+                                //   style: textTheme.headlineLarge?.copyWith(
+                                //     color: colorScheme.onBackground,
+                                //     fontWeight: FontWeight.bold,
+                                //   ),
+                                //   textDirection: TextDirection.ltr,
+                                // ),
                                 const SizedBox(height: 40),
                                 TextFormField(
                                   controller: _usernameController,

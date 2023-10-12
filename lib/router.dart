@@ -1,3 +1,4 @@
+import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pharmacy_dashboard/core/global_functions/global_purpose_functions.dart';
@@ -9,6 +10,7 @@ import 'package:pharmacy_dashboard/layers/presentation/pages/login_page.dart';
 import 'package:pharmacy_dashboard/layers/presentation/pages/notificatoins_page.dart';
 import 'package:pharmacy_dashboard/layers/presentation/pages/question_banks_page.dart';
 import 'package:pharmacy_dashboard/layers/presentation/pages/semesters_page.dart';
+import 'package:pharmacy_dashboard/layers/presentation/pages/subject_images_page.dart';
 import 'package:pharmacy_dashboard/layers/presentation/pages/subscriptions_page.dart';
 import 'package:pharmacy_dashboard/layers/presentation/widgets/home_navigator.dart';
 
@@ -23,6 +25,7 @@ class MyRouter {
       {required AuthState authState, required String? currentLocation}) {
     return GoRouter(
       navigatorKey: _rootNavigatorKey,
+      observers: [BotToastNavigatorObserver()],
       initialLocation: currentLocation ?? '/${LoginPage.routeName}',
       redirect: (context, state) {
         bool isNotLoggedIn = GlobalPurposeFunctions.getAccessToken() == null;
@@ -31,11 +34,15 @@ class MyRouter {
           return isInLoginPage ? null : '/${LoginPage.routeName}';
         }
         if (isInLoginPage) {
-          final isUserSuperAdmin =
-              GlobalPurposeFunctions.getAdminModel()!.isSuperAdmin;
+          final adminModel = GlobalPurposeFunctions.getAdminModel()!;
+          final isUserSuperAdmin = adminModel.isSuperAdmin;
+          final userCanAddSubs = adminModel.canAddSubscriptions;
+
           return isUserSuperAdmin
               ? '/${DashboardPage.routeName}'
-              : '/${SubscriptionsPage.routeName}';
+              : userCanAddSubs
+                  ? '/${SubscriptionsPage.routeName}'
+                  : '/${SemestersPage.routeName}';
         }
         return null;
       },
@@ -89,41 +96,53 @@ class MyRouter {
               },
             ),
             GoRoute(
-                name: SubjectsPage.routeName,
-                path: '/${SubjectsPage.routeName}',
-                builder: (context, state) {
-                  GlobalPurposeFunctions.setCurrentPath(state.location);
-                  return SubjectsPage(
-                    semesterId: state.queryParameters['semesterId'] != null
-                        ? int.parse(state.queryParameters['semesterId']!)
-                        : null,
-                  );
-                },
-                routes: [
-                  GoRoute(
-                    name: QuestionBanksPage.routeName,
-                    path: ':subId/${QuestionBanksPage.routeName}',
-                    builder: (context, state) {
-                      GlobalPurposeFunctions.setCurrentPath(state.location);
-                      return QuestionBanksPage(
-                        subjectId: int.parse(state.pathParameters['subId']!),
-                      );
-                    },
-                    routes: [
-                      GoRoute(
-                        name: QuestionsPage.routeName,
-                        path: ':qBankId/${QuestionsPage.routeName}',
-                        builder: (context, state) {
-                          GlobalPurposeFunctions.setCurrentPath(state.location);
-                          return QuestionsPage(
-                            questionBankId:
-                                int.parse(state.pathParameters['qBankId']!),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ]),
+              name: SubjectsPage.routeName,
+              path: '/${SubjectsPage.routeName}',
+              builder: (context, state) {
+                GlobalPurposeFunctions.setCurrentPath(state.location);
+                return SubjectsPage(
+                  semesterId: state.queryParameters['semesterId'] != null
+                      ? int.parse(state.queryParameters['semesterId']!)
+                      : null,
+                );
+              },
+              routes: [
+                GoRoute(
+                  name: QuestionBanksPage.routeName,
+                  path: ':subId/${QuestionBanksPage.routeName}',
+                  builder: (context, state) {
+                    GlobalPurposeFunctions.setCurrentPath(state.location);
+                    return QuestionBanksPage(
+                      subjectId: int.parse(state.pathParameters['subId']!),
+                    );
+                  },
+                  routes: [
+                    GoRoute(
+                      name: QuestionsPage.routeName,
+                      path: ':qBankId/${QuestionsPage.routeName}',
+                      builder: (context, state) {
+                        GlobalPurposeFunctions.setCurrentPath(state.location);
+                        return QuestionsPage(
+                          questionBankId:
+                              int.parse(state.pathParameters['qBankId']!),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                GoRoute(
+                  name: SubjectImagesPage.routeName,
+                  path: ':subId/${SubjectImagesPage.routeName}',
+                  builder: (context, state) {
+                    GlobalPurposeFunctions.setCurrentPath(state.location);
+                    return SubjectImagesPage(
+                      subjectId: int.parse(state.pathParameters['subId']!),
+                      subjectName: state.queryParameters['subject']!,
+                    );
+                  },
+                )
+              ],
+            ),
             GoRoute(
               name: NotificationsPage.routeName,
               path: '/${NotificationsPage.routeName}',

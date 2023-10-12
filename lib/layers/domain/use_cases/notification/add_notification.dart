@@ -25,14 +25,14 @@ class AddNotificationUseCase
 class AddNotificationParams {
   final String title;
   final String body;
-  final Uint8List image;
-  final String imageName;
+  final Uint8List? image;
+  final String? imageName;
 
   AddNotificationParams({
     required this.body,
     required this.title,
-    required this.image,
-    required this.imageName,
+    this.image,
+    this.imageName,
   });
 
   Map<String, String> toMap() {

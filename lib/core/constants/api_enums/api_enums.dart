@@ -8,7 +8,9 @@ enum AdminRole {
 
 enum AdminPermission {
   canAddExcel(1),
-  canAddSubs(2);
+  canAddSubs(2),
+  canAddAds(3),
+  canAddNotifications(4);
 
   final int value;
   const AdminPermission(this.value);

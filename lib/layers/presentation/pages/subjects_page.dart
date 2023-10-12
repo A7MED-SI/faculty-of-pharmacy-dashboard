@@ -53,39 +53,39 @@ class _SubjectsPageState extends State<SubjectsPage> {
         body: BlocConsumer<SubjectBloc, SubjectState>(
           listener: (context, state) {
             if (state.subjectAddingStatus == SubjectAddingStatus.failed) {
-              AppWidgetsDisplayer.dispalyErrorSnackBar(
+              AppWidgetsDisplayer.displayErrorSnackBar(
                 context: context,
                 message: state.errorMessage ??
                     'فشل الإضافة يرجى التحقق من الإتصال من الإنترنت والمحاولة مرة أخرى',
               );
             }
             if (state.subjectAddingStatus == SubjectAddingStatus.success) {
-              AppWidgetsDisplayer.dispalySuccessSnackBar(
+              AppWidgetsDisplayer.displaySuccessSnackBar(
                 context: context,
                 message: 'تمت إضافة المادة بنجاح',
               );
             }
             if (state.subjectUpdatingStatus == SubjectUpdatingStatus.failed) {
-              AppWidgetsDisplayer.dispalyErrorSnackBar(
+              AppWidgetsDisplayer.displayErrorSnackBar(
                 context: context,
                 message: state.errorMessage ??
                     'فشل التعديل يرجى التحقق من الإتصال من الإنترنت والمحاولة مرة أخرى',
               );
             }
             if (state.subjectUpdatingStatus == SubjectUpdatingStatus.success) {
-              AppWidgetsDisplayer.dispalySuccessSnackBar(
+              AppWidgetsDisplayer.displaySuccessSnackBar(
                 context: context,
                 message: 'تم حفظ التعديل بنجاح',
               );
             }
             if (state.subjectDeletingStatus == SubjectDeletingStatus.success) {
-              AppWidgetsDisplayer.dispalySuccessSnackBar(
+              AppWidgetsDisplayer.displaySuccessSnackBar(
                 context: context,
                 message: 'تم حذف المادة بنجاح',
               );
             }
             if (state.subjectDeletingStatus == SubjectDeletingStatus.failed) {
-              AppWidgetsDisplayer.dispalySuccessSnackBar(
+              AppWidgetsDisplayer.displaySuccessSnackBar(
                 context: context,
                 message: state.errorMessage ??
                     'فشل الحذف يرجى التحقق من الإتصال من الإنترنت والمحاولة مرة أخرى',
@@ -93,7 +93,7 @@ class _SubjectsPageState extends State<SubjectsPage> {
             }
             if (state.subjectTogglingActiveStatus ==
                 SubjectTogglingActiveStatus.failed) {
-              AppWidgetsDisplayer.dispalySuccessSnackBar(
+              AppWidgetsDisplayer.displaySuccessSnackBar(
                 context: context,
                 message: state.errorMessage ??
                     'يرجى التحقق من الإتصال من الإنترنت والمحاولة مرة أخرى',
@@ -244,6 +244,8 @@ class _SubjectsPageState extends State<SubjectsPage> {
                             const SizedBox(height: 20),
                             Expanded(
                               child: DataTable2(
+                                isHorizontalScrollBarVisible: true,
+                                minWidth: 550,
                                 empty: Center(
                                   child: Container(
                                     padding: const EdgeInsets.all(20),
@@ -271,7 +273,6 @@ class _SubjectsPageState extends State<SubjectsPage> {
                                     : textTheme.bodySmall?.copyWith(
                                         color: colorScheme.onBackground,
                                       ),
-                                isHorizontalScrollBarVisible: true,
                                 columns: const [
                                   DataColumn(
                                     label: Text('اسم المادة'),

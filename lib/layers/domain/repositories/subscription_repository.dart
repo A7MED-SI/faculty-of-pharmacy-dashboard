@@ -11,4 +11,6 @@ abstract class SubscriptionRepository {
 
   Future<Either<Failure, bool>> deleteSubscription(
       {required int subscriptionId});
+
+  Future<Either<Failure, bool>> makeAsPrinted({required List<int> printedSubs});
 }

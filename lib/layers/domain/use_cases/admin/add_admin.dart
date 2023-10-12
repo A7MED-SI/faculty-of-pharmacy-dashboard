@@ -20,6 +20,8 @@ class AddAdminParams {
   final String password;
   final int canAddQuestionFromExcel;
   final int canAddSubscription;
+  final int canAddAds;
+  final int canAddNotificatons;
 
   AddAdminParams({
     required this.name,
@@ -27,6 +29,8 @@ class AddAdminParams {
     required this.password,
     required this.canAddQuestionFromExcel,
     required this.canAddSubscription,
+    required this.canAddAds,
+    required this.canAddNotificatons,
   });
 
   Map<String, dynamic> toMap() {
@@ -37,6 +41,8 @@ class AddAdminParams {
       'password_confirmation': password,
       'can_add_question_from_excel': canAddQuestionFromExcel.toString(),
       'can_add_subscription': canAddSubscription.toString(),
+      'can_access_ad':canAddAds.toString(),
+      'can_access_notification':canAddNotificatons.toString(),
     };
   }
 }

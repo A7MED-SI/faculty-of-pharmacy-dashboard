@@ -26,6 +26,8 @@ abstract class QuestionRepository {
   });
 
   Future<Either<Failure, bool>> deleteQuestion({required int questionId});
+  
+  Future<Either<Failure, bool>> deleteQuestionList({required List<int> questionIds});
 
   Future<Either<Failure, bool>> addQuestionsFromExel(
       {required int questionBankId, required Uint8List exelFile});

@@ -36,3 +36,17 @@ class QuestionsFromExcelAdded extends QuestionEvent {
 
   QuestionsFromExcelAdded({required this.addQuestionFromExelParams});
 }
+
+class QuestionToggled extends QuestionEvent {
+  final int id;
+
+  QuestionToggled(this.id);
+}
+
+class AllQuestionSelectedPressed extends QuestionEvent {
+  final bool selectionValue;
+
+  AllQuestionSelectedPressed(this.selectionValue);
+}
+
+class SelectedQuestionsDeleted extends QuestionEvent {}

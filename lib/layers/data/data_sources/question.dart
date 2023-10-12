@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -43,6 +44,31 @@ class QuestionDataSource extends Printing with HandlingResponse {
       requestName: 'Delete Question',
     );
     return await deleteApi.callRequest();
+  }
+
+  Future<bool> deleteQuestionList({required List<int> questionIds}) async {
+    final Map<String, dynamic> body = {
+      'question_ids': questionIds,
+    };
+    final request = http.Request('DELETE', ApiUris.deleteQuestionListUri());
+    request.headers.addAll({
+      HttpHeaders.authorizationHeader:
+          "Bearer ${GlobalPurposeFunctions.getAccessToken()}",
+      HttpHeaders.contentTypeHeader: "application/json",
+      HttpHeaders.acceptHeader: "application/json"
+    });
+    request.body = jsonEncode(body);
+    final response = await request.send().timeout(const Duration(seconds: 15));
+    final bodyString = await response.stream.bytesToString();
+    log(bodyString);
+    if (response.statusCode == 200) {
+      return jsonDecode(bodyString)['success'];
+    }
+    Exception exception = getException(
+      statusCode: response.statusCode,
+      errorMessage: jsonDecode(bodyString)['message'],
+    );
+    throw (exception);
   }
 
   Future<Question> addQuestion({

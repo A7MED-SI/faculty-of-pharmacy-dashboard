@@ -40,8 +40,8 @@ class NotificationDataSource extends Printing with HandlingResponse {
 
   Future<NotificationModel> addNotification({
     required Map<String, String> fields,
-    required Uint8List image,
-    required String imageName,
+    Uint8List? image,
+    String? imageName,
   }) async {
     final request = http.MultipartRequest(
       'POST',
@@ -53,11 +53,13 @@ class NotificationDataSource extends Printing with HandlingResponse {
       HttpHeaders.contentTypeHeader: "application/x-www-form-urlencoded",
       HttpHeaders.acceptHeader: "application/json"
     });
-    request.files.add(http.MultipartFile.fromBytes(
-      'image',
-      image,
-      filename: imageName,
-    ));
+    if (image != null) {
+      request.files.add(http.MultipartFile.fromBytes(
+        'image',
+        image,
+        filename: imageName,
+      ));
+    }
     request.fields.addAll(fields);
     // ignore: unused_local_variable
     final response = await request.send();

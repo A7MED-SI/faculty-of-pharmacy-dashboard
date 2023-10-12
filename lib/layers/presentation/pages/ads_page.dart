@@ -50,47 +50,47 @@ class _AdsPageState extends State<AdsPage> {
         body: BlocConsumer<AdsBloc, AdsState>(
           listener: (context, state) {
             if (state.addingAdStatus == AddingAdStatus.failed) {
-              AppWidgetsDisplayer.dispalyErrorSnackBar(
+              AppWidgetsDisplayer.displayErrorSnackBar(
                 context: context,
                 message: state.errorMessage ??
                     'فشل الإضافة يرجى التحقق من الإنترنت والمحاولة لاحقا',
               );
             }
             if (state.addingAdStatus == AddingAdStatus.success) {
-              AppWidgetsDisplayer.dispalySuccessSnackBar(
+              AppWidgetsDisplayer.displaySuccessSnackBar(
                 context: context,
                 message: 'تم إضافة الإعلان بنجاح',
               );
             }
             if (state.deletingAdStatus == DeletingAdStatus.failed) {
-              AppWidgetsDisplayer.dispalyErrorSnackBar(
+              AppWidgetsDisplayer.displayErrorSnackBar(
                 context: context,
                 message: state.errorMessage ??
                     'فشل الحذف يرجى التحقق من الإنترنت والمحاولة لاحقا',
               );
             }
             if (state.deletingAdStatus == DeletingAdStatus.success) {
-              AppWidgetsDisplayer.dispalySuccessSnackBar(
+              AppWidgetsDisplayer.displaySuccessSnackBar(
                 context: context,
                 message: 'تم حذف الإعلان بنجاح',
               );
             }
             if (state.togglingAdStatus == TogglingAdStatus.failed) {
-              AppWidgetsDisplayer.dispalyErrorSnackBar(
+              AppWidgetsDisplayer.displayErrorSnackBar(
                 context: context,
                 message: state.errorMessage ??
                     'يرجى التحقق من الإنترنت والمحاولة لاحقا',
               );
             }
             if (state.updatingAdStatus == UpdatingAdStatus.failed) {
-              AppWidgetsDisplayer.dispalyErrorSnackBar(
+              AppWidgetsDisplayer.displayErrorSnackBar(
                 context: context,
                 message: state.errorMessage ??
                     'فشل التعديل يرجى التحقق من الإنترنت والمحاولة لاحقا',
               );
             }
             if (state.updatingAdStatus == UpdatingAdStatus.success) {
-              AppWidgetsDisplayer.dispalySuccessSnackBar(
+              AppWidgetsDisplayer.displaySuccessSnackBar(
                 context: context,
                 message: 'تم تعديل الإعلان بنجاح',
               );

@@ -13,6 +13,7 @@ import 'package:pharmacy_dashboard/layers/presentation/AppWidgetsDisplayer.dart'
 import 'package:pharmacy_dashboard/layers/presentation/blocs/question_bank/question_bank_bloc.dart';
 import 'package:pharmacy_dashboard/layers/presentation/blocs/question_bank_card/question_bank_card_bloc.dart';
 import 'package:pharmacy_dashboard/layers/presentation/pages/questions_page.dart';
+import 'package:pharmacy_dashboard/layers/presentation/pages/subject_images_page.dart';
 import 'package:pharmacy_dashboard/layers/presentation/pages/subjects_page.dart';
 import 'package:pharmacy_dashboard/layers/presentation/widgets/app_error_widget.dart';
 import 'package:pharmacy_dashboard/layers/presentation/widgets/app_text_button.dart';
@@ -62,7 +63,7 @@ class _QuestionBanksPageState extends State<QuestionBanksPage> {
             listener: (context, state) {
               if (state.questionBankAddingStatus ==
                   QuestionBankAddingStatus.failed) {
-                AppWidgetsDisplayer.dispalyErrorSnackBar(
+                AppWidgetsDisplayer.displayErrorSnackBar(
                   context: context,
                   message: state.errorMessage ??
                       'فشل الإضافة يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى',
@@ -70,14 +71,14 @@ class _QuestionBanksPageState extends State<QuestionBanksPage> {
               }
               if (state.questionBankAddingStatus ==
                   QuestionBankAddingStatus.success) {
-                AppWidgetsDisplayer.dispalySuccessSnackBar(
+                AppWidgetsDisplayer.displaySuccessSnackBar(
                   context: context,
                   message: 'تم إضافة الإمتحان بنجاح',
                 );
               }
               if (state.questionBankUpdatingStatus ==
                   QuestionBankUpdatingStatus.failed) {
-                AppWidgetsDisplayer.dispalyErrorSnackBar(
+                AppWidgetsDisplayer.displayErrorSnackBar(
                   context: context,
                   message: state.errorMessage ??
                       'فشل التعديل يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى',
@@ -85,14 +86,14 @@ class _QuestionBanksPageState extends State<QuestionBanksPage> {
               }
               if (state.questionBankUpdatingStatus ==
                   QuestionBankUpdatingStatus.success) {
-                AppWidgetsDisplayer.dispalySuccessSnackBar(
+                AppWidgetsDisplayer.displaySuccessSnackBar(
                   context: context,
                   message: 'تم تعديل الإمتحان بنجاح',
                 );
               }
               if (state.questionBankDeletingStatus ==
                   QuestionBankDeletingStatus.failed) {
-                AppWidgetsDisplayer.dispalyErrorSnackBar(
+                AppWidgetsDisplayer.displayErrorSnackBar(
                   context: context,
                   message: state.errorMessage ??
                       'فشل الحذف يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى',
@@ -100,7 +101,7 @@ class _QuestionBanksPageState extends State<QuestionBanksPage> {
               }
               if (state.questionBankDeletingStatus ==
                   QuestionBankDeletingStatus.success) {
-                AppWidgetsDisplayer.dispalySuccessSnackBar(
+                AppWidgetsDisplayer.displaySuccessSnackBar(
                   context: context,
                   message: 'تم حذف الإمتحان بنجاح',
                 );
@@ -137,19 +138,33 @@ class _QuestionBanksPageState extends State<QuestionBanksPage> {
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  AppTextButton(
-                                    onPressed: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          return _AddUpdateQuestionBankDialog(
-                                            questionBankBloc: _questionBankBloc,
-                                            subjectId: state.subject!.id,
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      AppTextButton(
+                                        onPressed: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              return _AddUpdateQuestionBankDialog(
+                                                questionBankBloc:
+                                                    _questionBankBloc,
+                                                subjectId: state.subject!.id,
+                                              );
+                                            },
                                           );
                                         },
-                                      );
-                                    },
-                                    text: 'إضافة امتحان',
+                                        text: 'إضافة امتحان',
+                                      ),
+                                      const SizedBox(width: 10),
+                                      AppTextButton(
+                                        onPressed: () {
+                                          context.go(
+                                              '/${SubjectsPage.routeName}/${state.subject!.id}/${SubjectImagesPage.routeName}?subject=${state.subject!.title}');
+                                        },
+                                        text: 'صور المادة',
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
@@ -276,7 +291,7 @@ class _QuestionBankCardState extends State<_QuestionBankCard> {
     return BlocConsumer<QuestionBankCardBloc, QuestionBankCardState>(
       listener: (context, state) {
         if (state.togglingStatus == TogglingStatus.failed) {
-          AppWidgetsDisplayer.dispalyErrorSnackBar(
+          AppWidgetsDisplayer.displayErrorSnackBar(
             context: context,
             message: state.errorMessage ??
                 'يرجى التحقق من الاتصال بالإنترنت والمحاولة مرة أخرى',

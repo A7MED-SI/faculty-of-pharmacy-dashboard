@@ -27,9 +27,12 @@ class Subscription {
   final String subCode;
   final int? period;
   @JsonKey(name: 'start_date')
-  final DateTime? startDate;
+  final String? startDate;
   @JsonKey(name: 'end_date')
-  final DateTime? endDate;
+  final String? endDate;
+  @JsonKey(
+      name: 'created_at', fromJson: _createAtFromJson, toJson: _createAtToJson)
+  final DateTime createdAt;
   @JsonKey(name: 'user_id')
   final int? userId;
   @JsonKey(name: 'subscriptionable_id')
@@ -38,6 +41,8 @@ class Subscription {
   final int subscriptionableType;
   @JsonKey(name: 'is_active')
   final bool isActive;
+  @JsonKey(name: 'is_printed')
+  final int isPrinted;
   final User? user;
 
   Subscription({
@@ -51,7 +56,17 @@ class Subscription {
     required this.subscriptionableType,
     required this.isActive,
     required this.user,
+    required this.isPrinted,
+    required this.createdAt,
   });
+
+  static DateTime _createAtFromJson(String formattedString) {
+    return DateTime.parse(formattedString);
+  }
+
+  static String _createAtToJson(DateTime date) {
+    return date.toIso8601String();
+  }
 
   factory Subscription.fromJson(Map<String, dynamic> json) {
     return _$SubscriptionFromJson(json);

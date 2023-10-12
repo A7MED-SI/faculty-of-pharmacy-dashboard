@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pharmacy_dashboard/core/global_functions/global_purpose_functions.dart';
+import 'package:pharmacy_dashboard/layers/data/models/login_response/login_response.dart';
 import 'package:pharmacy_dashboard/layers/presentation/pages/admins_page.dart';
 import 'package:pharmacy_dashboard/layers/presentation/pages/ads_page.dart';
 import 'package:pharmacy_dashboard/layers/presentation/pages/dashboard_page.dart';
@@ -25,7 +26,22 @@ class ListDrawer extends StatefulWidget {
 }
 
 class _ListDrawerState extends State<ListDrawer> {
-  final isUserSuperAdmin = GlobalPurposeFunctions.getAdminModel()!.isSuperAdmin;
+  late final bool isUserSuperAdmin;
+  late final bool userCanAddSubs;
+  late final bool userCanAddNotifications;
+  late final bool userCanAddAds;
+  late final Admin adminModel;
+
+  @override
+  void initState() {
+    super.initState();
+    adminModel = GlobalPurposeFunctions.getAdminModel()!;
+    isUserSuperAdmin = adminModel.isSuperAdmin;
+    userCanAddSubs = adminModel.canAddSubscriptions;
+    userCanAddAds = adminModel.canAddAds;
+    userCanAddNotifications = adminModel.canAddNotifications;
+  }
+
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
@@ -85,7 +101,7 @@ class _ListDrawerState extends State<ListDrawer> {
                       Scaffold.of(context).closeDrawer();
                     },
                   ),
-                if (isUserSuperAdmin)
+                if (isUserSuperAdmin || userCanAddSubs)
                   DrawerTile(
                     icon: const SvgImage(
                       SvgImages.qr,
@@ -151,38 +167,40 @@ class _ListDrawerState extends State<ListDrawer> {
                     Scaffold.of(context).closeDrawer();
                   },
                 ),
-                DrawerTile(
-                  icon: const SvgImage(
-                    SvgImages.notificationBell,
-                    height: 20,
+                if (isUserSuperAdmin || userCanAddNotifications)
+                  DrawerTile(
+                    icon: const SvgImage(
+                      SvgImages.notificationBell,
+                      height: 20,
+                    ),
+                    title: 'الإشعارات',
+                    selected: isTileSelected(
+                        selectedIndex: state.selectedIndex,
+                        tabsNumber: TabsNumber.notificationPage),
+                    onTap: () {
+                      context.read<HomeBloc>().add(PageIndexChanged(
+                          selectedPageIndex(TabsNumber.notificationPage)));
+                      context.goNamed(NotificationsPage.routeName);
+                      Scaffold.of(context).closeDrawer();
+                    },
                   ),
-                  title: 'الإشعارات',
-                  selected: isTileSelected(
-                      selectedIndex: state.selectedIndex,
-                      tabsNumber: TabsNumber.notificationPage),
-                  onTap: () {
-                    context.read<HomeBloc>().add(PageIndexChanged(
-                        selectedPageIndex(TabsNumber.notificationPage)));
-                    context.goNamed(NotificationsPage.routeName);
-                    Scaffold.of(context).closeDrawer();
-                  },
-                ),
-                DrawerTile(
-                  icon: const SvgImage(
-                    SvgImages.ads,
-                    height: 20,
+                if (isUserSuperAdmin || userCanAddAds)
+                  DrawerTile(
+                    icon: const SvgImage(
+                      SvgImages.ads,
+                      height: 20,
+                    ),
+                    title: 'الإعلانات',
+                    selected: isTileSelected(
+                        selectedIndex: state.selectedIndex,
+                        tabsNumber: TabsNumber.adsPage),
+                    onTap: () {
+                      context.read<HomeBloc>().add(PageIndexChanged(
+                          selectedPageIndex(TabsNumber.adsPage)));
+                      context.goNamed(AdsPage.routeName);
+                      Scaffold.of(context).closeDrawer();
+                    },
                   ),
-                  title: 'الإعلانات',
-                  selected: isTileSelected(
-                      selectedIndex: state.selectedIndex,
-                      tabsNumber: TabsNumber.adsPage),
-                  onTap: () {
-                    context.read<HomeBloc>().add(PageIndexChanged(
-                        selectedPageIndex(TabsNumber.adsPage)));
-                    context.goNamed(AdsPage.routeName);
-                    Scaffold.of(context).closeDrawer();
-                  },
-                ),
                 DrawerTile(
                   icon: const SvgImage(
                     SvgImages.logout,
@@ -200,6 +218,7 @@ class _ListDrawerState extends State<ListDrawer> {
                       },
                     );
                     if (result != null && result) {
+                      await GlobalPurposeFunctions.setCurrentPath('');
                       authBloc.add(LogoutSubmitted());
                     }
                   },
@@ -217,14 +236,54 @@ class _ListDrawerState extends State<ListDrawer> {
     if (isUserSuperAdmin) {
       return selectedIndex == tabsNumber.order;
     }
-    return selectedIndex == tabsNumber.order - 3;
+    if (userCanAddSubs) {
+      if (selectedIndex == 0) {
+        return selectedIndex == tabsNumber.order - 1;
+      }
+      if (selectedIndex < 3) {
+        return selectedIndex == tabsNumber.order - 2;
+      }
+      if (userCanAddNotifications) {
+        return selectedIndex == tabsNumber.order - 2;
+      }
+      return selectedIndex == tabsNumber.order - 3;
+    } else {
+      if (selectedIndex < 2) {
+        return selectedIndex == tabsNumber.order - 3;
+      }
+      if (userCanAddNotifications) {
+        return selectedIndex == tabsNumber.order - 3;
+      }
+      return selectedIndex == tabsNumber.order - 4;
+    }
   }
 
   int selectedPageIndex(TabsNumber tabsNumber) {
     if (isUserSuperAdmin) {
       return tabsNumber.order;
     }
-    return tabsNumber.order - 3;
+    if (userCanAddSubs) {
+      if (tabsNumber.order == TabsNumber.subscriptionPage.order) {
+        return 0;
+      }
+      if (tabsNumber.order == TabsNumber.semestersPage.order ||
+          tabsNumber.order == TabsNumber.subjectsPage.order) {
+        return tabsNumber.order - 2;
+      }
+      if (userCanAddNotifications) {
+        return tabsNumber.order - 2;
+      }
+      return tabsNumber.order - 3;
+    } else {
+      if (tabsNumber.order == TabsNumber.semestersPage.order ||
+          tabsNumber.order == TabsNumber.subjectsPage.order) {
+        return tabsNumber.order - 3;
+      }
+      if (userCanAddNotifications) {
+        return tabsNumber.order - 3;
+      }
+      return tabsNumber.order - 4;
+    }
   }
 }
 

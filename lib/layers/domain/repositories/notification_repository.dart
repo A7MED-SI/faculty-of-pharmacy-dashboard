@@ -11,8 +11,8 @@ abstract class NotificationRepository {
 
   Future<Either<Failure, NotificationModel>> addNotification({
     required Map<String, String> params,
-    required Uint8List image,
-    required String imageName,
+    Uint8List? image,
+    String? imageName,
   });
 
   Future<Either<Failure, NotificationModel>> showNotification(
