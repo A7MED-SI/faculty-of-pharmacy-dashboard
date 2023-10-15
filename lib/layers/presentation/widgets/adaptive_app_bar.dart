@@ -22,7 +22,7 @@ class AdaptiveAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       centerTitle: true,
       title: SelectableText(
-        "Do It Right",
+        "Omega",
         style: textTheme.bodyLarge?.copyWith(
           color: colorScheme.secondary,
           fontWeight: FontWeight.bold,

@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
                 currentLocation: currentPath == '' ? null : currentPath,
               ),
               builder: BotToastInit(),
-              title: 'DO IT RIGHT',
+              title: 'Omega Dashboard',
               debugShowCheckedModeBanner: false,
               theme: ThemeData(
                 useMaterial3: false,

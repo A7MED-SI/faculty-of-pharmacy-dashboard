@@ -11,7 +11,7 @@ class ImagesPdfApi {
     required String subjectName,
   }) async {
     final pdf = pw.Document();
-    var data = await rootBundle.load("fonts/arial.ttf");
+    var data = await rootBundle.load("assets/assets/fonts/arial.ttf");
     var myFont = pw.Font.ttf(data);
     pw.Widget buildTable(List<SubjectImage> images) {
       const tableHeaders = ['Image Title', 'ID'];
@@ -72,7 +72,6 @@ class ImagesPdfApi {
         ];
       },
     ));
-
     final bytes = await pdf.save();
 
     PdfApi.download(downloadName: '$subjectName.pdf', bytes: bytes);

@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:bot_toast/bot_toast.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:file_picker/_internal/file_picker_web.dart';
 import 'package:file_picker/file_picker.dart';
@@ -141,10 +142,12 @@ class _SubjectImagesPageState extends State<SubjectImagesPage> {
                                 if (state.images.isNotEmpty)
                                   AppTextButton(
                                     onPressed: () async {
+                                      BotToast.showLoading();
                                       await ImagesPdfApi.generateThenDownload(
                                         images: state.images,
                                         subjectName: widget.subjectName,
                                       );
+                                      BotToast.closeAllLoading();
                                     },
                                     text: 'تحميل كملف',
                                   )
@@ -165,7 +168,7 @@ class _SubjectImagesPageState extends State<SubjectImagesPage> {
                                             horizontal: 12, vertical: 20),
                                         sliver: SliverGrid.count(
                                           crossAxisCount: isDesktop ? 6 : 2,
-                                          childAspectRatio: 1.6,
+                                          childAspectRatio: 1.4,
                                           crossAxisSpacing: 2,
                                           mainAxisSpacing: 6,
                                           children: [
@@ -533,14 +536,18 @@ class _AdImageDialogState extends State<_AdImageDialog> {
                                         image: imageNotifier.value,
                                         imageId: widget.image!.id,
                                         imageName: 'image.$imageExtension',
-                                        title: titleController.text,
+                                        title: titleController.text.isEmpty
+                                            ? null
+                                            : titleController.text,
                                       )))
                                     : widget.imageBloc.add(ImageAdded(
                                         addImageParams: AddImageParams(
                                         image: imageNotifier.value!,
                                         imageName: 'image.$imageExtension',
                                         subjectId: widget.subjectId,
-                                        title: titleController.text,
+                                        title: titleController.text.isEmpty
+                                            ? null
+                                            : titleController.text,
                                       )));
                                 context.pop();
                               },

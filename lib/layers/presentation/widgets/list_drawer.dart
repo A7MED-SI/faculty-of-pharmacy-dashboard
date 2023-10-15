@@ -54,7 +54,7 @@ class _ListDrawerState extends State<ListDrawer> {
               children: [
                 const SizedBox(height: 12),
                 Text(
-                  'DO IT RIGHT',
+                  'Omega',
                   style: textTheme.bodyLarge?.copyWith(
                     color: colorScheme.secondary,
                     fontWeight: FontWeight.bold,
