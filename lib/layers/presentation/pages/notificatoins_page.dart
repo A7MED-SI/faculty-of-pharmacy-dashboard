@@ -20,6 +20,7 @@ import '../../../core/layout/adaptive.dart';
 import '../../domain/use_cases/notification/add_notification.dart';
 import '../widgets/app_elevated_button.dart';
 import '../widgets/app_text_button.dart';
+import '../widgets/delete_confirmation_dialog.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
@@ -79,6 +80,21 @@ class _NotificationsPageState extends State<NotificationsPage> {
               AppWidgetsDisplayer.displaySuccessSnackBar(
                 context: context,
                 message: 'تم إرسال الإشعار بنجاح',
+              );
+            }
+            if (state.deletingNotificationStatus ==
+                DeletingNotificationStatus.failed) {
+              AppWidgetsDisplayer.displayErrorSnackBar(
+                context: context,
+                message: state.errorMessage ??
+                    'فشل الحذف يرجى التحقق من الإنترنت والمحاولة مرة أخرى',
+              );
+            }
+            if (state.deletingNotificationStatus ==
+                DeletingNotificationStatus.success) {
+              AppWidgetsDisplayer.displaySuccessSnackBar(
+                context: context,
+                message: 'تم حذف الإشعار بنجاح',
               );
             }
           },
@@ -262,43 +278,72 @@ class NotificationTableDataSource extends DataTableSource {
           ),
         )),
         DataCell(
-          notifications[index % perPageNumber].image != null ?ElevatedButton(
-            onPressed: () {
-              js.context.callMethod(
-                  'open', [notifications[index % perPageNumber].image]);
-            },
-            style: ButtonStyle(
-                backgroundColor: MaterialStatePropertyAll(colorScheme.primary),
-                shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15)))),
-            child: Text(
-              'فتح الصورة',
-              style: textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onPrimary,
-              ),
-            ),
-          ) : Container(),
+          notifications[index % perPageNumber].image != null
+              ? ElevatedButton(
+                  onPressed: () {
+                    js.context.callMethod(
+                        'open', [notifications[index % perPageNumber].image]);
+                  },
+                  style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStatePropertyAll(colorScheme.primary),
+                      shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15)))),
+                  child: Text(
+                    'فتح الصورة',
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onPrimary,
+                    ),
+                  ),
+                )
+              : Container(),
         ),
         DataCell(
-          TextButton(
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return _SendNotificationDialog(
-                    notificationBloc: notificationBloc,
-                    notification: notifications[index % perPageNumber],
-                  );
-                },
-              );
+          PopupMenuButton<String>(
+            padding: EdgeInsets.zero,
+            tooltip: 'خيارات',
+            onSelected: (value) async {
+              if (value == 'resend') {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return _SendNotificationDialog(
+                      notificationBloc: notificationBloc,
+                      notification: notifications[index % perPageNumber],
+                    );
+                  },
+                );
+              } else {
+                final result = await showDialog<bool?>(
+                  context: context,
+                  builder: (context) {
+                    return const DeleteConfirmationDialog(
+                      text: 'هل أنت متأكد أنك تريد حذف هذا الإشعار؟',
+                    );
+                  },
+                );
+                if (result != null && result) {
+                  notificationBloc.add(NotificationDeleted(
+                      notificationId: notifications[index % perPageNumber].id));
+                }
+              }
             },
-            child: Text(
-              'إعادة إرسال',
-              style: textTheme.bodyMedium?.copyWith(
-                color: colorScheme.primary,
-                fontWeight: FontWeight.bold,
+            splashRadius: 30,
+            itemBuilder: (context) => <PopupMenuItem<String>>[
+              const PopupMenuItem<String>(
+                value: 'resend',
+                child: Text(
+                  'إعادة إرسال',
+                ),
               ),
-            ),
+              const PopupMenuItem<String>(
+                value: 'delete',
+                child: Text(
+                  'حذف',
+                ),
+              ),
+            ],
+            child: const Icon(Icons.more_vert_outlined),
           ),
         ),
       ],

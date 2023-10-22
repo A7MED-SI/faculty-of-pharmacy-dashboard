@@ -14,3 +14,9 @@ class NotificationAdded extends NotificationEvent {
 
   NotificationAdded({required this.addNotificationParams});
 }
+
+class NotificationDeleted extends NotificationEvent {
+  final int notificationId;
+
+  NotificationDeleted({required this.notificationId});
+}

@@ -33,11 +33,17 @@ class StatisticsNumbers {
   final int newSubscribeInSubject;
   @JsonKey(name: 'new_subscribe_in_semester')
   final int newSubscribeInSemester;
+  @JsonKey(name: 'from_date')
+  final String fromDate;
+  @JsonKey(name: 'to_date')
+  final String toDate;
 
   StatisticsNumbers({
     required this.newUser,
     required this.newSubscribeInSubject,
     required this.newSubscribeInSemester,
+    required this.fromDate,
+    required this.toDate,
   });
 
   factory StatisticsNumbers.fromJson(Map<String, dynamic> json) {

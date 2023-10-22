@@ -10,8 +10,13 @@ class ImagesPdfApi {
     required List<SubjectImage> images,
     required String subjectName,
   }) async {
+    images.sort(
+      (a, b) {
+        return b.id.compareTo(a.id);
+      },
+    );
     final pdf = pw.Document();
-    var data = await rootBundle.load("assets/assets/fonts/arial.ttf");
+    var data = await rootBundle.load("assets/fonts/arial.ttf");
     var myFont = pw.Font.ttf(data);
     pw.Widget buildTable(List<SubjectImage> images) {
       const tableHeaders = ['Image Title', 'ID'];

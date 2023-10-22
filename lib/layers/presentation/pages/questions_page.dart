@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:html';
 import 'dart:typed_data';
 import 'dart:js' as js;
@@ -8,6 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:go_router/go_router.dart';
 import 'package:oktoast/oktoast.dart';
+import 'package:pharmacy_dashboard/core/constants/api/api_urls.dart';
 import 'package:pharmacy_dashboard/core/constants/api_enums/api_enums.dart';
 import 'package:pharmacy_dashboard/core/global_functions/global_purpose_functions.dart';
 import 'package:pharmacy_dashboard/layers/data/models/question/question.dart';
@@ -220,8 +222,9 @@ class _QuestionsPageState extends State<QuestionsPage> {
                                               const SizedBox(width: 10),
                                               AppTextButton(
                                                 onPressed: () {
-                                                  downloadFile(
-                                                      '/assets/files/questions_table.xlsx');
+                                                  downloadFile(ApiUris
+                                                          .downloadExcelTemplateUri()
+                                                      .toString());
                                                 },
                                                 text: 'تحميل الجدول',
                                               ),
@@ -368,6 +371,7 @@ class _QuestionsPageState extends State<QuestionsPage> {
   }
 
   void downloadFile(String url) {
+    log(url);
     final anchorElement = AnchorElement(href: url);
     anchorElement.download = 'questions_template';
     anchorElement.click();

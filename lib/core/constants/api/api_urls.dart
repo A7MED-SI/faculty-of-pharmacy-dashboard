@@ -235,6 +235,12 @@ class ApiUris {
     );
   }
 
+  static Uri downloadExcelTemplateUri() {
+    return _mainUri(
+      path: '${_questionApi}downloadExcelTemplate',
+    );
+  }
+
   //Notification
   static Uri getNotificationsUri({Map<String, dynamic>? queryParams}) {
     return _mainUri(

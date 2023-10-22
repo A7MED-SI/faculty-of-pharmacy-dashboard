@@ -28,6 +28,8 @@ StatisticsNumbers _$StatisticsNumbersFromJson(Map<String, dynamic> json) =>
       newUser: json['new_user'] as int,
       newSubscribeInSubject: json['new_subscribe_in_subject'] as int,
       newSubscribeInSemester: json['new_subscribe_in_semester'] as int,
+      fromDate: json['from_date'] as String,
+      toDate: json['to_date'] as String,
     );
 
 Map<String, dynamic> _$StatisticsNumbersToJson(StatisticsNumbers instance) =>
@@ -35,4 +37,6 @@ Map<String, dynamic> _$StatisticsNumbersToJson(StatisticsNumbers instance) =>
       'new_user': instance.newUser,
       'new_subscribe_in_subject': instance.newSubscribeInSubject,
       'new_subscribe_in_semester': instance.newSubscribeInSemester,
+      'from_date': instance.fromDate,
+      'to_date': instance.toDate,
     };

@@ -105,7 +105,7 @@ class _StatisticsCardsLayoutState extends State<StatisticsCardsLayout> {
                     items: const [
                       DropdownMenuItem(
                         value: 0,
-                        child: Text('اخر 30 يوم'),
+                        child: Text('الشهر الحالي'),
                       ),
                       DropdownMenuItem(
                         value: 1,
@@ -144,6 +144,14 @@ class _StatisticsCardsLayoutState extends State<StatisticsCardsLayout> {
                   ),
                 ),
               ],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.only(right: 10),
+            child: Text(
+              'من تاريخ ${widget.statisticsNumbers.fromDate} إلى تاريخ ${widget.statisticsNumbers.toDate}',
+              style: textTheme.bodyLarge,
             ),
           ),
           isDesktop
